@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "go run",
+            "command": "go run .",
+            "type": "shell",
+            "args": [],
+            "problemMatcher": ["$tsc"],
+            "icon": {
+                "id": "rocket"
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "test"
+        },
+        {
+            "label": "tidy",
+            "command": "go mod tidy",
+            "args": [],
+            "problemMatcher": ["$tsc"],
+            "icon": {
+                "id": "build"
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "none"
+        }
+    ]
+}
