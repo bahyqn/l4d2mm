@@ -18,6 +18,7 @@
         {
             "label": "tidy",
             "command": "go mod tidy",
+            "type": "shell",
             "args": [],
             "problemMatcher": ["$tsc"],
             "icon": {
