@@ -42,6 +42,7 @@ func forloopAside(app *internal.App) []gui.View {
 
 	for idx, el := range taside {
 		tmp = append(tmp, gui.Button(gui.ButtonCfg{
+			ID:     el.name,
 			HAlign: gui.Some(gui.HAlignLeft),
 			VAlign: gui.Some(gui.VAlignMiddle),
 			Sizing: gui.FillFit,

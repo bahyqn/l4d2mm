@@ -1,6 +1,7 @@
 package components
 
 import (
+	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
 	"l4d2mm/internal/theme"
 
@@ -22,7 +23,10 @@ var DefaultSelectConfig = map[string]gui.SelectCfg{
 		ColorBorderFocus: gui.RGBA(0, 0, 0, 90),
 		Radius:           gui.SomeF(6),
 		SizeBorder:       gui.SomeF(1),
-		Padding:          gui.Some(gui.NewPadding(6, 10, 6, 10)),
+		// v0.51.0
+		Padding: gui.Some(gui.NewPadding(6, 10, 6, 10)),
+		// v0.61.0
+		// Padding: gui.NewPadding(6, 10, 6, 10),
 		TextStyle: gui.TextStyle{
 			Size:  10,
 			Color: gui.RGBA(150, 150, 150, 255),
@@ -32,6 +36,7 @@ var DefaultSelectConfig = map[string]gui.SelectCfg{
 			Color: gui.RGB(150, 150, 150),
 		},
 		ColorFocus: theme.DefaultLightGNOME().WindowBackground,
+		// v0.51.0
 		SubheadingStyle: gui.TextStyle{
 			Color: gui.RGBA(150, 150, 150, 255),
 		},
@@ -39,13 +44,14 @@ var DefaultSelectConfig = map[string]gui.SelectCfg{
 	},
 }
 
-func Select(key string, selectConfig schema.TemplateSelect) gui.View {
-	cfg, ok := DefaultSelectConfig[key]
+func Select(maxWidth float32, selectConfig schema.TemplateSelect) gui.View {
+	cfg, ok := DefaultSelectConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
 		panic("Invalid select style key")
 	}
 
+	cfg.MaxWidth = maxWidth
 	cfg.ID = selectConfig.ID
 	cfg.Placeholder = selectConfig.Options[0]
 	cfg.Selected = selectConfig.Selected

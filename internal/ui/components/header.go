@@ -1,7 +1,6 @@
 package components
 
 import (
-	"fmt"
 	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
 
@@ -13,19 +12,27 @@ func ModsHeader() gui.View {
 		Sizing:  gui.FillFit,
 		Padding: gui.NoPadding,
 		Content: []gui.View{
-			Input("gnome", internal.GLOBALAPP.ComponentStatus.ModsSearchValue),
-			Select("gnome", schema.TemplateSelect{
+			ButtonChooseFolder(),
+			Input(internal.GLOBALAPP.ComponentStatus.ModsSearchValue),
+			Select(100, schema.TemplateSelect{
 				ID:       "select",
 				Selected: internal.GLOBALAPP.ComponentStatus.SelectedSubLabel,
 				Options:  internal.GLOBALAPP.ComponentStatus.SubLabels,
 				OnSelectFunc: func(s []string, e *gui.Event, w *gui.Window) {
 					internal.GLOBALAPP.ComponentStatus.SelectedSubLabel = s
-
-					fmt.Printf("%v", internal.GLOBALAPP.ComponentStatus.SelectedSubLabel)
+					// fmt.Printf("%v", internal.GLOBALAPP.ComponentStatus.SelectedSubLabel)
 				},
 			}),
 			// VerticalSpacer(),
-			ButtonChooseFolder("gnome"),
+			Select(70, schema.TemplateSelect{
+				ID:       "mod-pagination",
+				Selected: internal.GLOBALAPP.ComponentStatus.PageEnd,
+				Options:  internal.GLOBALAPP.DynamicPageSelect(),
+				OnSelectFunc: func(s []string, e *gui.Event, w *gui.Window) {
+					internal.GLOBALAPP.ComponentStatus.PageEnd = s
+					internal.GLOBALAPP.DynamicMods()
+				},
+			}),
 		},
 	})
 }

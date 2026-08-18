@@ -2,6 +2,7 @@ package internal
 
 import (
 	"l4d2mm/internal/schema"
+	"strconv"
 
 	"github.com/go-gui-org/go-gui/gui"
 )
@@ -37,11 +38,16 @@ func NewApp() *App {
 			Categories:       []string{""},
 			SubLabels:        []string{"Fireaxe", "Katana"},
 			SelectedSubLabel: []string{"Fireaxe"},
+
+			ModsBySelectIdx: []schema.Mod{},
+			PageEnd:         []string{""},
 		},
 		AppConfig: schema.AppConfig{
 			Width:      700,
 			Height:     500,
 			AsideWidth: 130,
+
+			Theme: "gnome",
 		},
 	}
 	return GLOBALAPP
@@ -74,4 +80,46 @@ func (app *App) ButtonColorChoice(cidx int, color1 gui.Color, color2 gui.Color) 
 		return color1
 	}
 	return color2
+}
+
+func (app *App) DynamicPageSelect() []string {
+	modLen := len(app.DI.Vpk.Mods)
+	if modLen == 0 {
+		return []string{""}
+	}
+
+	t := make([]string, 0, modLen/50+1)
+
+	for i := 50; i < modLen; i += 50 {
+		t = append(t, strconv.Itoa(i))
+	}
+
+	if (modLen % 50) > 0 {
+		t = append(t, strconv.Itoa(modLen))
+	}
+
+	if app.ComponentStatus.PageEnd[0] == "" {
+		app.ComponentStatus.PageEnd = t[:1]
+
+		app.DynamicMods()
+	}
+
+	return t
+}
+
+func (app *App) DynamicMods() {
+
+	idx, err := strconv.Atoi(GLOBALAPP.ComponentStatus.PageEnd[0])
+
+	if err != nil {
+		panic("xxxxxxxxxxxxx")
+	}
+
+	startIdx := idx % 50
+
+	if startIdx == 0 {
+		GLOBALAPP.ComponentStatus.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-50 : idx]
+	} else {
+		GLOBALAPP.ComponentStatus.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-startIdx : idx]
+	}
 }

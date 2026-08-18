@@ -12,8 +12,8 @@ import (
 var DefaultInputConfig = map[string]gui.InputCfg{
 	"gnome": {
 		ID:          "mods-searchinput",
-		Width:       150,
-		MaxWidth:    150,
+		Width:       120,
+		MaxWidth:    120,
 		Height:      26,
 		MaxHeight:   26,
 		Sizing:      gui.FillFill,
@@ -44,8 +44,8 @@ var DefaultInputConfig = map[string]gui.InputCfg{
 	},
 }
 
-func Input(key string, text string) gui.View {
-	cfg, ok := DefaultInputConfig[key]
+func Input(text string) gui.View {
+	cfg, ok := DefaultInputConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
 		panic("invalid input style key")

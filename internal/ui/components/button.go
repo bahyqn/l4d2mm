@@ -1,13 +1,12 @@
 package components
 
 import (
-	"fmt"
 	"l4d2mm/internal"
 	"l4d2mm/internal/theme"
 
 	"github.com/go-gui-org/go-gui/gui"
 )
-
+ 
 var DefaultButtonConfig = map[string]gui.ButtonCfg{
 	"gnome": {
 		HAlign: gui.Some(gui.HAlignCenter),
@@ -16,10 +15,12 @@ var DefaultButtonConfig = map[string]gui.ButtonCfg{
 		Width:  25,
 		Height: 25,
 
-		Color:       theme.DefaultLightGNOME().ButtonDefault,
+		Color: theme.DefaultLightGNOME().ButtonDefault,
+		// v0.51.0
 		ColorBorder: theme.DefaultLightGNOME().BorderColor,
-		SizeBorder:  gui.NoBorder,
-		ColorHover:  theme.DefaultLightGNOME().ButtonActive,
+		// v0.51.0
+		ColorHover: theme.DefaultLightGNOME().ButtonActive,
+		SizeBorder: gui.NoBorder,
 		// Padding:     gui.NoPadding,
 		Radius: gui.SomeF(8),
 		Content: []gui.View{
@@ -33,23 +34,30 @@ var DefaultButtonConfig = map[string]gui.ButtonCfg{
 	},
 }
 
-func Button(k string, clickFunc func(w *gui.Window)) gui.View {
-	cfg, ok := DefaultButtonConfig[k]
+func Button(bthID string, clickFunc func(w *gui.Window)) gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
 		panic("Invalid select style key")
 	}
 
+	cfg.ID = bthID
+	// v0.51.0
 	cfg.OnClick = func(l *gui.Layout, e *gui.Event, w *gui.Window) {
 		clickFunc(w)
 	}
+	// v0.61.0
+	// cfg.OnClick = func(ec gui.EventCtx) {
+	// 	clickFunc(ec.Window)
+	// }
 	return gui.Button(cfg)
 }
 
 func chooseFolder(w *gui.Window) {
 	w.NativeFolderDialog(gui.NativeFolderDialogCfg{
-		Title:    "Select Folder",
-		StartDir: "",
+		Title: "Select Folder",
+		// v0.51.0
+		// StartDir: "",
 		OnDone: func(ndr gui.NativeDialogResult, w *gui.Window) {
 			if ndr.Status != gui.DialogOK {
 				return
@@ -66,21 +74,25 @@ func chooseFolder(w *gui.Window) {
 			vpk := internal.GLOBALAPP.DI.Vpk
 
 			vpk.SetupPath(folder)
-
-			fmt.Println("Selected folder:", folder)
 		},
 	})
 }
 
-func ButtonChooseFolder(k string) gui.View {
-	cfg, ok := DefaultButtonConfig[k]
+func ButtonChooseFolder() gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
 		panic("Invalid select style key")
 	}
 
+	cfg.ID = "choose-addons-dir"
+	// v0.51.0
 	cfg.OnClick = func(l *gui.Layout, e *gui.Event, w *gui.Window) {
 		chooseFolder(w)
 	}
+	// v0.61.0
+	// cfg.OnClick = func(ec gui.EventCtx) {
+	// 	chooseFolder(ec.Window)
+	// }
 	return gui.Button(cfg)
 }

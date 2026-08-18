@@ -12,6 +12,9 @@ type ComponentStatus struct {
 	SelecCtedategoryLabel string   // Such as: map, weapon, ..., you  can pick one
 	SubLabels             []string // Dynamic generate. Such as: fireaxe, katana, ...
 	SelectedSubLabel      []string // Such as: you pick the melee first, labels will disaplay: fireaxe, katana, ... (you just can pick one)
+
+	ModsBySelectIdx []Mod
+	PageEnd         []string
 }
 
 type TemplateSelect struct {
@@ -27,6 +30,8 @@ type AppConfig struct {
 	Width      float32
 	Height     float32
 	AsideWidth float32
+
+	Theme string
 }
 
 type Mod struct {

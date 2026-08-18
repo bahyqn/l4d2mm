@@ -3,7 +3,6 @@ module l4d2mm
 go 1.26.4
 
 require (
-	github.com/NublyBR/go-vpk v0.0.0-20240806023734-25ff2ef0976b
 	github.com/go-gui-org/go-gui v0.51.0
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.2

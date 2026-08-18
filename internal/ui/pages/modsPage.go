@@ -128,13 +128,13 @@ func ModsView() gui.View {
 }
 
 func renderCards() []gui.View {
-	fakeData()
+	// fakeData()
 
 	t := []gui.View{}
 
-	if len(internal.GLOBALAPP.DI.Vpk.Mods) > 0 {
-		for idx, item := range internal.GLOBALAPP.DI.Vpk.Mods {
-			if idx > 70 {
+	if len(internal.GLOBALAPP.ComponentStatus.ModsBySelectIdx) > 0 {
+		for idx, item := range internal.GLOBALAPP.ComponentStatus.ModsBySelectIdx {
+			if idx >= 50 {
 				break
 			}
 			t = append(t, components.ModCard(item))
@@ -146,7 +146,7 @@ func renderCards() []gui.View {
 
 func fakeData() {
 	for i := 0; i < 100; i++ {
-		internal.GLOBALAPP.DI.Vpk.Mods = append(internal.GLOBALAPP.DI.Vpk.Mods, schema.Mod{
+		internal.GLOBALAPP.ComponentStatus.ModsBySelectIdx = append(internal.GLOBALAPP.ComponentStatus.ModsBySelectIdx, schema.Mod{
 			Id: strconv.Itoa(i),
 		})
 	}
