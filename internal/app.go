@@ -39,6 +39,7 @@ func NewApp() *App {
 			SubLabels:        []string{"Fireaxe", "Katana"},
 			SelectedSubLabel: []string{"Fireaxe"},
 
+			PageSize:        30,
 			ModsBySelectIdx: []schema.Mod{},
 			PageEnd:         []string{""},
 		},
@@ -88,13 +89,13 @@ func (app *App) DynamicPageSelect() []string {
 		return []string{""}
 	}
 
-	t := make([]string, 0, modLen/50+1)
+	t := make([]string, 0, modLen/app.ComponentStatus.PageSize+1)
 
-	for i := 50; i < modLen; i += 50 {
+	for i := app.ComponentStatus.PageSize; i < modLen; i += app.ComponentStatus.PageSize {
 		t = append(t, strconv.Itoa(i))
 	}
 
-	if (modLen % 50) > 0 {
+	if (modLen % app.ComponentStatus.PageSize) > 0 {
 		t = append(t, strconv.Itoa(modLen))
 	}
 
@@ -115,10 +116,10 @@ func (app *App) DynamicMods() {
 		panic("xxxxxxxxxxxxx")
 	}
 
-	startIdx := idx % 50
+	startIdx := idx % app.ComponentStatus.PageSize
 
 	if startIdx == 0 {
-		GLOBALAPP.ComponentStatus.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-50 : idx]
+		GLOBALAPP.ComponentStatus.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-app.ComponentStatus.PageSize : idx]
 	} else {
 		GLOBALAPP.ComponentStatus.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-startIdx : idx]
 	}

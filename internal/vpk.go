@@ -4,11 +4,20 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"l4d2mm/internal/schema"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
+
+	"github.com/NublyBR/go-vpk"
+)
+
+const (
+	localModsPath    = "addons"
+	workshopModsPath = "addons/workshop"
 )
 
 var maxWrokers = runtime.NumCPU() * 2
@@ -49,8 +58,8 @@ func (vp *Vpk) SetupPath(ppath string) {
 
 		return
 	}
-	vp.AddonsDir = filepath.Join(vp.ppath, "addons")
-	vp.WorkshopDir = filepath.Join(vp.ppath, "addons/workshop")
+	vp.AddonsDir = filepath.Join(vp.ppath, localModsPath)
+	vp.WorkshopDir = filepath.Join(vp.ppath, workshopModsPath)
 
 	// fmt.Println("addonlist.txt: ", vp.Addonlist)
 	// fmt.Println("addonsDir: ", vp.AddonsDir)
@@ -62,12 +71,67 @@ func (vp *Vpk) SetupPath(ppath string) {
 func (vp *Vpk) VerificationPath(ppath string) bool {
 	_, err := os.Stat(ppath)
 
-	fmt.Println("ppath: ", ppath)
+	// fmt.Println("ppath: ", ppath)
 
 	if err == nil {
 		return true
 	}
 	return false
+}
+
+func (vp *Vpk) ReadVpkInfo(mod *schema.Mod) {
+	var absPath = ""
+
+	if mod.IsFromWorkshop {
+		absPath = filepath.Join(vp.ppath, workshopModsPath, mod.Id+".vpk")
+	} else {
+		absPath = filepath.Join(vp.ppath, localModsPath+".vpk")
+	}
+
+	pak, err := vpk.OpenAny(absPath)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer pak.Close()
+
+	for idx, file := range pak.Entries() {
+		fmt.Printf("%d: %s \n", idx, file.Filename())
+
+		if file.Filename() == "addoninfo.txt" {
+			reader, err := file.Open()
+
+			if err != nil {
+				fmt.Println("Failed to open addoninfo.txt")
+				continue
+			}
+
+			content, err := io.ReadAll(reader)
+			reader.Close()
+
+			if err != nil {
+				fmt.Println("err: ", err)
+			}
+
+			fmt.Println(string(content))
+			fmt.Println()
+		}
+	}
+}
+
+func (vp *Vpk) DisableMod(mod *schema.Mod) {
+	endIdx, err := strconv.Atoi(GLOBALAPP.ComponentStatus.PageEnd[0])
+
+	if err != nil {
+		panic("pageEnd[0] to int went wrong.")
+	}
+
+	for i := endIdx - 30; i <= endIdx; i++ {
+		if vp.Mods[i].Id == mod.Id {
+			vp.Mods[i].IsEnable = !vp.Mods[i].IsEnable
+		}
+	}
 }
 
 func (vp *Vpk) ReadAllVpk(ppath string) {

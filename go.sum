@@ -1,3 +1,5 @@
+github.com/NublyBR/go-vpk v0.0.0-20240806023734-25ff2ef0976b h1:rtfvfFa+PPwseUhohIO3dE3PPVrSyMK918yiiiDu8FY=
+github.com/NublyBR/go-vpk v0.0.0-20240806023734-25ff2ef0976b/go.mod h1:bKkLG1OoSAlGpkY/NvnavzvV+xIpQDn4rTggf/jkDwQ=
 github.com/alecthomas/assert/v2 v2.11.0 h1:2Q9r3ki8+JYXvGsDyBXwH3LcJ+WK5D0gc5E8vS6K3D0=
 github.com/alecthomas/assert/v2 v2.11.0/go.mod h1:Bze95FyfUr7x34QZrjL+XP+0qgp/zg8yS+TtBj1WA3k=
 github.com/alecthomas/chroma/v2 v2.26.1 h1:2X21EdxGZNv5GF9mG5u+uzc02GCFyGxbcBm3Grd9A78=

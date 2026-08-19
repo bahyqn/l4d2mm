@@ -13,6 +13,7 @@ type ComponentStatus struct {
 	SubLabels             []string // Dynamic generate. Such as: fireaxe, katana, ...
 	SelectedSubLabel      []string // Such as: you pick the melee first, labels will disaplay: fireaxe, katana, ... (you just can pick one)
 
+	PageSize        int
 	ModsBySelectIdx []Mod
 	PageEnd         []string
 }

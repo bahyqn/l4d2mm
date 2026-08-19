@@ -9,94 +9,6 @@ import (
 	"github.com/go-gui-org/go-gui/gui"
 )
 
-func ModsView1() gui.View {
-	return gui.Column(gui.ContainerCfg{
-		// Width:     internal.GLOBALAPP.AppConfig.Width - internal.GLOBALAPP.AppConfig.AsideWidth - 1,
-		// MaxWidth:  internal.GLOBALAPP.AppConfig.Width - internal.GLOBALAPP.AppConfig.AsideWidth - 1,
-		// Height:    internal.GLOBALAPP.AppConfig.Height,
-		// MaxHeight: internal.GLOBALAPP.AppConfig.Height,
-		Spacing: gui.SomeF(1),
-
-		Sizing: gui.FillFill,
-		// Padding: gui.NoPadding,
-		Content: []gui.View{
-			components.ModsHeader(),
-			components.HorizontalGap(7, gui.FillFixed),
-			components.HDivider(1),
-			components.HorizontalGap(5, gui.FillFixed),
-			gui.Wrap(gui.ContainerCfg{
-				ID:         "mods",
-				Sizing:     gui.FillFill,
-				Spacing:    gui.SomeF(13),
-				Scrollable: true,
-				ScrollMode: gui.ScrollVerticalOnly,
-				Content: []gui.View{
-					// gui.Button(gui.ButtonCfg{
-					// 	Width:  150,
-					// 	Height: 100,
-					// }),
-					gui.Button(gui.ButtonCfg{
-						Width:  300,
-						Height: 150,
-					}),
-					gui.Button(gui.ButtonCfg{
-						Width:  300,
-						Height: 150,
-					}),
-					gui.Button(gui.ButtonCfg{
-						Width:  300,
-						Height: 150,
-					}),
-					gui.Button(gui.ButtonCfg{
-						Width:  300,
-						Height: 150,
-					}),
-					gui.Button(gui.ButtonCfg{
-						Width:  300,
-						Height: 150,
-					}),
-					gui.Button(gui.ButtonCfg{
-						Width:  300,
-						Height: 150,
-					}),
-					gui.Button(gui.ButtonCfg{
-						Width:  300,
-						Height: 150,
-					}),
-					gui.Button(gui.ButtonCfg{
-						Width:  300,
-						Height: 150,
-					}),
-					gui.Button(gui.ButtonCfg{
-						Width:  300,
-						Height: 150,
-					}),
-					gui.Button(gui.ButtonCfg{
-						Width:  300,
-						Height: 150,
-					}),
-					gui.Button(gui.ButtonCfg{
-						Width:  300,
-						Height: 150,
-					}),
-					gui.Button(gui.ButtonCfg{
-						Width:  300,
-						Height: 150,
-					}),
-					gui.Button(gui.ButtonCfg{
-						Width:  300,
-						Height: 150,
-					}),
-					gui.Button(gui.ButtonCfg{
-						Width:  300,
-						Height: 150,
-					}),
-				},
-			}),
-		},
-	})
-}
-
 func ModsView() gui.View {
 	return gui.Column(gui.ContainerCfg{
 		// Width:     internal.GLOBALAPP.AppConfig.Width - internal.GLOBALAPP.AppConfig.AsideWidth - 1,
@@ -114,11 +26,12 @@ func ModsView() gui.View {
 			components.HorizontalGap(5, gui.FillFixed),
 
 			gui.Wrap(gui.ContainerCfg{
-				ID:         "mods",
+				ID:         "mods-wrap",
 				Sizing:     gui.FillFill,
 				Spacing:    gui.SomeF(16),
 				Scrollable: true,
 				ScrollMode: gui.ScrollVerticalOnly,
+				Overflow:   true,
 				// Wrap:       true,
 				// Overflow:   true,
 				Content: renderCards(),
@@ -128,15 +41,17 @@ func ModsView() gui.View {
 }
 
 func renderCards() []gui.View {
+	// Uncomment this to mock data
 	// fakeData()
 
 	t := []gui.View{}
 
 	if len(internal.GLOBALAPP.ComponentStatus.ModsBySelectIdx) > 0 {
-		for idx, item := range internal.GLOBALAPP.ComponentStatus.ModsBySelectIdx {
-			if idx >= 50 {
-				break
-			}
+		for _, item := range internal.GLOBALAPP.ComponentStatus.ModsBySelectIdx {
+			// Control the number of elements rendered on the page 
+			// if idx >= 50 {
+			// 	break
+			// }
 			t = append(t, components.ModCard(item))
 		}
 	}

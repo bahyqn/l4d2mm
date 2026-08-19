@@ -9,6 +9,7 @@ require (
 )
 
 require (
+	github.com/NublyBR/go-vpk v0.0.0-20240806023734-25ff2ef0976b
 	github.com/alecthomas/chroma/v2 v2.26.1 // indirect
 	github.com/dlclark/regexp2/v2 v2.2.2 // indirect
 	github.com/ebitengine/purego v0.10.1 // indirect
