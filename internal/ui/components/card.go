@@ -1,6 +1,7 @@
 package components
 
 import (
+	"fmt"
 	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
 	"l4d2mm/internal/theme"
@@ -65,7 +66,7 @@ func ModCard(mod schema.Mod) gui.View {
 						// ColorBorder: theme.DefaultLightGNOME().BorderColor,
 
 						// Padding:    gui.NoPadding,
-						Padding: gui.SomeP(5, 10, 5, 10),
+						Padding: gui.NewPadding(5, 10, 5, 10),
 						// Spacing:    gui.NoSpacing,
 						Spacing:    gui.SomeF(2),
 						SizeBorder: gui.NoBorder,
@@ -110,7 +111,7 @@ func ModCard(mod schema.Mod) gui.View {
 						Height:    20,
 						MaxHeight: 20,
 						// Padding:    gui.NoPadding,
-						Padding:    gui.SomeP(0, 10, 0, 10),
+						Padding:    gui.NewPadding(0, 10, 0, 10),
 						SizeBorder: gui.NoBorder,
 						// Button()
 						// Color: gui.RGBA(0, 0, 0, 30),
@@ -121,8 +122,9 @@ func ModCard(mod schema.Mod) gui.View {
 							gui.Switch(gui.SwitchCfg{
 								ID:       "mod-switch-" + mod.Id,
 								Selected: mod.IsEnable,
-								OnClick: func(l *gui.Layout, e *gui.Event, w *gui.Window) {
+								OnClick: func(ec gui.EventCtx) {
 									internal.GLOBALAPP.DI.Vpk.DisableMod(&mod)
+									fmt.Println("mod isEnable: ", mod.IsEnable)
 								},
 							}),
 						},

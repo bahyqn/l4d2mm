@@ -18,9 +18,8 @@ func ModsHeader() gui.View {
 				ID:       "select",
 				Selected: internal.GLOBALAPP.ComponentStatus.SelectedSubLabel,
 				Options:  internal.GLOBALAPP.ComponentStatus.SubLabels,
-				OnSelectFunc: func(s []string, e *gui.Event, w *gui.Window) {
+				OnSelectFunc: func(s []string, ec gui.EventCtx) {
 					internal.GLOBALAPP.ComponentStatus.SelectedSubLabel = s
-					// fmt.Printf("%v", internal.GLOBALAPP.ComponentStatus.SelectedSubLabel)
 				},
 			}),
 			// VerticalSpacer(),
@@ -28,7 +27,7 @@ func ModsHeader() gui.View {
 				ID:       "mod-pagination",
 				Selected: internal.GLOBALAPP.ComponentStatus.PageEnd,
 				Options:  internal.GLOBALAPP.DynamicPageSelect(),
-				OnSelectFunc: func(s []string, e *gui.Event, w *gui.Window) {
+				OnSelectFunc: func(s []string, ec gui.EventCtx) {
 					internal.GLOBALAPP.ComponentStatus.PageEnd = s
 					internal.GLOBALAPP.DynamicMods()
 				},

@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 
 	"github.com/NublyBR/go-vpk"
@@ -121,17 +120,7 @@ func (vp *Vpk) ReadVpkInfo(mod *schema.Mod) {
 }
 
 func (vp *Vpk) DisableMod(mod *schema.Mod) {
-	endIdx, err := strconv.Atoi(GLOBALAPP.ComponentStatus.PageEnd[0])
-
-	if err != nil {
-		panic("pageEnd[0] to int went wrong.")
-	}
-
-	for i := endIdx - 30; i <= endIdx; i++ {
-		if vp.Mods[i].Id == mod.Id {
-			vp.Mods[i].IsEnable = !vp.Mods[i].IsEnable
-		}
-	}
+	vp.Mods[mod.Idx].IsEnable = !vp.Mods[mod.Idx].IsEnable
 }
 
 func (vp *Vpk) ReadAllVpk(ppath string) {
@@ -152,10 +141,12 @@ func (vp *Vpk) ReadAllVpk(ppath string) {
 		panic(err)
 	}
 
-	for _, p := range tvpks {
+	for idx, p := range tvpks {
 		// 1xxxxx.vpk
 		vp.Mods = append(vp.Mods, schema.Mod{
+			Idx:            idx,
 			Id:             strings.Split(filepath.Base(p), ".")[0],
+			IsEnable:       true,
 			IsFromWorkshop: true,
 		})
 	}

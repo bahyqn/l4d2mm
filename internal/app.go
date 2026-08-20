@@ -39,7 +39,7 @@ func NewApp() *App {
 			SubLabels:        []string{"Fireaxe", "Katana"},
 			SelectedSubLabel: []string{"Fireaxe"},
 
-			PageSize:        30,
+			PageSize:        50,
 			ModsBySelectIdx: []schema.Mod{},
 			PageEnd:         []string{""},
 		},

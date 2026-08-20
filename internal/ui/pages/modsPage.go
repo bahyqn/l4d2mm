@@ -27,11 +27,11 @@ func ModsView() gui.View {
 
 			gui.Wrap(gui.ContainerCfg{
 				ID:         "mods-wrap",
-				Sizing:     gui.FillFill,
+				Sizing:     gui.FitFill,
 				Spacing:    gui.SomeF(16),
 				Scrollable: true,
 				ScrollMode: gui.ScrollVerticalOnly,
-				Overflow:   true,
+				Overflow:   false,
 				// Wrap:       true,
 				// Overflow:   true,
 				Content: renderCards(),
@@ -48,7 +48,7 @@ func renderCards() []gui.View {
 
 	if len(internal.GLOBALAPP.ComponentStatus.ModsBySelectIdx) > 0 {
 		for _, item := range internal.GLOBALAPP.ComponentStatus.ModsBySelectIdx {
-			// Control the number of elements rendered on the page 
+			// Control the number of elements rendered on the page
 			// if idx >= 50 {
 			// 	break
 			// }

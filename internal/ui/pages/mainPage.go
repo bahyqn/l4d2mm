@@ -49,14 +49,17 @@ func forloopAside(app *internal.App) []gui.View {
 			Height: 35,
 			// Color:       gui.RGBA(0, 0, 0, 13),
 			// Color:       gui.RGBA(53, 132, 228, 255),
-			Color:       app.ButtonColorChoice(idx, theme.DefaultLightGNOME().ButtonActive, theme.DefaultLightGNOME().ButtonDefault),
-			ColorBorder: theme.DefaultLightGNOME().BorderColor,
-			SizeBorder:  gui.NoBorder,
-			ColorHover:  theme.DefaultLightGNOME().BorderColor,
-			Padding:     gui.Some(gui.NewPadding(8, 22, 8, 20)),
-			Radius:      gui.SomeF(8),
-			OnClick: func(l *gui.Layout, e *gui.Event, w *gui.Window) {
-				e.IsHandled = true
+			Color: app.ButtonColorChoice(idx, theme.DefaultLightGNOME().ButtonActive, theme.DefaultLightGNOME().ButtonDefault),
+			Colors: gui.ColorSet{
+				Base:   app.ButtonColorChoice(idx, theme.DefaultLightGNOME().ButtonActive, theme.DefaultLightGNOME().ButtonDefault),
+				Border: theme.DefaultLightGNOME().BorderColor,
+				Hover:  theme.DefaultLightGNOME().BorderColor,
+			},
+			SizeBorder: gui.NoBorder,
+			Padding:    gui.NewPadding(8, 22, 8, 20),
+			Radius:     gui.SomeF(8),
+			OnClick: func(ec gui.EventCtx) {
+				ec.Event.IsHandled = true
 				app.SetAsideIdx(idx)
 			},
 			Content: []gui.View{
@@ -90,7 +93,7 @@ func AsideView() gui.View {
 		// Height:   float32(internal.GLOBALAPP.AppConfig.Height),
 		// 5,5,5,5
 		// Padding:  gui.Some(gui.PaddingSmall),
-		Padding: gui.SomeP(9, 5, 9, 5),
+		Padding: gui.NewPadding(9, 5, 9, 5),
 		Radius:  gui.NoRadius,
 		Spacing: gui.SomeF(5),
 		// Color:       gui.RGBA(255, 255, 255, 255),

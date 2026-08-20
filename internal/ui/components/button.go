@@ -16,13 +16,15 @@ var DefaultButtonConfig = map[string]gui.ButtonCfg{
 		Width:  25,
 		Height: 25,
 
-		Color:      theme.DefaultLightGNOME().ButtonDefault,
-		ColorClick: theme.DefaultLightGNOME().ButtonActive,
-		// v0.51.0
-		ColorBorder: theme.DefaultLightGNOME().BorderColor,
-		// v0.51.0
-		ColorHover: theme.DefaultLightGNOME().ButtonHover,
-		ColorFocus: theme.DefaultLightGNOME().ButtonActive,
+		// Color: theme.DefaultLightGNOME().ButtonDefault,
+		Colors: gui.ColorSet{
+			Base:   theme.DefaultLightGNOME().ButtonDefault,
+			Border: theme.DefaultLightGNOME().BorderColor,
+			Click:  theme.DefaultLightGNOME().ButtonActive,
+			Focus:  theme.DefaultLightGNOME().ButtonActive,
+			Hover:  theme.DefaultLightGNOME().ButtonHover,
+		},
+
 		SizeBorder: gui.NoBorder,
 		// Padding:     gui.NoPadding,
 		Radius:  gui.SomeF(8),
@@ -38,14 +40,10 @@ func Button(bthID string, clickFunc func(w *gui.Window)) gui.View {
 	}
 
 	cfg.ID = bthID
-	// v0.51.0
-	cfg.OnClick = func(l *gui.Layout, e *gui.Event, w *gui.Window) {
-		clickFunc(w)
+	cfg.OnClick = func(ec gui.EventCtx) {
+		clickFunc(ec.Window)
 	}
-	// v0.61.0
-	// cfg.OnClick = func(ec gui.EventCtx) {
-	// 	clickFunc(ec.Window)
-	// }
+
 	return gui.Button(cfg)
 }
 
@@ -78,8 +76,6 @@ func ButtonWithIconText(cfg *gui.ButtonCfg, bthID string, iconName string, text 
 func chooseFolder(w *gui.Window) {
 	w.NativeFolderDialog(gui.NativeFolderDialogCfg{
 		Title: "Select Folder",
-		// v0.51.0
-		// StartDir: "",
 		OnDone: func(ndr gui.NativeDialogResult, w *gui.Window) {
 			if ndr.Status != gui.DialogOK {
 				return
@@ -109,14 +105,9 @@ func ButtonChooseFolder() gui.View {
 
 	ButtonWithIcon(&cfg, "choose-addons-dir", "folder_open.svg")
 
-	// v0.51.0
-	cfg.OnClick = func(l *gui.Layout, e *gui.Event, w *gui.Window) {
-		chooseFolder(w)
+	cfg.OnClick = func(ec gui.EventCtx) {
+		chooseFolder(ec.Window)
 	}
-	// v0.61.0
-	// cfg.OnClick = func(ec gui.EventCtx) {
-	// 	chooseFolder(ec.Window)
-	// }
 	return gui.Button(cfg)
 }
 
@@ -129,10 +120,9 @@ func ButtonShowModInfo(mod *schema.Mod) gui.View {
 
 	ButtonWithIcon(&cfg, "bth-show-mod-info-"+mod.Id, "file_save.svg")
 
-	// cfg.ID = "bth-show-mod-info-" + mod.Id
 
-	cfg.OnClick = func(l *gui.Layout, e *gui.Event, w *gui.Window) {
-		e.IsHandled = true
+	cfg.OnClick = func(ec gui.EventCtx) {
+		ec.Event.IsHandled = true
 		internal.GLOBALAPP.DI.Vpk.ReadVpkInfo(mod)
 	}
 	return gui.Button(cfg)
@@ -147,8 +137,8 @@ func ButtonDisableMod(mod *schema.Mod) gui.View {
 
 	ButtonWithIcon(&cfg, "bth-disable-mod-"+mod.Id, "block.svg")
 
-	cfg.OnClick = func(l *gui.Layout, e *gui.Event, w *gui.Window) {
-		e.IsHandled = true
+	cfg.OnClick = func(ec gui.EventCtx) {
+		ec.Event.IsHandled = true
 		// internal.GLOBALAPP.DI.Vpk.ReadVpkInfo(mod)
 	}
 	return gui.Button(cfg)
@@ -163,9 +153,8 @@ func ButtonDeleteMod(mod *schema.Mod) gui.View {
 
 	ButtonWithIcon(&cfg, "bth-delete-mod-"+mod.Id, "delete.svg")
 
-	cfg.OnClick = func(l *gui.Layout, e *gui.Event, w *gui.Window) {
-		e.IsHandled = true
-		// internal.GLOBALAPP.DI.Vpk.ReadVpkInfo(mod)
+	cfg.OnClick = func(ec gui.EventCtx) {
+		ec.Event.IsHandled = true
 	}
 	return gui.Button(cfg)
 }

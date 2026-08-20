@@ -24,7 +24,7 @@ var DefaultSelectConfig = map[string]gui.SelectCfg{
 		Radius:           gui.SomeF(6),
 		SizeBorder:       gui.SomeF(1),
 		// v0.51.0
-		Padding: gui.Some(gui.NewPadding(6, 10, 6, 10)),
+		Padding: gui.NewPadding(6, 10, 6, 10),
 		// v0.61.0
 		// Padding: gui.NewPadding(6, 10, 6, 10),
 		TextStyle: gui.TextStyle{

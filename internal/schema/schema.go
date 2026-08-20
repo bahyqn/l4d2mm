@@ -23,7 +23,7 @@ type TemplateSelect struct {
 	Placeholder  string
 	Selected     []string
 	Options      []string
-	OnSelectFunc func(s []string, e *gui.Event, w *gui.Window)
+	OnSelectFunc func([]string, gui.EventCtx)
 }
 
 type AppConfig struct {
@@ -36,6 +36,7 @@ type AppConfig struct {
 }
 
 type Mod struct {
+	Idx            int    `gorm:"-"`
 	Id             string `gorm:"column:id"`
 	Name           string `gorm:"column:name"`
 	Category       string `gorm:"column:category"`

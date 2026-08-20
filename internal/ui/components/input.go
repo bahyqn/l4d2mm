@@ -18,7 +18,6 @@ var DefaultInputConfig = map[string]gui.InputCfg{
 		MaxHeight:   26,
 		Sizing:      gui.FillFill,
 		Placeholder: "Search mods...",
-		Mode:        gui.InputSingleLine,
 		SpellCheck:  true,
 
 		Color:            theme.DefaultLightGNOME().ViewBackground,
@@ -27,7 +26,7 @@ var DefaultInputConfig = map[string]gui.InputCfg{
 		ColorBorderFocus: gui.RGBA(0, 0, 0, 90),
 		Radius:           gui.SomeF(6),
 		SizeBorder:       gui.SomeF(1),
-		Padding:          gui.Some(gui.NewPadding(6, 10, 6, 10)),
+		Padding:          gui.NewPadding(6, 10, 6, 10),
 
 		TextStyle: gui.TextStyle{
 			Size:  10,
@@ -37,7 +36,7 @@ var DefaultInputConfig = map[string]gui.InputCfg{
 			Size:  10,
 			Color: gui.RGB(150, 150, 150),
 		},
-		OnTextChanged: func(l *gui.Layout, s string, w *gui.Window) {
+		OnTextChanged: func(s string, ec gui.EventCtx) {
 			internal.GLOBALAPP.ComponentStatus.ModsSearchValue = s
 			fmt.Println(s)
 		},
