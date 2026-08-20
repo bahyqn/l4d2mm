@@ -25,10 +25,11 @@ var DefaultButtonConfig = map[string]gui.ButtonCfg{
 			Hover:  theme.DefaultLightGNOME().ButtonHover,
 		},
 
-		SizeBorder: gui.NoBorder,
+		Padding: gui.NewPadding(3, 3, 3, 3),
 		// Padding:     gui.NoPadding,
-		Radius:  gui.SomeF(8),
-		Content: []gui.View{},
+		SizeBorder: gui.NoBorder,
+		Radius:     gui.SomeF(8),
+		Content:    []gui.View{},
 	},
 }
 
@@ -100,7 +101,7 @@ func ButtonChooseFolder() gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("Invalid select style key")
+		panic("[Button chooseFolder]Invalid select style key")
 	}
 
 	ButtonWithIcon(&cfg, "choose-addons-dir", "folder_open.svg")
@@ -115,11 +116,10 @@ func ButtonShowModInfo(mod *schema.Mod) gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("Invalid select style key")
+		panic("[Button save addoninfo]Invalid select style key")
 	}
 
 	ButtonWithIcon(&cfg, "bth-show-mod-info-"+mod.Id, "file_save.svg")
-
 
 	cfg.OnClick = func(ec gui.EventCtx) {
 		ec.Event.IsHandled = true
@@ -132,7 +132,7 @@ func ButtonDisableMod(mod *schema.Mod) gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("Invalid select style key")
+		panic("[Button disable mod]Invalid select style key")
 	}
 
 	ButtonWithIcon(&cfg, "bth-disable-mod-"+mod.Id, "block.svg")
@@ -148,7 +148,7 @@ func ButtonDeleteMod(mod *schema.Mod) gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("Invalid select style key")
+		panic("[Button delete Mod]Invalid select style key")
 	}
 
 	ButtonWithIcon(&cfg, "bth-delete-mod-"+mod.Id, "delete.svg")

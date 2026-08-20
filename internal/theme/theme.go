@@ -18,15 +18,15 @@ type GNOMETheme struct {
 // DefaultLightGNOME returns a standard GNOME light theme RGBA color instance.
 func DefaultLightGNOME() GNOMETheme {
 	return GNOMETheme{
-		WindowBackground: gui.RGBA(250, 250, 250, 255),
-		ViewBackground:   gui.RGBA(255, 255, 255, 255),
-		BorderColor:      gui.RGBA(0, 0, 0, 20), // Approx. 0.08 opacity
-		ButtonDefault:    gui.RGBA(0, 0, 0, 0),  // Default transparent (blends into sidebar)
-		ButtonHover:      gui.RGBA(0, 0, 0, 13), // Approx. 5% light gray for hover
+		WindowBackground: gui.RGBA(250, 250, 250, 255), // rgba(250, 250, 250, 1)
+		ViewBackground:   gui.RGBA(255, 255, 255, 255), // rgba(255, 255, 255, 1)
+		BorderColor:      gui.RGBA(0, 0, 0, 20),        // rgba(0, 0, 0, 0.08) Approx. 0.08 opacity
+		ButtonDefault:    gui.RGBA(0, 0, 0, 0),         // rgba(0,0,0,0) Default transparent (blends into sidebar)
+		ButtonHover:      gui.RGBA(0, 0, 0, 13),        // rgba(0,0,0, 0.05) Approx. 5% light gray for hover
 		// ButtonActive:     gui.RGBA(0, 0, 0, 38),       // Gray color block for active/selected state
-		ButtonActive: gui.RGBA(0, 0, 0, 30),       // Gray color block for active/selected state
-		TextPrimary:  gui.RGBA(0, 0, 0, 255),      // Pure black
-		TextDim:      gui.RGBA(94, 94, 94, 255),   // `#5e5e5e`
-		AccentBlue:   gui.RGBA(53, 132, 228, 255), // `#3584e4`
+		ButtonActive: gui.RGBA(0, 0, 0, 30),       // rgba(0,0,0, 0.12)  Gray color block for active/selected state
+		TextPrimary:  gui.RGBA(0, 0, 0, 255),      // rgba(0,0,0, 1) Pure black
+		TextDim:      gui.RGBA(94, 94, 94, 255),   // rgba(94,94,94, 1) `#5e5e5e`
+		AccentBlue:   gui.RGBA(53, 132, 228, 255), // rgba(53, 132, 228, 1) `#3584e4`
 	}
 }

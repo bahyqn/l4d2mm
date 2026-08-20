@@ -1,7 +1,6 @@
 package components
 
 import (
-	"fmt"
 	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
 	"l4d2mm/internal/theme"
@@ -27,7 +26,7 @@ func ModCard(mod schema.Mod) gui.View {
 		Padding:      gui.NoPadding,
 		Spacing:      gui.NoSpacing,
 		Sizing:       gui.FitFit,
-		Radius:       gui.SomeF(18),
+		Radius:       gui.SomeF(12),
 		ClipContents: true,
 		// ClipContents: true,
 		ColorBorder: theme.DefaultLightGNOME().BorderColor,
@@ -106,6 +105,7 @@ func ModCard(mod schema.Mod) gui.View {
 					}),
 					// buttons
 					gui.Row(gui.ContainerCfg{
+						VAlign:    gui.VAlignMiddle,
 						Width:     cardWidth,
 						MaxWidth:  cardWidth,
 						Height:    20,
@@ -116,17 +116,18 @@ func ModCard(mod schema.Mod) gui.View {
 						// Button()
 						// Color: gui.RGBA(0, 0, 0, 30),
 						Content: []gui.View{
+							// gui.Switch(gui.SwitchCfg{
+							// 	ID:       "mod-switch-" + mod.Id,
+							// 	Selected: mod.IsEnable,
+							// 	OnClick: func(ec gui.EventCtx) {
+							// 		internal.GLOBALAPP.DI.Vpk.DisableMod(&mod)
+							// 		fmt.Println("mod isEnable: ", mod.IsEnable)
+							// 	},
+							// }),
+							SwitchDsiableMod(&mod),
 							ButtonShowModInfo(&mod),
-							ButtonDisableMod(&mod),
+							// ButtonDisableMod(&mod),
 							ButtonDeleteMod(&mod),
-							gui.Switch(gui.SwitchCfg{
-								ID:       "mod-switch-" + mod.Id,
-								Selected: mod.IsEnable,
-								OnClick: func(ec gui.EventCtx) {
-									internal.GLOBALAPP.DI.Vpk.DisableMod(&mod)
-									fmt.Println("mod isEnable: ", mod.IsEnable)
-								},
-							}),
 						},
 					}),
 				},

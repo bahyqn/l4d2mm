@@ -48,7 +48,7 @@ func Select(maxWidth float32, selectConfig schema.TemplateSelect) gui.View {
 	cfg, ok := DefaultSelectConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("Invalid select style key")
+		panic("[Select] Invalid select style key")
 	}
 
 	cfg.MaxWidth = maxWidth
