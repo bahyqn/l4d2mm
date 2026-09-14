@@ -1,15 +1,16 @@
 module l4d2mm
 
-go 1.26.4
+go 1.27.1
 
 require (
+	github.com/bahyqn/vvdf v0.6.0
+	github.com/bahyqn/vvpk v0.4.0
 	github.com/go-gui-org/go-gui v0.63.0
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.2
 )
 
 require (
-	github.com/NublyBR/go-vpk v0.0.0-20240806023734-25ff2ef0976b
 	github.com/alecthomas/chroma/v2 v2.27.0 // indirect
 	github.com/dlclark/regexp2/v2 v2.2.2 // indirect
 	github.com/ebitengine/purego v0.10.2 // indirect

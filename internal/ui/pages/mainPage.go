@@ -19,11 +19,15 @@ var taside = []AsideItem{
 	},
 	{
 		name: "Workshop",
-		icon: "build.svg",
+		icon: "shopping_cart.svg",
 	},
 	{
 		name: "Download",
 		icon: "download.svg",
+	},
+	{
+		name: "Tools",
+		icon: "build.svg",
 	},
 	{
 		name: "Servers",
@@ -121,8 +125,10 @@ func MainView() gui.View {
 	case 2:
 		tmp = DownloadView()
 	case 3:
-		tmp = ServersView()
+		tmp = ToolsView()
 	case 4:
+		tmp = ServersView()
+	case 5:
 		tmp = SettingsView()
 
 	}

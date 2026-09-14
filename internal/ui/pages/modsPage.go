@@ -52,6 +52,7 @@ func renderCards() []gui.View {
 			// if idx >= 50 {
 			// 	break
 			// }
+			// fmt.Printf("%+v\n", item)
 			t = append(t, components.ModCard(item))
 		}
 	}

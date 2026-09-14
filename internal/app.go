@@ -124,3 +124,11 @@ func (app *App) DynamicMods() {
 		GLOBALAPP.ComponentStatus.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-startIdx : idx]
 	}
 }
+
+func GetValue[T any](m map[string]any, key string) (T, bool) {
+	v, ok := m[key].(T)
+	if ok {
+		return v, true
+	}
+	return v, false
+}

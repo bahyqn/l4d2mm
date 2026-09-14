@@ -39,6 +39,7 @@ type Mod struct {
 	Idx            int    `gorm:"-"`
 	Id             string `gorm:"column:id"`
 	Name           string `gorm:"column:name"`
+	Author         string `gorm:"column:author"`
 	Category       string `gorm:"column:category"`
 	SubType        string `gorm:"column:sub_type"`
 	Url            string `gorm:"column:url"`
@@ -47,6 +48,10 @@ type Mod struct {
 	IsRemoved      bool   `gorm:"column:is_removed"`
 	IsFromWorkshop bool   `gorm:"column:is_from_workshop"` // true: workshop, false: local
 	HasConflict    bool   `horm:"column:has_conflict"`
+	//
+	Addoninfo map[string]any   `gorm:"-"`
+	Missions  []map[string]any `gorm:"-"`
+	Version   int              `gorm:"-"`
 }
 
 type Collection struct {
@@ -57,4 +62,10 @@ type Collection struct {
 	Remark    string   `gorm:"column:remark"`
 	IsEnable  bool     `gorm:"column:is_enable"`
 	IsRemoved bool     `gorm:"column:is_removed"`
+}
+
+type VpkInfo struct {
+	Addoninfo map[string]any
+	Missions  []map[string]any
+	Version   int
 }

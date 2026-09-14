@@ -1,12 +1,15 @@
 package components
 
 import (
+	"fmt"
 	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
 	"l4d2mm/internal/theme"
 
 	"github.com/go-gui-org/go-gui/gui"
 )
+
+var hoverBthId string
 
 var DefaultButtonConfig = map[string]gui.ButtonCfg{
 	"gnome": {
@@ -157,4 +160,91 @@ func ButtonDeleteMod(mod *schema.Mod) gui.View {
 		ec.Event.IsHandled = true
 	}
 	return gui.Button(cfg)
+}
+
+func ScanButton(mod *schema.Mod) gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
+
+	if !ok {
+		panic("[Button delete Mod]Invalid select style key")
+	}
+
+	ButtonWithIcon(&cfg, "more_horiz-"+mod.Id, "more_horiz.svg")
+
+	cfg.OnClick = func(ec gui.EventCtx) {}
+
+	cfg.OnHover = func(ec gui.EventCtx) {
+		fmt.Println("hovering --->", mod.Id)
+	}
+
+	return gui.Button(cfg)
+}
+
+func LengthScanButton(mod *schema.Mod) gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
+
+	if !ok {
+		panic("[Button length scan]Invalid select style key")
+	}
+
+	cfg.ID = "length-scan" + mod.Id
+
+	cfg.Content = []gui.View{
+		gui.Text(gui.TextCfg{
+			Text: "len",
+			TextStyle: gui.TextStyle{
+				Size:  8,
+				Color: gui.RGB(0, 0, 0),
+			},
+		}),
+	}
+
+	cfg.OnClick = func(ec gui.EventCtx) {
+		fmt.Printf("len --- > %s was clicked.", mod.Id)
+	}
+
+	return gui.Button(cfg)
+}
+
+func CRCScanButton(mod *schema.Mod) gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
+
+	if !ok {
+		panic("[Button CRC]]Invalid select style key")
+	}
+
+	cfg.ID = "CRC-scan" + mod.Id
+
+	cfg.Content = []gui.View{
+		gui.Text(gui.TextCfg{
+			Text: "CRC",
+			TextStyle: gui.TextStyle{
+				Size:  8,
+				Color: gui.RGB(0, 0, 0),
+			},
+		}),
+	}
+	cfg.OnClick = func(ec gui.EventCtx) {
+		fmt.Printf("CRC --- > %s was clicked.", mod.Id)
+	}
+
+	return gui.Button(cfg)
+}
+
+func MoreHoriz(mod *schema.Mod) gui.View {
+	return gui.Row(gui.ContainerCfg{
+		Width:    50,
+		MaxWidth: 50,
+		Sizing:   gui.FillFill,
+		Padding:  gui.NoPadding,
+		Spacing:  gui.SomeF(1),
+		Color:    theme.DefaultLightGNOME().ButtonDefault,
+		Content: []gui.View{
+			LengthScanButton(mod),
+			CRCScanButton(mod),
+		},
+		OnHover: func(ec gui.EventCtx) {
+			hoverBthId = mod.Id
+		},
+	})
 }
