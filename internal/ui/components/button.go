@@ -40,7 +40,7 @@ func Button(bthID string, clickFunc func(w *gui.Window)) gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("Invalid select style key")
+		panic("Button: Invalid select style key")
 	}
 
 	cfg.ID = bthID
@@ -126,7 +126,8 @@ func ButtonShowModInfo(mod *schema.Mod) gui.View {
 
 	cfg.OnClick = func(ec gui.EventCtx) {
 		ec.Event.IsHandled = true
-		internal.GLOBALAPP.DI.Vpk.ReadVpkInfo(mod)
+		// internal.GLOBALAPP.DI.Vpk.ReadVpkInfo(mod)
+		internal.GLOBALAPP.DI.Vpk.SaveVpkInfo(mod)
 	}
 	return gui.Button(cfg)
 }
@@ -180,22 +181,21 @@ func ScanButton(mod *schema.Mod) gui.View {
 	return gui.Button(cfg)
 }
 
-func LengthScanButton(mod *schema.Mod) gui.View {
+func DisplayModProfileButton(mod *schema.Mod) gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
 		panic("[Button length scan]Invalid select style key")
 	}
 
-	cfg.ID = "length-scan" + mod.Id
+	cfg.ID = "view-profile-" + mod.Id
 
 	cfg.Content = []gui.View{
-		gui.Text(gui.TextCfg{
-			Text: "len",
-			TextStyle: gui.TextStyle{
-				Size:  8,
-				Color: gui.RGB(0, 0, 0),
-			},
+		gui.Svg(gui.SvgCfg{
+			ID:       "profile-mod-" + mod.Id,
+			FileName: "assets/icons/find_in_page.svg",
+			Width:    15,
+			Height:   15,
 		}),
 	}
 
@@ -216,12 +216,11 @@ func CRCScanButton(mod *schema.Mod) gui.View {
 	cfg.ID = "CRC-scan" + mod.Id
 
 	cfg.Content = []gui.View{
-		gui.Text(gui.TextCfg{
-			Text: "CRC",
-			TextStyle: gui.TextStyle{
-				Size:  8,
-				Color: gui.RGB(0, 0, 0),
-			},
+		gui.Svg(gui.SvgCfg{
+			ID:       "crc-mod-" + mod.Id,
+			FileName: "assets/icons/fingerprint.svg",
+			Width:    15,
+			Height:   15,
 		}),
 	}
 	cfg.OnClick = func(ec gui.EventCtx) {
@@ -240,7 +239,7 @@ func MoreHoriz(mod *schema.Mod) gui.View {
 		Spacing:  gui.SomeF(1),
 		Color:    theme.DefaultLightGNOME().ButtonDefault,
 		Content: []gui.View{
-			LengthScanButton(mod),
+			DisplayModProfileButton(mod),
 			CRCScanButton(mod),
 		},
 		OnHover: func(ec gui.EventCtx) {

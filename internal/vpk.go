@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 
 	// "github.com/NublyBR/go-vpk"
 	"github.com/bahyqn/vvdf"
@@ -65,16 +66,21 @@ func (vpk *Vpk) SetupPath(ppath string) {
 
 	vpk.OpenAddonlist()
 	vpk.ReadAllVpk(vpk.WorkshopDir)
+
+	vpk.AppDi.DynamicMods()
+}
+
+func (vpk *Vpk) GetModAbsPath(mod *schema.Mod) string {
+	if mod.IsFromWorkshop {
+		return filepath.Join(vpk.ppath, workshopModsPath, mod.Id+".vpk")
+	}
+	return filepath.Join(vpk.ppath, localModsPath+".vpk")
 }
 
 func (vpk *Vpk) ReadVpkInfo(mod *schema.Mod) schema.VpkInfo {
 	var absPath = ""
 
-	if mod.IsFromWorkshop {
-		absPath = filepath.Join(vpk.ppath, workshopModsPath, mod.Id+".vpk")
-	} else {
-		absPath = filepath.Join(vpk.ppath, localModsPath+".vpk")
-	}
+	absPath = vpk.GetModAbsPath(mod)
 
 	// pak, err := vpk.OpenAny(absPath)
 	fmap := vvpk.OpenVpk(absPath)
@@ -104,33 +110,55 @@ func (vpk *Vpk) ReadAllVpk(ppath string) {
 		panic(err)
 	}
 
-	for idx, p := range tvpks {
-		// 1xxxxx.vpk
-		// vpk.ReadVpkInfo()
-		vpk.Mods = append(vpk.Mods, schema.Mod{
-			Idx:            idx,
-			Id:             strings.Split(filepath.Base(p), ".")[0],
-			IsEnable:       true,
-			IsFromWorkshop: true,
-		})
+	localMods := make([]schema.Mod, len(tvpks))
 
-		info := vpk.ReadVpkInfo(&vpk.Mods[idx])
+	var wg sync.WaitGroup
+	ch := make(chan struct{}, maxWrokers)
 
-		vpk.Mods[idx].Addoninfo = info.Addoninfo
-		vpk.Mods[idx].Missions = info.Missions
-		vpk.Mods[idx].Version = int(info.Version)
+	for i, p := range tvpks {
+		wg.Add(1)
+		ch <- struct{}{}
 
-		if v, ok := GetValue[string](info.Addoninfo, "addontitle"); ok {
-			vpk.Mods[idx].Name = v
-		}
-		if v, ok := GetValue[string](info.Addoninfo, "addonauthor"); ok {
-			vpk.Mods[idx].Author = v
-
-			if vpk.Mods[idx].Id == "2598614815" {
-				fmt.Println(v)
+		go func(idx int, path string) {
+			defer wg.Done()
+			defer func() { <-ch }()
+			// 1xxxxx.vpk
+			// vpk.ReadVpkInfo()
+			mod := schema.Mod{
+				Idx:            idx,
+				Id:             strings.Split(filepath.Base(path), ".")[0],
+				IsEnable:       true,
+				IsFromWorkshop: true,
 			}
-		}
+
+			info := vpk.ReadVpkInfo(&mod)
+
+			mod.Addoninfo = info.Addoninfo
+			mod.Missions = info.Missions
+			mod.Version = int(info.Version)
+
+			if v, ok := GetValue[string](info.Addoninfo, "addontitle"); ok {
+				mod.Name = v
+			}
+			if v, ok := GetValue[string](info.Addoninfo, "addonauthor"); ok {
+				mod.Author = v
+			}
+
+			// if v, ok := GetValue[string](info.Addoninfo, "title"); ok {
+			// 	vpk.Mods[idx].Name = v
+			// }
+			// if v, ok := GetValue[string](info.Addoninfo, "author"); ok {
+			// 	vpk.Mods[idx].Author = v
+			// }
+			localMods[idx] = mod
+		}(i, p)
+
 	}
+
+	wg.Wait()
+	close(ch)
+
+	vpk.Mods = append(vpk.Mods, localMods...)
 }
 
 func (vpk *Vpk) OpenAddonlist() {
@@ -149,6 +177,21 @@ func (vpk *Vpk) OpenAddonlist() {
 func (vpk *Vpk) DisableMod(mod *schema.Mod) {
 	vpk.Mods[mod.Idx].IsEnable = !vpk.Mods[mod.Idx].IsEnable
 	vvpk.UpdateModStatus(vpk.Addonlist, mod.Id)
+}
+
+func (vpk *Vpk) SaveVpkInfo(mod *schema.Mod) {
+	// archive, err := vvpk.OpenVpkDev(vpk.GetModAbsPath(mod))
+
+	fmt.Printf("%+v\n\n", mod.Addoninfo)
+
+	// if err != nil {
+	// 	fmt.Println("Error: OpenVpkDev")
+	// 	return
+	// }
+
+	// for idx, el := range archive.Entries {
+	// 	fmt.Printf("%d:  %s ---> %s ---> %s\n", idx, el.Extension, el.Path, el.Filename)
+	// }
 }
 
 func (vpk *Vpk) GetLocalMods(addonsDir string) {

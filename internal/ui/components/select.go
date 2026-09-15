@@ -18,6 +18,7 @@ var DefaultSelectConfig = map[string]gui.SelectCfg{
 		Selected:    []string{},
 		Options:     []string{},
 
+		Invisible:        false,
 		Color:            theme.DefaultLightGNOME().ViewBackground,
 		ColorBorder:      theme.DefaultLightGNOME().ButtonActive,
 		ColorBorderFocus: gui.RGBA(0, 0, 0, 90),
@@ -56,6 +57,7 @@ func Select(maxWidth float32, selectConfig schema.TemplateSelect) gui.View {
 	cfg.Placeholder = selectConfig.Options[0]
 	cfg.Selected = selectConfig.Selected
 	cfg.Options = selectConfig.Options
+	cfg.Invisible = selectConfig.Invisible
 	cfg.OnSelect = selectConfig.OnSelectFunc
 
 	return gui.Select(cfg)

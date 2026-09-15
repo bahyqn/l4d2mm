@@ -28,10 +28,15 @@ func ModsView() gui.View {
 			gui.Wrap(gui.ContainerCfg{
 				ID:         "mods-wrap",
 				Sizing:     gui.FitFill,
+				Wrap:       true,
 				Spacing:    gui.SomeF(16),
+				OnScroll:   func(ec gui.EventCtx) {
+					
+				},
 				Scrollable: true,
 				ScrollMode: gui.ScrollVerticalOnly,
 				Overflow:   false,
+				Padding:    gui.NewPadding(6, 6, 0, 6),
 				// Wrap:       true,
 				// Overflow:   true,
 				Content: renderCards(),

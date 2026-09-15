@@ -5,7 +5,7 @@ go 1.27.1
 require (
 	github.com/bahyqn/vvdf v0.6.0
 	github.com/bahyqn/vvpk v0.4.0
-	github.com/go-gui-org/go-gui v0.63.0
+	github.com/go-gui-org/go-gui v0.76.1
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.2
 )
@@ -14,7 +14,7 @@ require (
 	github.com/alecthomas/chroma/v2 v2.27.0 // indirect
 	github.com/dlclark/regexp2/v2 v2.2.2 // indirect
 	github.com/ebitengine/purego v0.10.2 // indirect
-	github.com/go-gui-org/go-glyph v1.23.0 // indirect
+	github.com/go-gui-org/go-glyph v1.25.1 // indirect
 	github.com/go-pdf/fpdf v0.9.0 // indirect
 	github.com/go-text/typesetting v0.3.4 // indirect
 	github.com/godbus/dbus/v5 v5.2.2 // indirect

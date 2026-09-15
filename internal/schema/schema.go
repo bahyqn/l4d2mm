@@ -5,13 +5,13 @@ import (
 )
 
 type ComponentStatus struct {
-	AsideModExpand        bool
-	AsideIdx              int
-	ModsSearchValue       string
-	Categories            []string // Labels under the `Mods` by dynamic generrate accoding to all of your installed mods
-	SelecCtedategoryLabel string   // Such as: map, weapon, ..., you  can pick one
-	SubLabels             []string // Dynamic generate. Such as: fireaxe, katana, ...
-	SelectedSubLabel      []string // Such as: you pick the melee first, labels will disaplay: fireaxe, katana, ... (you just can pick one)
+	AsideModExpand       bool
+	AsideIdx             int
+	ModsSearchValue      string
+	Categories           []string // Labels under the `Mods` by dynamic generrate accoding to all of your installed mods
+	SelectedategoryLabel []string // Such as: map, weapon, ..., you  can pick one
+	SubLabels            []string // Dynamic generate. Such as: fireaxe, katana, ...
+	SelectedSubLabel     []string // Such as: you pick the melee first, labels will disaplay: fireaxe, katana, ... (you just can pick one)
 
 	PageSize        int
 	ModsBySelectIdx []Mod
@@ -23,6 +23,7 @@ type TemplateSelect struct {
 	Placeholder  string
 	Selected     []string
 	Options      []string
+	Invisible    bool
 	OnSelectFunc func([]string, gui.EventCtx)
 }
 
@@ -36,22 +37,21 @@ type AppConfig struct {
 }
 
 type Mod struct {
-	Idx            int    `gorm:"-"`
-	Id             string `gorm:"column:id"`
-	Name           string `gorm:"column:name"`
-	Author         string `gorm:"column:author"`
-	Category       string `gorm:"column:category"`
-	SubType        string `gorm:"column:sub_type"`
-	Url            string `gorm:"column:url"`
-	Remark         string `gorm:"column:remark"`
-	IsEnable       bool   `gorm:"column:is_enable"`
-	IsRemoved      bool   `gorm:"column:is_removed"`
-	IsFromWorkshop bool   `gorm:"column:is_from_workshop"` // true: workshop, false: local
-	HasConflict    bool   `horm:"column:has_conflict"`
-	//
-	Addoninfo map[string]any   `gorm:"-"`
-	Missions  []map[string]any `gorm:"-"`
-	Version   int              `gorm:"-"`
+	Idx            int              `gorm:"-"`
+	Id             string           `gorm:"column:id"`
+	Name           string           `gorm:"column:name"`
+	Author         string           `gorm:"column:author"`
+	Category       string           `gorm:"column:category"`
+	SubType        string           `gorm:"column:sub_type"`
+	Url            string           `gorm:"column:url"`
+	Remark         string           `gorm:"column:remark"`
+	IsEnable       bool             `gorm:"column:is_enable"`
+	IsRemoved      bool             `gorm:"column:is_removed"`
+	IsFromWorkshop bool             `gorm:"column:is_from_workshop"` // true: workshop, false: local
+	HasConflict    bool             `horm:"column:has_conflict"`
+	Addoninfo      map[string]any   `gorm:"-"`
+	Missions       []map[string]any `gorm:"-"`
+	Version        int              `gorm:"-"`
 }
 
 type Collection struct {

@@ -23,3 +23,13 @@ func StatPath(path string) bool {
 		return false
 	}
 }
+
+func GetSubCategories(lable string) {
+	GLOBALAPP.ComponentStatus.SubLabels = ModLables[lable]
+
+	if len(GLOBALAPP.ComponentStatus.SubLabels) == 0 {
+		GLOBALAPP.ComponentStatus.SelectedSubLabel = []string{}
+		return
+	}
+	GLOBALAPP.ComponentStatus.SelectedSubLabel = GLOBALAPP.ComponentStatus.SubLabels[0:1]
+}

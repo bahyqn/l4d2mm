@@ -21,9 +21,13 @@ var taside = []AsideItem{
 		name: "Workshop",
 		icon: "shopping_cart.svg",
 	},
+	// {
+	// 	name: "Download",
+	// 	icon: "download.svg",
+	// },
 	{
-		name: "Download",
-		icon: "download.svg",
+		name: "Tasks",
+		icon: "check_circle_unread.svg",
 	},
 	{
 		name: "Tools",

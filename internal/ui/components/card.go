@@ -74,26 +74,27 @@ func ModCard(mod schema.Mod) gui.View {
 						Content: []gui.View{
 							gui.Text(gui.TextCfg{
 								ID:     "mod-title" + mod.Id,
-								Sizing: gui.FixedFit,
+								Sizing: gui.FillFit,
 								Text:   mod.Name,
-								Mode:   gui.TextModeSingleLine,
+								Mode:   gui.TextModeWrap,
 								Clip:   true,
 								TextStyle: gui.TextStyle{
-									Size:      11,
-									Color:     gui.RGB(0, 0, 0),
-									CellWidth: 120,
+									Size:        10,
+									LineSpacing: 2,
+									Color:       gui.RGB(0, 0, 0),
+									CellWidth:   120,
 								},
 							}),
-							gui.Text(gui.TextCfg{
-								ID:   "mod-id" + mod.Id,
-								Text: mod.Id + ".vpk",
-								Mode: gui.TextModeSingleLine,
-								Clip: true,
-								TextStyle: gui.TextStyle{
-									Size:  10,
-									Color: gui.RGB(0, 0, 0),
-								},
-							}),
+							// gui.Text(gui.TextCfg{
+							// 	ID:   "mod-id" + mod.Id,
+							// 	Text: mod.Id + ".vpk",
+							// 	Mode: gui.TextModeSingleLine,
+							// 	Clip: true,
+							// 	TextStyle: gui.TextStyle{
+							// 		Size:  9,
+							// 		Color: gui.RGB(0, 0, 0),
+							// 	},
+							// }),
 							gui.Text(gui.TextCfg{
 								ID: "mod-description" + mod.Id,
 								// Text: mod.Remark,
@@ -102,7 +103,7 @@ func ModCard(mod schema.Mod) gui.View {
 								Mode:   gui.TextModeSingleLine,
 								Clip:   true,
 								TextStyle: gui.TextStyle{
-									Size:      10,
+									Size:      9,
 									Color:     gui.RGB(0, 0, 0),
 									CellWidth: 120,
 								},
@@ -123,22 +124,31 @@ func ModCard(mod schema.Mod) gui.View {
 						// Button()
 						// Color: gui.RGBA(0, 0, 0, 30),
 						Content: []gui.View{
-							// gui.Switch(gui.SwitchCfg{
-							// 	ID:       "mod-switch-" + mod.Id,
-							// 	Selected: mod.IsEnable,
-							// 	OnClick: func(ec gui.EventCtx) {
-							// 		internal.GLOBALAPP.DI.Vpk.DisableMod(&mod)
-							// 		fmt.Println("mod isEnable: ", mod.IsEnable)
-							// 	},
-							// }),
 							SwitchDsiableMod(&mod),
-							ButtonShowModInfo(&mod),
+							// ButtonShowModInfo(&mod),
 							// ButtonDisableMod(&mod),
 							ButtonDeleteMod(&mod),
 							// VerticalSpacer(),
 							// MoreHoriz(&mod),
-							LengthScanButton(&mod),
+
+							DisplayModProfileButton(&mod),
 							CRCScanButton(&mod),
+
+							gui.Toggle(gui.ToggleCfg{
+								ID:       "mod-toggle-" + mod.Id,
+								Label:    "",
+								Selected: internal.GLOBALAPP.DI.Task.IsSelected(mod.Id),
+								OnClick: func(ec gui.EventCtx) {
+									selected := internal.GLOBALAPP.DI.Task.IsSelected(mod.Id)
+
+									if selected {
+										internal.GLOBALAPP.DI.Task.RemoveTask(mod.Id)
+										return
+									}
+
+									internal.GLOBALAPP.DI.Task.AddTask(mod.Id)
+								},
+							}),
 						},
 					}),
 				},

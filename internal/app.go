@@ -8,6 +8,24 @@ import (
 )
 
 var GLOBALAPP *App
+var ModLables = map[string][]string{
+	"All":         {},
+	"Maps":        {},
+	"Collections": {},
+	"Rifles":      {"M16", "Scar", "AK47", "SG552", "M60"},
+	"Shotguns":    {"Punmp", "Chrome", "Auto", "Spas"},
+	"Snipers":     {"Hunting", "Military", "Scount", "AWP"},
+	"SMG":         {"SMG", "Silenced", "MP5"},
+	"Pistols":     {"Pistol", "Magnum"},
+	"GL":          {},
+	"Melee":       {"ChainSaw", "Fireaxe", "HuntingKnkife", "Katana", "Cricket Bat", "Baseball Bat", "Golfclub", "Machete", "Tonfa", "Electric Guitar", "Frying Pan", "Crowbar", "Riotshield"},
+	"Items":       {"First aid kit", "Defibrillator", "Addrenaline", "Pain pills", "Molotov", "Pipebomb", "Vomit Jar", "Gnome", "Cola Bottles"},
+	"Survivors":   {"Coach", "Ellis", "Nick", "Rochelle", "Bill", "Francis", "Louis", "Zoey"},
+	"Zombies":     {"Boomer", "Charger", "Hunter", "Jockey", "Smoker", "Spitter", "Tank", "Witch", "Zombie"},
+	"Scripts":     {},
+	"Sounds":      {},
+	"Effects":     {},
+}
 
 func DefaultAppConfig() schema.AppConfig {
 	return schema.AppConfig{
@@ -21,6 +39,7 @@ func DefaultAppConfig() schema.AppConfig {
 type DIContainer struct {
 	Sql    *Sqlite3
 	Vpk    *Vpk
+	Task   *Task
 	Window *gui.Window
 }
 
@@ -33,11 +52,12 @@ type App struct {
 func NewApp() *App {
 	GLOBALAPP = &App{
 		ComponentStatus: schema.ComponentStatus{
-			AsideIdx:         0,
-			ModsSearchValue:  "",
-			Categories:       []string{""},
-			SubLabels:        []string{"Fireaxe", "Katana"},
-			SelectedSubLabel: []string{"Fireaxe"},
+			AsideIdx:             0,
+			ModsSearchValue:      "",
+			Categories:           []string{"All", "Collections", "Maps", "Rifles", "Shotguns", "Snipers", "SMG", "Pistols", "GL", "Melee", "Items", "Scripts", "Sounds", "Effects"},
+			SelectedategoryLabel: []string{"All"},
+			SubLabels:            []string{},
+			SelectedSubLabel:     []string{},
 
 			PageSize:        50,
 			ModsBySelectIdx: []schema.Mod{},
@@ -51,16 +71,23 @@ func NewApp() *App {
 			Theme: "gnome",
 		},
 	}
+
+	GetSubCategories(GLOBALAPP.ComponentStatus.SelectedategoryLabel[0])
 	return GLOBALAPP
 }
 
 func (app *App) RegisterAllDependencies(w *gui.Window) {
 	// app.DI.Window = w
 	app.DI.Vpk = NewVpk(app)
+	app.DI.Task = NewTask()
 }
 
 func (app *App) VpkRegister(vpk *Vpk) {
 	app.DI.Vpk = vpk
+}
+
+func (app *App) TaskRegister(task *Task) {
+	app.DI.Task = task
 }
 
 func (app *App) Sql3Register(sql3 *Sqlite3) {
@@ -109,11 +136,25 @@ func (app *App) DynamicPageSelect() []string {
 }
 
 func (app *App) DynamicMods() {
+	vpkCount := len(app.DI.Vpk.Mods)
+
+	if vpkCount == 0 {
+		return
+	}
+
+	if GLOBALAPP.ComponentStatus.PageEnd[0] == "" {
+		if len(app.DI.Vpk.Mods) > app.ComponentStatus.PageSize {
+			GLOBALAPP.ComponentStatus.PageEnd[0] = strconv.Itoa(app.ComponentStatus.PageSize)
+		} else if vpkCount < app.ComponentStatus.PageSize {
+			GLOBALAPP.ComponentStatus.PageEnd[0] = strconv.Itoa(vpkCount)
+		}
+
+	}
 
 	idx, err := strconv.Atoi(GLOBALAPP.ComponentStatus.PageEnd[0])
 
 	if err != nil {
-		panic("xxxxxxxxxxxxx")
+		panic("DyamicMods xxxxxxxxxxxxx")
 	}
 
 	startIdx := idx % app.ComponentStatus.PageSize
@@ -123,6 +164,7 @@ func (app *App) DynamicMods() {
 	} else {
 		GLOBALAPP.ComponentStatus.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-startIdx : idx]
 	}
+
 }
 
 func GetValue[T any](m map[string]any, key string) (T, bool) {
