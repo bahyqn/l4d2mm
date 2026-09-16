@@ -26,12 +26,12 @@ func ModsView() gui.View {
 			components.HorizontalGap(5, gui.FillFixed),
 
 			gui.Wrap(gui.ContainerCfg{
-				ID:         "mods-wrap",
-				Sizing:     gui.FitFill,
-				Wrap:       true,
-				Spacing:    gui.SomeF(16),
-				OnScroll:   func(ec gui.EventCtx) {
-					
+				ID:      "mods-wrap",
+				Sizing:  gui.FitFill,
+				Wrap:    true,
+				Spacing: gui.SomeF(16),
+				OnScroll: func(ec gui.EventCtx) {
+
 				},
 				Scrollable: true,
 				ScrollMode: gui.ScrollVerticalOnly,
@@ -51,8 +51,19 @@ func renderCards() []gui.View {
 
 	t := []gui.View{}
 
-	if len(internal.GLOBALAPP.ComponentStatus.ModsBySelectIdx) > 0 {
-		for _, item := range internal.GLOBALAPP.ComponentStatus.ModsBySelectIdx {
+	endIdx, err := strconv.Atoi(internal.GLOBALAPP.ComponentStatus.PageMods.PageEnd[0])
+	if err != nil {
+		return t
+	}
+
+	if endIdx <= 0 {
+		return t
+	}
+
+	startIdx := (endIdx - 1) / internal.GLOBALAPP.ComponentStatus.PageMods.PageSize * internal.GLOBALAPP.ComponentStatus.PageMods.PageSize
+
+	if len(internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx) > 0 {
+		for _, item := range internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[startIdx:endIdx] {
 			// Control the number of elements rendered on the page
 			// if idx >= 50 {
 			// 	break
@@ -67,7 +78,7 @@ func renderCards() []gui.View {
 
 func fakeData() {
 	for i := 0; i < 100; i++ {
-		internal.GLOBALAPP.ComponentStatus.ModsBySelectIdx = append(internal.GLOBALAPP.ComponentStatus.ModsBySelectIdx, schema.Mod{
+		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, schema.Mod{
 			Id: strconv.Itoa(i),
 		})
 	}

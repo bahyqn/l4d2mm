@@ -27,6 +27,24 @@ var ModLables = map[string][]string{
 	"Effects":     {},
 }
 
+type SourceMode string
+
+const (
+	SourceDefault       SourceMode = "Default"
+	SourceWorkshopFirst SourceMode = "Workshop First"
+	SourceLocalFirst    SourceMode = "Local First"
+	SourceWorkshopOnly  SourceMode = "Workshop only"
+	SourceLocalOnly     SourceMode = "Local only"
+)
+
+var AllSourceModes = []string{
+	string(SourceDefault),
+	string(SourceWorkshopFirst),
+	string(SourceLocalFirst),
+	string(SourceWorkshopOnly),
+	string(SourceLocalOnly),
+}
+
 func DefaultAppConfig() schema.AppConfig {
 	return schema.AppConfig{
 		Id:         1,
@@ -47,21 +65,26 @@ type App struct {
 	DI              DIContainer
 	ComponentStatus schema.ComponentStatus
 	AppConfig       schema.AppConfig
+	RefreshView     func()
 }
 
 func NewApp() *App {
 	GLOBALAPP = &App{
 		ComponentStatus: schema.ComponentStatus{
-			AsideIdx:             0,
-			ModsSearchValue:      "",
-			Categories:           []string{"All", "Collections", "Maps", "Rifles", "Shotguns", "Snipers", "SMG", "Pistols", "GL", "Melee", "Items", "Scripts", "Sounds", "Effects"},
-			SelectedategoryLabel: []string{"All"},
-			SubLabels:            []string{},
-			SelectedSubLabel:     []string{},
+			PageMods: schema.PageMods{
+				AsideIdx:             0,
+				ModsSearchValue:      "",
+				Categories:           []string{"All", "Collections", "Maps", "Rifles", "Shotguns", "Snipers", "SMG", "Pistols", "GL", "Melee", "Items", "Scripts", "Sounds", "Effects"},
+				SelectedategoryLabel: []string{"All"},
+				SubLabels:            []string{},
+				SelectedSubLabel:     []string{},
 
-			PageSize:        50,
-			ModsBySelectIdx: []schema.Mod{},
-			PageEnd:         []string{""},
+				PageSize:        50,
+				ModsBySelectIdx: []schema.Mod{},
+				PageEnd:         []string{""},
+				SourceMode:      AllSourceModes[:1],
+			},
+			PageTools: schema.PageTools{},
 		},
 		AppConfig: schema.AppConfig{
 			Width:      700,
@@ -72,7 +95,7 @@ func NewApp() *App {
 		},
 	}
 
-	GetSubCategories(GLOBALAPP.ComponentStatus.SelectedategoryLabel[0])
+	GetSubCategories(GLOBALAPP.ComponentStatus.PageMods.SelectedategoryLabel[0])
 	return GLOBALAPP
 }
 
@@ -98,74 +121,87 @@ func (app *App) SetTheme(theme gui.Theme) {
 	gui.SetTheme(theme)
 }
 
+func (app *App) Refresh() {
+	if app.RefreshView != nil {
+		app.RefreshView()
+	}
+}
+
 func (app *App) SetAsideIdx(cidx int) {
-	app.ComponentStatus.AsideIdx = cidx
+	app.ComponentStatus.PageMods.AsideIdx = cidx
 }
 
 func (app *App) ButtonColorChoice(cidx int, color1 gui.Color, color2 gui.Color) gui.Color {
-	if app.ComponentStatus.AsideIdx == cidx {
+	if app.ComponentStatus.PageMods.AsideIdx == cidx {
 		app.SetAsideIdx(cidx)
 		return color1
 	}
 	return color2
 }
 
-func (app *App) DynamicPageSelect() []string {
-	modLen := len(app.DI.Vpk.Mods)
+func (app *App) DynamicPageSelect() {
+	modLen := len(app.ComponentStatus.PageMods.ModsBySelectIdx)
+
 	if modLen == 0 {
-		return []string{""}
-	}
-
-	t := make([]string, 0, modLen/app.ComponentStatus.PageSize+1)
-
-	for i := app.ComponentStatus.PageSize; i < modLen; i += app.ComponentStatus.PageSize {
-		t = append(t, strconv.Itoa(i))
-	}
-
-	if (modLen % app.ComponentStatus.PageSize) > 0 {
-		t = append(t, strconv.Itoa(modLen))
-	}
-
-	if app.ComponentStatus.PageEnd[0] == "" {
-		app.ComponentStatus.PageEnd = t[:1]
-
-		app.DynamicMods()
-	}
-
-	return t
-}
-
-func (app *App) DynamicMods() {
-	vpkCount := len(app.DI.Vpk.Mods)
-
-	if vpkCount == 0 {
 		return
 	}
 
-	if GLOBALAPP.ComponentStatus.PageEnd[0] == "" {
-		if len(app.DI.Vpk.Mods) > app.ComponentStatus.PageSize {
-			GLOBALAPP.ComponentStatus.PageEnd[0] = strconv.Itoa(app.ComponentStatus.PageSize)
-		} else if vpkCount < app.ComponentStatus.PageSize {
-			GLOBALAPP.ComponentStatus.PageEnd[0] = strconv.Itoa(vpkCount)
-		}
+	t := make([]string, 0, modLen/app.ComponentStatus.PageMods.PageSize+1)
 
+	for i := app.ComponentStatus.PageMods.PageSize; i < modLen; i += app.ComponentStatus.PageMods.PageSize {
+		t = append(t, strconv.Itoa(i))
 	}
 
-	idx, err := strconv.Atoi(GLOBALAPP.ComponentStatus.PageEnd[0])
-
-	if err != nil {
-		panic("DyamicMods xxxxxxxxxxxxx")
+	if (modLen % app.ComponentStatus.PageMods.PageSize) > 0 {
+		t = append(t, strconv.Itoa(modLen))
 	}
 
-	startIdx := idx % app.ComponentStatus.PageSize
+	app.ComponentStatus.PageMods.DynamicPageSelect = t
 
-	if startIdx == 0 {
-		GLOBALAPP.ComponentStatus.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-app.ComponentStatus.PageSize : idx]
-	} else {
-		GLOBALAPP.ComponentStatus.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-startIdx : idx]
+	if len(t) > 0 {
+		app.ComponentStatus.PageMods.PageEnd = t[:1]
 	}
-
+	if len(app.ComponentStatus.PageMods.PageEnd) == 0 ||
+		app.ComponentStatus.PageMods.PageEnd[0] == "" {
+		app.ComponentStatus.PageMods.PageEnd[0] = ""
+	}
 }
+
+// func (app *App) DynamicMods() {
+// 	vpkCount := len(app.DI.Vpk.Mods)
+// 	// fmt.Println("vpkCount: ", vpkCount)
+
+// 	if vpkCount == 0 {
+// 		return
+// 	}
+
+// 	if GLOBALAPP.ComponentStatus.PageMods.PageEnd[0] == "" {
+// 		if len(app.DI.Vpk.Mods) > app.ComponentStatus.PageMods.PageSize {
+// 			GLOBALAPP.ComponentStatus.PageMods.PageEnd[0] = strconv.Itoa(app.ComponentStatus.PageMods.PageSize)
+// 		} else if vpkCount < app.ComponentStatus.PageMods.PageSize {
+// 			GLOBALAPP.ComponentStatus.PageMods.PageEnd[0] = strconv.Itoa(vpkCount)
+// 		}
+// 	}
+
+// 	idx, err := strconv.Atoi(GLOBALAPP.ComponentStatus.PageMods.PageEnd[0])
+// 	// fmt.Println("idx: ", idx)
+
+// 	if err != nil {
+// 		panic("DyamicMods xxxxxxxxxxxxx")
+// 	}
+
+// 	startIdx := idx % app.ComponentStatus.PageMods.PageSize
+// 	// fmt.Println("startIdx: ", startIdx)
+
+// 	if startIdx == 0 {
+// 		GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-app.ComponentStatus.PageMods.PageSize : idx]
+// 	} else {
+// 		GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-startIdx : idx]
+// 	}
+
+// 	// fmt.Printf("%+v\n", GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[0])
+// 	// fmt.Printf("%+v\n\n", GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[1])
+// }
 
 func GetValue[T any](m map[string]any, key string) (T, bool) {
 	v, ok := m[key].(T)

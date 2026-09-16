@@ -4,6 +4,7 @@ import (
 	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
 	"l4d2mm/internal/theme"
+	"sort"
 
 	"github.com/go-gui-org/go-gui/gui"
 )
@@ -25,7 +26,7 @@ var DefaultSelectConfig = map[string]gui.SelectCfg{
 		Radius:           gui.SomeF(6),
 		SizeBorder:       gui.SomeF(1),
 		// v0.51.0
-		Padding: gui.NewPadding(6, 10, 6, 10),
+		Padding: gui.NewPadding(6, 8, 6, 8),
 		// v0.61.0
 		// Padding: gui.NewPadding(6, 10, 6, 10),
 		TextStyle: gui.TextStyle{
@@ -45,15 +46,15 @@ var DefaultSelectConfig = map[string]gui.SelectCfg{
 	},
 }
 
-func Select(maxWidth float32, selectConfig schema.TemplateSelect) gui.View {
+func Select(selectConfig schema.TemplateSelect) gui.View {
 	cfg, ok := DefaultSelectConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
 		panic("[Select] Invalid select style key")
 	}
 
-	cfg.MaxWidth = maxWidth
 	cfg.ID = selectConfig.ID
+	cfg.MaxWidth = selectConfig.MaxWidth
 	cfg.Placeholder = selectConfig.Options[0]
 	cfg.Selected = selectConfig.Selected
 	cfg.Options = selectConfig.Options
@@ -61,4 +62,54 @@ func Select(maxWidth float32, selectConfig schema.TemplateSelect) gui.View {
 	cfg.OnSelect = selectConfig.OnSelectFunc
 
 	return gui.Select(cfg)
+}
+
+func SelectSourceMode() {
+
+	src := internal.GLOBALAPP.DI.Vpk.Mods
+	tmp := make([]schema.Mod, len(src))
+	copy(tmp, src)
+
+	switch internal.GLOBALAPP.ComponentStatus.PageMods.SourceMode[0] {
+	case internal.AllSourceModes[0]:
+		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = tmp
+
+	case internal.AllSourceModes[1]: // Workshop First
+		sort.SliceStable(tmp, func(i, j int) bool {
+			if tmp[i].IsFromWorkshop != tmp[j].IsFromWorkshop {
+				return tmp[i].IsFromWorkshop
+			}
+			return tmp[i].Idx < tmp[j].Idx
+		})
+		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = tmp
+
+	case internal.AllSourceModes[2]: // Local First
+		sort.SliceStable(tmp, func(i, j int) bool {
+			if tmp[i].IsFromWorkshop != tmp[j].IsFromWorkshop {
+				return !tmp[i].IsFromWorkshop //
+			}
+			return tmp[i].Idx < tmp[j].Idx
+		})
+		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = tmp
+	case internal.AllSourceModes[3]: // Workshop only
+		ttmap := []schema.Mod{}
+
+		for _, el := range src {
+			if el.IsFromWorkshop {
+				ttmap = append(ttmap, el)
+			}
+		}
+		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = ttmap
+	case internal.AllSourceModes[4]: // Local only
+		ttmap := []schema.Mod{}
+
+		for _, el := range src {
+			if !el.IsFromWorkshop {
+				ttmap = append(ttmap, el)
+			}
+		}
+
+		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = ttmap
+	}
+	internal.GLOBALAPP.DynamicPageSelect()
 }

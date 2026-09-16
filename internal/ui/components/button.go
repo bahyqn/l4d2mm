@@ -247,3 +247,61 @@ func MoreHoriz(mod *schema.Mod) gui.View {
 		},
 	})
 }
+
+func SelectAllButton() gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
+
+	if !ok {
+		panic("[Button selectAll]]Invalid select style key")
+	}
+
+	cfg.ID = "select-all-mods"
+
+	cfg.Content = []gui.View{
+		gui.Svg(gui.SvgCfg{
+			ID:       "select-all-svg",
+			FileName: "assets/icons/check_box.svg",
+			Width:    15,
+			Height:   15,
+		}),
+	}
+	cfg.OnClick = func(ec gui.EventCtx) {
+		if len(internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx) == 0 {
+			return
+		}
+
+		for _, el := range internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx {
+			internal.GLOBALAPP.DI.Task.AddTask(el.Id)
+		}
+	}
+	return gui.Button(cfg)
+}
+
+func CancelAllButton() gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
+
+	if !ok {
+		panic("[Button cancelAll]]Invalid select style key")
+	}
+
+	cfg.ID = "remove-all-mods"
+
+	cfg.Content = []gui.View{
+		gui.Svg(gui.SvgCfg{
+			ID:       "remove-all-svg",
+			FileName: "assets/icons/check_box_outline_blank.svg",
+			Width:    15,
+			Height:   15,
+		}),
+	}
+	cfg.OnClick = func(ec gui.EventCtx) {
+		if len(internal.GLOBALAPP.DI.Task.Selected) == 0 {
+			return
+		}
+
+		for _, el := range internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx {
+			internal.GLOBALAPP.DI.Task.RemoveTask(el.Id)
+		}
+	}
+	return gui.Button(cfg)
+}

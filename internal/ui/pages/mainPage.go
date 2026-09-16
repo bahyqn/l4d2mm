@@ -121,7 +121,7 @@ func MainView() gui.View {
 
 	var tmp gui.View
 
-	switch internal.GLOBALAPP.ComponentStatus.AsideIdx {
+	switch internal.GLOBALAPP.ComponentStatus.PageMods.AsideIdx {
 	case 0:
 		tmp = ModsView()
 	case 1:

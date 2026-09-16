@@ -5,6 +5,11 @@ import (
 )
 
 type ComponentStatus struct {
+	PageMods  PageMods
+	PageTools PageTools
+}
+
+type PageMods struct {
 	AsideModExpand       bool
 	AsideIdx             int
 	ModsSearchValue      string
@@ -12,14 +17,20 @@ type ComponentStatus struct {
 	SelectedategoryLabel []string // Such as: map, weapon, ..., you  can pick one
 	SubLabels            []string // Dynamic generate. Such as: fireaxe, katana, ...
 	SelectedSubLabel     []string // Such as: you pick the melee first, labels will disaplay: fireaxe, katana, ... (you just can pick one)
+	DynamicPageSelect    []string
 
 	PageSize        int
 	ModsBySelectIdx []Mod
 	PageEnd         []string
+	SourceMode      []string
+}
+
+type PageTools struct {
 }
 
 type TemplateSelect struct {
 	ID           string
+	MaxWidth     float32
 	Placeholder  string
 	Selected     []string
 	Options      []string

@@ -45,18 +45,7 @@ func NewVpk(di *App) *Vpk {
 
 func (vpk *Vpk) SetupPath(ppath string) {
 	vpk.ppath = ppath
-	// vpk.Addonlist = filepath.Join(vpk.ppath, "addonlist.txt")
 
-	// ok := vpk.VerificationPath(vpk.Addonlist)
-
-	// if !ok {
-	// 	fmt.Println("Selected path is invalid.")
-
-	// 	vpk.ppath = ""
-	// 	// vpk.Addonlist = ""
-
-	// 	return
-	// }
 	vpk.AddonsDir = filepath.Join(vpk.ppath, localModsPath)
 	vpk.WorkshopDir = filepath.Join(vpk.ppath, workshopModsPath)
 
@@ -66,8 +55,6 @@ func (vpk *Vpk) SetupPath(ppath string) {
 
 	vpk.OpenAddonlist()
 	vpk.ReadAllVpk(vpk.WorkshopDir)
-
-	vpk.AppDi.DynamicMods()
 }
 
 func (vpk *Vpk) GetModAbsPath(mod *schema.Mod) string {
@@ -131,6 +118,11 @@ func (vpk *Vpk) ReadAllVpk(ppath string) {
 				IsFromWorkshop: true,
 			}
 
+			// local addons
+			// if idx%2 == 0 {
+			// 	mod.IsFromWorkshop = false
+			// }
+
 			info := vpk.ReadVpkInfo(&mod)
 
 			mod.Addoninfo = info.Addoninfo
@@ -159,6 +151,8 @@ func (vpk *Vpk) ReadAllVpk(ppath string) {
 	close(ch)
 
 	vpk.Mods = append(vpk.Mods, localMods...)
+	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, localMods...)
+	GLOBALAPP.DynamicPageSelect()
 }
 
 func (vpk *Vpk) OpenAddonlist() {

@@ -25,11 +25,11 @@ func StatPath(path string) bool {
 }
 
 func GetSubCategories(lable string) {
-	GLOBALAPP.ComponentStatus.SubLabels = ModLables[lable]
+	GLOBALAPP.ComponentStatus.PageMods.SubLabels = ModLables[lable]
 
-	if len(GLOBALAPP.ComponentStatus.SubLabels) == 0 {
-		GLOBALAPP.ComponentStatus.SelectedSubLabel = []string{}
+	if len(GLOBALAPP.ComponentStatus.PageMods.SubLabels) == 0 {
+		GLOBALAPP.ComponentStatus.PageMods.SelectedSubLabel = []string{}
 		return
 	}
-	GLOBALAPP.ComponentStatus.SelectedSubLabel = GLOBALAPP.ComponentStatus.SubLabels[0:1]
+	GLOBALAPP.ComponentStatus.PageMods.SelectedSubLabel = GLOBALAPP.ComponentStatus.PageMods.SubLabels[0:1]
 }

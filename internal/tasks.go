@@ -44,8 +44,9 @@ func (task *Task) AddTask(modId string) {
 
 	task.Selected[modId] = TaskStatusIdle
 }
+
 func (task *Task) RemoveTask(modId string) {
-	if _, ok := task.Selected[modId]; ok {
+	if _, ok := task.Selected[modId]; !ok {
 		return
 	}
 

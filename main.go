@@ -24,7 +24,8 @@ func main() {
 			// vpk := internal.Vpk{}
 			// vpk.ReadAllVpk()
 			internal.GLOBALAPP.RegisterAllDependencies(w)
-			w.UpdateView(mainView)
+
+			w.SetView(mainView)
 		},
 	})
 

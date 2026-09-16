@@ -12,8 +12,8 @@ import (
 var DefaultInputConfig = map[string]gui.InputCfg{
 	"gnome": {
 		ID:          "mods-searchinput",
-		Width:       120,
-		MaxWidth:    120,
+		Width:       100,
+		MaxWidth:    100,
 		Height:      26,
 		MaxHeight:   26,
 		Sizing:      gui.FillFill,
@@ -37,7 +37,7 @@ var DefaultInputConfig = map[string]gui.InputCfg{
 			Color: gui.RGB(150, 150, 150),
 		},
 		OnTextChanged: func(s string, ec gui.EventCtx) {
-			internal.GLOBALAPP.ComponentStatus.ModsSearchValue = s
+			internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue = s
 			fmt.Println(s)
 		},
 	},
