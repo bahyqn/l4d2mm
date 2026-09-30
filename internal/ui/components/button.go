@@ -200,7 +200,9 @@ func DisplayModProfileButton(mod *schema.Mod) gui.View {
 	}
 
 	cfg.OnClick = func(ec gui.EventCtx) {
-		fmt.Printf("len --- > %s was clicked.", mod.Id)
+		// fmt.Printf("len --- > %s was clicked.", mod.Id)
+		internal.GLOBALAPP.ComponentStatus.PageMods.ModDetails = mod
+		internal.SwitchSubPage(0, 1)
 	}
 
 	return gui.Button(cfg)
@@ -302,6 +304,73 @@ func CancelAllButton() gui.View {
 		for _, el := range internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx {
 			internal.GLOBALAPP.DI.Task.RemoveTask(el.Id)
 		}
+	}
+	return gui.Button(cfg)
+}
+
+func ButtonModDetailTab(tabName string, subPage int) gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
+
+	if !ok {
+		panic("[Button mod detail tab]]Invalid select style key")
+	}
+
+	cfg.ID = "tab-" + tabName + "-mod"
+
+	cfg.Width = 80
+	cfg.Height = 25
+
+	cfg.Content = []gui.View{
+		gui.Text(gui.TextCfg{
+			Text: tabName,
+			TextStyle: gui.TextStyle{
+				Size:  10,
+				Color: gui.RGBA(40, 40, 40, 255),
+			},
+		}),
+	}
+	status := internal.GLOBALAPP.ComponentStatus
+
+	if status.AsideIdx == 0 && status.SubAsideIndices[0] == subPage {
+		cfg.Colors.Base = gui.RGBA(255, 255, 255, 255)
+		cfg.Colors.Click = gui.RGBA(255, 255, 255, 255)
+		cfg.Colors.Focus = gui.RGBA(255, 255, 255, 255)
+		cfg.Colors.Hover = gui.RGBA(255, 255, 255, 255)
+	} else {
+		cfg.Colors.Base = gui.RGBA(0, 0, 0, 0)
+		cfg.Colors.Click = gui.RGBA(0, 0, 0, 0)
+		cfg.Colors.Focus = gui.RGBA(0, 0, 0, 0)
+		cfg.Colors.Hover = gui.RGBA(0, 0, 0, 0)
+	}
+
+	cfg.OnClick = func(ec gui.EventCtx) {
+		internal.SwitchSubPage(0, subPage)
+	}
+
+	return gui.Button(cfg)
+}
+
+func ButtonReturnModsView() gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
+
+	if !ok {
+		panic("[Button cancelAll]]Invalid select style key")
+	}
+
+	cfg.ID = "return-mods-view"
+
+	cfg.Colors.Base = theme.DefaultLightGNOME().ButtonActive
+
+	cfg.Content = []gui.View{
+		gui.Svg(gui.SvgCfg{
+			ID:       "return-mods-view-svg",
+			FileName: "assets/icons/close.svg",
+			Width:    15,
+			Height:   15,
+		}),
+	}
+	cfg.OnClick = func(ec gui.EventCtx) {
+		internal.SwitchSubPage(0, 0)
 	}
 	return gui.Button(cfg)
 }

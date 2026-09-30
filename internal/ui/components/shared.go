@@ -77,18 +77,18 @@ func HorizontalSpacer() gui.View {
 	})
 }
 
-func VerticalGap(w int, size gui.Sizing) gui.View {
+func VerticalGap(h int, size gui.Sizing) gui.View {
 	return gui.Row(gui.ContainerCfg{
-		Width:  float32(w),
-		Height: 1,
+		Width:  1,
+		Height: float32(h),
 		Sizing: size,
 	})
 }
 
-func HorizontalGap(h int, size gui.Sizing) gui.View {
+func HorizontalGap(w int, size gui.Sizing) gui.View {
 	return gui.Column(gui.ContainerCfg{
-		Width:  1,
-		Height: float32(h),
+		Width:  float32(w),
+		Height: 1,
 		Sizing: size,
 	})
 }

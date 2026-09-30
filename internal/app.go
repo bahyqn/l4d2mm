@@ -65,14 +65,14 @@ type App struct {
 	DI              DIContainer
 	ComponentStatus schema.ComponentStatus
 	AppConfig       schema.AppConfig
-	RefreshView     func()
 }
 
 func NewApp() *App {
 	GLOBALAPP = &App{
 		ComponentStatus: schema.ComponentStatus{
+			AsideIdx:        0,
+			SubAsideIndices: []int{0, 0, 0, 0, 0, 0},
 			PageMods: schema.PageMods{
-				AsideIdx:             0,
 				ModsSearchValue:      "",
 				Categories:           []string{"All", "Collections", "Maps", "Rifles", "Shotguns", "Snipers", "SMG", "Pistols", "GL", "Melee", "Items", "Scripts", "Sounds", "Effects"},
 				SelectedategoryLabel: []string{"All"},
@@ -83,6 +83,9 @@ func NewApp() *App {
 				ModsBySelectIdx: []schema.Mod{},
 				PageEnd:         []string{""},
 				SourceMode:      AllSourceModes[:1],
+
+				// modDetails
+				TempModDetailsFields: [3]string{"", "", ""},
 			},
 			PageTools: schema.PageTools{},
 		},
@@ -121,18 +124,12 @@ func (app *App) SetTheme(theme gui.Theme) {
 	gui.SetTheme(theme)
 }
 
-func (app *App) Refresh() {
-	if app.RefreshView != nil {
-		app.RefreshView()
-	}
-}
-
 func (app *App) SetAsideIdx(cidx int) {
-	app.ComponentStatus.PageMods.AsideIdx = cidx
+	app.ComponentStatus.AsideIdx = cidx
 }
 
 func (app *App) ButtonColorChoice(cidx int, color1 gui.Color, color2 gui.Color) gui.Color {
-	if app.ComponentStatus.PageMods.AsideIdx == cidx {
+	if app.ComponentStatus.AsideIdx == cidx {
 		app.SetAsideIdx(cidx)
 		return color1
 	}
@@ -165,6 +162,14 @@ func (app *App) DynamicPageSelect() {
 		app.ComponentStatus.PageMods.PageEnd[0] == "" {
 		app.ComponentStatus.PageMods.PageEnd[0] = ""
 	}
+}
+
+func SwitchSubPage(idx, subPage int) {
+	if idx > len(GLOBALAPP.ComponentStatus.SubAsideIndices) {
+		return
+	}
+
+	GLOBALAPP.ComponentStatus.SubAsideIndices[idx] = subPage
 }
 
 // func (app *App) DynamicMods() {

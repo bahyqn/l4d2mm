@@ -5,13 +5,14 @@ import (
 )
 
 type ComponentStatus struct {
-	PageMods  PageMods
-	PageTools PageTools
+	AsideIdx        int
+	SubAsideIndices []int
+	PageMods        PageMods
+	PageTools       PageTools
 }
 
 type PageMods struct {
 	AsideModExpand       bool
-	AsideIdx             int
 	ModsSearchValue      string
 	Categories           []string // Labels under the `Mods` by dynamic generrate accoding to all of your installed mods
 	SelectedategoryLabel []string // Such as: map, weapon, ..., you  can pick one
@@ -23,6 +24,10 @@ type PageMods struct {
 	ModsBySelectIdx []Mod
 	PageEnd         []string
 	SourceMode      []string
+
+	// details
+	ModDetails           *Mod
+	TempModDetailsFields [3]string
 }
 
 type PageTools struct {

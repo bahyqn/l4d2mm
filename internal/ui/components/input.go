@@ -36,10 +36,10 @@ var DefaultInputConfig = map[string]gui.InputCfg{
 			Size:  10,
 			Color: gui.RGB(150, 150, 150),
 		},
-		OnTextChanged: func(s string, ec gui.EventCtx) {
-			internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue = s
-			fmt.Println(s)
-		},
+		// OnTextChanged: func(s string, ec gui.EventCtx) {
+		// 	internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue = s
+		// 	fmt.Println(s)
+		// },
 	},
 }
 
@@ -51,7 +51,41 @@ func Input(text string) gui.View {
 	}
 
 	cfg.Text = text
-	// cfg.OnTextChanged = textChangeFunc
+	cfg.OnTextChanged = func(s string, ec gui.EventCtx) {
+		internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue = s
+		fmt.Println(s)
+	}
+	cfg.OnTextCommit = func(s string, icr gui.InputCommitReason, ec gui.EventCtx) {
+		// internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue = s
+		fmt.Println("commit: ", s)
+	}
+
+	return gui.Input(cfg)
+}
+
+// tidx: {title, author, url}
+func InputPageModDetails(text string, tidx int, placeHolder string) gui.View {
+	cfg, ok := DefaultInputConfig[internal.GLOBALAPP.AppConfig.Theme]
+
+	if !ok {
+		panic("[Input pageModDetails]invalid input style key")
+	}
+
+	cfg.Width = 200
+	cfg.MaxWidth = 200
+	cfg.Text = text
+
+	if text == "" {
+		cfg.Placeholder = placeHolder
+	}
+	cfg.OnTextChanged = func(s string, ec gui.EventCtx) {
+		internal.GLOBALAPP.ComponentStatus.PageMods.TempModDetailsFields[tidx] = s
+		fmt.Println(s)
+	}
+	cfg.OnTextCommit = func(s string, icr gui.InputCommitReason, ec gui.EventCtx) {
+		// internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue = s
+		fmt.Println("commit: ", internal.GLOBALAPP.ComponentStatus.PageMods.TempModDetailsFields[tidx])
+	}
 
 	return gui.Input(cfg)
 }

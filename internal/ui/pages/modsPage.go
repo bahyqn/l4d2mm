@@ -3,11 +3,20 @@ package pages
 import (
 	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
+	"l4d2mm/internal/theme"
 	"l4d2mm/internal/ui/components"
 	"strconv"
 
 	"github.com/go-gui-org/go-gui/gui"
 )
+
+func ModsPage() gui.View {
+	if internal.GLOBALAPP.ComponentStatus.SubAsideIndices[0] == 0 {
+		return ModsView()
+	}
+	// idx: 1
+	return ModDetails()
+}
 
 func ModsView() gui.View {
 	return gui.Column(gui.ContainerCfg{
@@ -21,9 +30,9 @@ func ModsView() gui.View {
 
 		Content: []gui.View{
 			components.ModsHeader(),
-			components.HorizontalGap(7, gui.FillFixed),
+			components.VerticalGap(7, gui.FillFixed),
 			components.HDivider(1),
-			components.HorizontalGap(5, gui.FillFixed),
+			components.VerticalGap(5, gui.FillFixed),
 
 			gui.Wrap(gui.ContainerCfg{
 				ID:      "mods-wrap",
@@ -42,6 +51,28 @@ func ModsView() gui.View {
 				Content: renderCards(),
 			}),
 		},
+	})
+}
+
+func ModDetails() gui.View {
+
+	comps := []gui.View{
+		components.HeaderModDetails(),
+		components.VerticalGap(10, gui.FixedFixed),
+		components.HDivider(1),
+		components.VerticalGap(10, gui.FixedFixed),
+	}
+
+	switch internal.GLOBALAPP.ComponentStatus.SubAsideIndices[0] {
+	case 1:
+		comps = append(comps, modProfile())
+	}
+
+	return gui.Column(gui.ContainerCfg{
+		Spacing: gui.SomeF(1),
+		Sizing:  gui.FillFill,
+		HAlign:  gui.HAlignCenter,
+		Content: comps,
 	})
 }
 
@@ -82,4 +113,94 @@ func fakeData() {
 			Id: strconv.Itoa(i),
 		})
 	}
+}
+
+// Page modDetails
+func modProfile() gui.View {
+	mod := internal.GLOBALAPP.ComponentStatus.PageMods.ModDetails
+	return gui.Column(gui.ContainerCfg{
+		ID:       "profile-mod-" + mod.Id,
+		Width:    531,
+		MaxWidth: 531,
+		Sizing:   gui.FillFit,
+		Padding:  gui.NoPadding,
+		// Color:   theme.DefaultLightGNOME().ButtonHover,
+		ColorBorder: theme.DefaultLightGNOME().BorderColor,
+		Spacing:     gui.NoSpacing,
+		Content: []gui.View{
+			// id
+			// components.VerticalGap(5, gui.FillFixed),
+			modProfileRow1("Id", mod.Id),
+			components.HDivider(1),
+			modProfileRow2("AddonTitle", mod.Name, 0, "No title"),
+			components.HDivider(1),
+			modProfileRow2("AddonAuthor", mod.Author, 1, "No author"),
+			components.HDivider(1),
+			modProfileRow1("Verison", strconv.Itoa(mod.Version)),
+			components.HDivider(1),
+			modProfileRow2("URL", mod.Url, 2, "No URL"),
+			// components.VerticalGap(5, gui.FillFixed),
+		},
+	})
+}
+
+func modProfileRow1(k string, v string) gui.View {
+	return gui.Row(gui.ContainerCfg{
+		ID:      "page-mod-details-" + k,
+		Sizing:  gui.FillFit,
+		HAlign:  gui.HAlignLeft,
+		VAlign:  gui.VAlignMiddle,
+		Padding: gui.NewPadding(8, 14, 8, 14),
+		Content: []gui.View{
+			components.HorizontalGap(25, gui.FixedFixed),
+			gui.Text(gui.TextCfg{
+				ID:       "row-" + k,
+				Text:     k,
+				MinWidth: 100,
+				TextStyle: gui.TextStyle{
+					CellWidth: 100,
+					Size:      12,
+					Color:     gui.RGBA(40, 40, 40, 255),
+				},
+			}),
+			components.HorizontalSpacer(),
+			gui.Text(gui.TextCfg{
+				ID:       "row-" + v,
+				Text:     v,
+				MinWidth: 190,
+				TextStyle: gui.TextStyle{
+					CellWidth: 190,
+					Size:      12,
+					Color:     gui.RGBA(40, 40, 40, 255),
+				},
+			}),
+			components.HorizontalGap(25, gui.FixedFixed),
+		},
+	})
+}
+
+func modProfileRow2(k string, v string, tidx int, placeHOlder string) gui.View {
+	return gui.Row(gui.ContainerCfg{
+		ID:      "page-mod-details-" + k,
+		Sizing:  gui.FillFit,
+		HAlign:  gui.HAlignLeft,
+		VAlign:  gui.VAlignMiddle,
+		Padding: gui.NewPadding(8, 14, 8, 14),
+		Content: []gui.View{
+			components.HorizontalGap(25, gui.FixedFixed),
+			gui.Text(gui.TextCfg{
+				ID:       "row-" + k,
+				Text:     k,
+				MinWidth: 100,
+				TextStyle: gui.TextStyle{
+					CellWidth: 100,
+					Size:      12,
+					Color:     gui.RGBA(40, 40, 40, 255),
+				},
+			}),
+			components.HorizontalSpacer(),
+			components.InputPageModDetails(v, tidx, placeHOlder),
+			components.HorizontalGap(25, gui.FixedFixed),
+		},
+	})
 }
