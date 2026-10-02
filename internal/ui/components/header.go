@@ -8,13 +8,15 @@ import (
 )
 
 func ModsHeader() gui.View {
+	pageMods := internal.GLOBALAPP.ComponentStatus.PageMods
+
 	components := []gui.View{
 		ButtonChooseFolder(),
-		Input(internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue),
+		Input(pageMods.ModsSearchValue),
 		Select(schema.TemplateSelect{
 			ID:       "select-category",
-			MaxWidth: 60,
-			Selected: internal.GLOBALAPP.ComponentStatus.PageMods.SelectedategoryLabel,
+			MaxWidth: 140,
+			Selected: pageMods.SelectedategoryLabel,
 			Options:  internal.GLOBALAPP.ComponentStatus.PageMods.Categories,
 			OnSelectFunc: func(s []string, ec gui.EventCtx) {
 				internal.GLOBALAPP.ComponentStatus.PageMods.SelectedategoryLabel = s
@@ -27,7 +29,7 @@ func ModsHeader() gui.View {
 	if len(internal.GLOBALAPP.ComponentStatus.PageMods.SelectedSubLabel) > 0 {
 		components = append(components, Select(schema.TemplateSelect{
 			ID:       "select-sub-categories",
-			MaxWidth: 60,
+			MaxWidth: 140,
 			Selected: internal.GLOBALAPP.ComponentStatus.PageMods.SelectedSubLabel,
 			Options:  internal.GLOBALAPP.ComponentStatus.PageMods.SubLabels,
 			OnSelectFunc: func(s []string, ec gui.EventCtx) {
@@ -39,7 +41,7 @@ func ModsHeader() gui.View {
 	if len(internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx) != 0 {
 		components = append(components, Select(schema.TemplateSelect{
 			ID:        "mod-pagination",
-			MaxWidth:  60,
+			MaxWidth:  120,
 			Selected:  internal.GLOBALAPP.ComponentStatus.PageMods.PageEnd,
 			Options:   internal.GLOBALAPP.ComponentStatus.PageMods.DynamicPageSelect,
 			Invisible: len(internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx) == 0,
@@ -52,11 +54,11 @@ func ModsHeader() gui.View {
 
 	components = append(components, Select(schema.TemplateSelect{
 		ID:       "source-mode",
-		MaxWidth: 80,
-		Selected: internal.GLOBALAPP.ComponentStatus.PageMods.SourceMode,
+		MaxWidth: 180,
+		Selected: []string{internal.GLOBALAPP.ComponentStatus.PageMods.SourceMode},
 		Options:  internal.AllSourceModes,
 		OnSelectFunc: func(s []string, ec gui.EventCtx) {
-			internal.GLOBALAPP.ComponentStatus.PageMods.SourceMode = s
+			internal.GLOBALAPP.ComponentStatus.PageMods.SourceMode = s[0]
 			SelectSourceMode()
 			// internal.GLOBALAPP.Refresh()
 			// fmt.Println(len(internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx))

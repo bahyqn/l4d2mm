@@ -2,48 +2,13 @@ package internal
 
 import (
 	"l4d2mm/internal/schema"
+	"l4d2mm/internal/theme"
 	"strconv"
 
 	"github.com/go-gui-org/go-gui/gui"
 )
 
 var GLOBALAPP *App
-var ModLables = map[string][]string{
-	"All":         {},
-	"Maps":        {},
-	"Collections": {},
-	"Rifles":      {"M16", "Scar", "AK47", "SG552", "M60"},
-	"Shotguns":    {"Punmp", "Chrome", "Auto", "Spas"},
-	"Snipers":     {"Hunting", "Military", "Scount", "AWP"},
-	"SMG":         {"SMG", "Silenced", "MP5"},
-	"Pistols":     {"Pistol", "Magnum"},
-	"GL":          {},
-	"Melee":       {"ChainSaw", "Fireaxe", "HuntingKnkife", "Katana", "Cricket Bat", "Baseball Bat", "Golfclub", "Machete", "Tonfa", "Electric Guitar", "Frying Pan", "Crowbar", "Riotshield"},
-	"Items":       {"First aid kit", "Defibrillator", "Addrenaline", "Pain pills", "Molotov", "Pipebomb", "Vomit Jar", "Gnome", "Cola Bottles"},
-	"Survivors":   {"Coach", "Ellis", "Nick", "Rochelle", "Bill", "Francis", "Louis", "Zoey"},
-	"Zombies":     {"Boomer", "Charger", "Hunter", "Jockey", "Smoker", "Spitter", "Tank", "Witch", "Zombie"},
-	"Scripts":     {},
-	"Sounds":      {},
-	"Effects":     {},
-}
-
-type SourceMode string
-
-const (
-	SourceDefault       SourceMode = "Default"
-	SourceWorkshopFirst SourceMode = "Workshop First"
-	SourceLocalFirst    SourceMode = "Local First"
-	SourceWorkshopOnly  SourceMode = "Workshop only"
-	SourceLocalOnly     SourceMode = "Local only"
-)
-
-var AllSourceModes = []string{
-	string(SourceDefault),
-	string(SourceWorkshopFirst),
-	string(SourceLocalFirst),
-	string(SourceWorkshopOnly),
-	string(SourceLocalOnly),
-}
 
 func DefaultAppConfig() schema.AppConfig {
 	return schema.AppConfig{
@@ -71,18 +36,75 @@ func NewApp() *App {
 	GLOBALAPP = &App{
 		ComponentStatus: schema.ComponentStatus{
 			AsideIdx:        0,
-			SubAsideIndices: []int{0, 0, 0, 0, 0, 0},
+			SubAsideIndices: [6]int{0, 0, 0, 0, 0, 0},
 			PageMods: schema.PageMods{
-				ModsSearchValue:      "",
-				Categories:           []string{"All", "Collections", "Maps", "Rifles", "Shotguns", "Snipers", "SMG", "Pistols", "GL", "Melee", "Items", "Scripts", "Sounds", "Effects"},
+				ModsSearchValue: "",
+				Categories: []gui.SelectOption{
+					{
+						Label: "All",
+						Value: "All",
+					},
+					{
+						Label: "Collections",
+						Value: "Collections",
+					},
+					{
+						Label: "Maps",
+						Value: "Maps",
+					},
+					{
+						Label: "Rifles",
+						Value: "Rifles",
+					},
+					{
+						Label: "Shotguns",
+						Value: "Shotguns",
+					},
+					{
+						Label: "Snipers",
+						Value: "Snipers",
+					},
+					{
+						Label: "SMG",
+						Value: "SMG",
+					},
+					{
+						Label: "Pistols",
+						Value: "Pistols",
+					},
+					{
+						Label: "GL",
+						Value: "GL",
+					},
+					{
+						Label: "Melee",
+						Value: "Melee",
+					},
+					{
+						Label: "Items",
+						Value: "Items",
+					},
+					{
+						Label: "Scripts",
+						Value: "Scripts",
+					},
+					{
+						Label: "Sounds",
+						Value: "Sounds",
+					},
+					{
+						Label: "Effects",
+						Value: "Effects",
+					},
+				},
 				SelectedategoryLabel: []string{"All"},
-				SubLabels:            []string{},
+				SubLabels:            []gui.SelectOption{},
 				SelectedSubLabel:     []string{},
 
-				PageSize:        50,
+				PageAmount:      50,
 				ModsBySelectIdx: []schema.Mod{},
 				PageEnd:         []string{""},
-				SourceMode:      AllSourceModes[:1],
+				SourceMode:      AllSourceModes[0].Value,
 
 				// modDetails
 				TempModDetailsFields: [3]string{"", "", ""},
@@ -90,11 +112,20 @@ func NewApp() *App {
 			PageTools: schema.PageTools{},
 		},
 		AppConfig: schema.AppConfig{
-			Width:      700,
-			Height:     500,
-			AsideWidth: 130,
+			// Width:      700,
+			// Height:     500,
+			// AsideWidth: 130,
+			Width:      theme.DefaultTheme.AppSize[0],
+			Height:     theme.DefaultTheme.AppSize[1],
+			AsideWidth: theme.DefaultTheme.AsideMaxSize,
 
 			Theme: "gnome",
+		},
+		DI: DIContainer{
+			Sql:    nil,
+			Vpk:    nil,
+			Task:   nil,
+			Window: nil,
 		},
 	}
 
@@ -103,7 +134,7 @@ func NewApp() *App {
 }
 
 func (app *App) RegisterAllDependencies(w *gui.Window) {
-	// app.DI.Window = w
+	app.DI.Window = w
 	app.DI.Vpk = NewVpk(app)
 	app.DI.Task = NewTask()
 }
@@ -143,20 +174,26 @@ func (app *App) DynamicPageSelect() {
 		return
 	}
 
-	t := make([]string, 0, modLen/app.ComponentStatus.PageMods.PageSize+1)
+	t := make([]gui.SelectOption, 0, modLen/app.ComponentStatus.PageMods.PageAmount+1)
 
-	for i := app.ComponentStatus.PageMods.PageSize; i < modLen; i += app.ComponentStatus.PageMods.PageSize {
-		t = append(t, strconv.Itoa(i))
+	for i := app.ComponentStatus.PageMods.PageAmount; i < modLen; i += app.ComponentStatus.PageMods.PageAmount {
+		t = append(t, gui.SelectOption{
+			Label: strconv.Itoa(i),
+			Value: strconv.Itoa(i),
+		})
 	}
 
-	if (modLen % app.ComponentStatus.PageMods.PageSize) > 0 {
-		t = append(t, strconv.Itoa(modLen))
+	if (modLen % app.ComponentStatus.PageMods.PageAmount) > 0 {
+		t = append(t, gui.SelectOption{
+			Label: strconv.Itoa(modLen),
+			Value: strconv.Itoa(modLen),
+		})
 	}
 
 	app.ComponentStatus.PageMods.DynamicPageSelect = t
 
 	if len(t) > 0 {
-		app.ComponentStatus.PageMods.PageEnd = t[:1]
+		app.ComponentStatus.PageMods.PageEnd = []string{t[:1][0].Value}
 	}
 	if len(app.ComponentStatus.PageMods.PageEnd) == 0 ||
 		app.ComponentStatus.PageMods.PageEnd[0] == "" {
@@ -181,9 +218,9 @@ func SwitchSubPage(idx, subPage int) {
 // 	}
 
 // 	if GLOBALAPP.ComponentStatus.PageMods.PageEnd[0] == "" {
-// 		if len(app.DI.Vpk.Mods) > app.ComponentStatus.PageMods.PageSize {
-// 			GLOBALAPP.ComponentStatus.PageMods.PageEnd[0] = strconv.Itoa(app.ComponentStatus.PageMods.PageSize)
-// 		} else if vpkCount < app.ComponentStatus.PageMods.PageSize {
+// 		if len(app.DI.Vpk.Mods) > app.ComponentStatus.PageMods.PageAmount {
+// 			GLOBALAPP.ComponentStatus.PageMods.PageEnd[0] = strconv.Itoa(app.ComponentStatus.PageMods.PageAmount)
+// 		} else if vpkCount < app.ComponentStatus.PageMods.PageAmount {
 // 			GLOBALAPP.ComponentStatus.PageMods.PageEnd[0] = strconv.Itoa(vpkCount)
 // 		}
 // 	}
@@ -195,11 +232,11 @@ func SwitchSubPage(idx, subPage int) {
 // 		panic("DyamicMods xxxxxxxxxxxxx")
 // 	}
 
-// 	startIdx := idx % app.ComponentStatus.PageMods.PageSize
+// 	startIdx := idx % app.ComponentStatus.PageMods.PageAmount
 // 	// fmt.Println("startIdx: ", startIdx)
 
 // 	if startIdx == 0 {
-// 		GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-app.ComponentStatus.PageMods.PageSize : idx]
+// 		GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-app.ComponentStatus.PageMods.PageAmount : idx]
 // 	} else {
 // 		GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-startIdx : idx]
 // 	}

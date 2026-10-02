@@ -11,8 +11,8 @@ import (
 var DefaultSwitchConfig = map[string]gui.SwitchCfg{
 	"gnome": {
 		ID:     "",
-		Width:  gui.SomeF(33),
-		Height: gui.SomeF(20),
+		Width:  gui.SomeF(50),
+		Height: gui.SomeF(28),
 		Colors: gui.ColorSet{
 			Base:   theme.DefaultLightGNOME().ViewBackground,
 			Border: theme.DefaultLightGNOME().ButtonActive,
@@ -26,7 +26,7 @@ func SwitchDsiableMod(mod *schema.Mod) gui.View {
 	cfg, ok := DefaultSwitchConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("[Switch] Invalid select style key")
+		panic("[Switch] Invalid select theme key")
 	}
 
 	cfg.ID = "mod-switch-" + mod.Id

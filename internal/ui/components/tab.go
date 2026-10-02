@@ -15,13 +15,13 @@ func HeaderModDetails() gui.View {
 	}
 
 	if len(internal.GLOBALAPP.ComponentStatus.PageMods.ModDetails.Missions) > 0 {
-		tabs = append(tabs, ButtonModDetailTab("Missons", 4))
+		tabs = append(tabs, ButtonModDetailTab("Missions", 4))
 		tabs = append(tabs, ButtonModDetailTab("Map", 5))
 
 	}
 
 	// tabs = append(tabs, VerticalSpacer())
-	tabs = append(tabs, HorizontalGap(20, gui.FixedFixed))
+	tabs = append(tabs, HorizontalGap(10, gui.FixedFixed))
 	tabs = append(tabs, ButtonReturnModsView())
 
 	return gui.Row(gui.ContainerCfg{

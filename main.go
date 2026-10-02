@@ -2,7 +2,7 @@ package main
 
 import (
 	"l4d2mm/internal"
-	"l4d2mm/internal/theme"
+	theme "l4d2mm/internal/theme"
 	"l4d2mm/internal/ui/components"
 	"l4d2mm/internal/ui/pages"
 

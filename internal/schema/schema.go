@@ -6,7 +6,7 @@ import (
 
 type ComponentStatus struct {
 	AsideIdx        int
-	SubAsideIndices []int
+	SubAsideIndices [6]int // ): mods, 1, workshop, 2. tasks, 3.tools,  4.servers, 5. settings
 	PageMods        PageMods
 	PageTools       PageTools
 }
@@ -14,16 +14,16 @@ type ComponentStatus struct {
 type PageMods struct {
 	AsideModExpand       bool
 	ModsSearchValue      string
-	Categories           []string // Labels under the `Mods` by dynamic generrate accoding to all of your installed mods
-	SelectedategoryLabel []string // Such as: map, weapon, ..., you  can pick one
-	SubLabels            []string // Dynamic generate. Such as: fireaxe, katana, ...
-	SelectedSubLabel     []string // Such as: you pick the melee first, labels will disaplay: fireaxe, katana, ... (you just can pick one)
-	DynamicPageSelect    []string
+	Categories           []gui.SelectOption // Labels under the `Mods` by dynamic generrate accoding to all of your installed mods
+	SelectedategoryLabel []string           // Such as: map, weapon, ..., you  can pick one
+	SubLabels            []gui.SelectOption // Dynamic generate. Such as: fireaxe, katana, ...
+	SelectedSubLabel     []string           // Such as: you pick the melee first, labels will disaplay: fireaxe, katana, ... (you just can pick one)
+	DynamicPageSelect    []gui.SelectOption
 
-	PageSize        int
+	PageAmount      int
 	ModsBySelectIdx []Mod
 	PageEnd         []string
-	SourceMode      []string
+	SourceMode      string
 
 	// details
 	ModDetails           *Mod
@@ -38,7 +38,7 @@ type TemplateSelect struct {
 	MaxWidth     float32
 	Placeholder  string
 	Selected     []string
-	Options      []string
+	Options      []gui.SelectOption
 	Invisible    bool
 	OnSelectFunc func([]string, gui.EventCtx)
 }

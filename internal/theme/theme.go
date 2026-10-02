@@ -2,8 +2,37 @@ package theme
 
 import "github.com/go-gui-org/go-gui/gui"
 
+var DefaultTheme = DefaultLightGNOME()
+
 // GNOMETheme defines standard colors for the GNOME Adwaita light theme.
 type GNOMETheme struct {
+	AppSize  [2]float32
+	FontSize float32
+	IconSize [2]float32
+
+	// aside
+	AsideMaxSize        float32
+	AsideFontSize       float32
+	AsideIconSIze       [2]float32
+	AsideRowItemHeight  float32
+	AsideRowBoxPadding  gui.Padding
+	AsideRowItemPadding gui.Padding
+
+	// header
+	HeaderMaxHeight float32
+	HeaderFontSize  float32
+	HeaderIconSize  [2]float32
+
+	// header tab
+	HeaderTabFontSize float32
+
+	// mod card
+	ModCardIconSize   [2]float32
+	ModCardToggleSize float32
+
+	ColorWorkshopMod gui.Color
+	ColorLocalMod    gui.Color
+
 	WindowBackground gui.Color // Window background color (`#fafafa`)
 	ViewBackground   gui.Color // Sidebar / View background color (`#ffffff`)
 	BorderColor      gui.Color // General border color (`1px` divider line)
@@ -18,6 +47,29 @@ type GNOMETheme struct {
 // DefaultLightGNOME returns a standard GNOME light theme RGBA color instance.
 func DefaultLightGNOME() GNOMETheme {
 	return GNOMETheme{
+		AppSize:  [2]float32{1280, 800},
+		FontSize: 14,
+		IconSize: [2]float32{20, 20},
+
+		AsideMaxSize:        180,
+		AsideFontSize:       16,
+		AsideIconSIze:       [2]float32{20, 20},
+		AsideRowItemHeight:  42,
+		AsideRowBoxPadding:  gui.NewPadding(14, 11, 14, 11),
+		AsideRowItemPadding: gui.NewPadding(12, 22, 12, 20),
+
+		HeaderMaxHeight:   38,
+		HeaderFontSize:    14,
+		HeaderIconSize:    [2]float32{25, 25},
+		HeaderTabFontSize: 14,
+
+		ModCardIconSize:   [2]float32{25, 25},
+		ModCardToggleSize: 28,
+
+		ColorWorkshopMod: gui.RGBA(239, 246, 255, 255),
+		ColorLocalMod:    gui.RGBA(248, 250, 252, 255),
+
+		// theme
 		WindowBackground: gui.RGBA(250, 250, 250, 255), // rgba(250, 250, 250, 1)
 		ViewBackground:   gui.RGBA(255, 255, 255, 255), // rgba(255, 255, 255, 1)
 		BorderColor:      gui.RGBA(0, 0, 0, 20),        // rgba(0, 0, 0, 0.08) Approx. 0.08 opacity

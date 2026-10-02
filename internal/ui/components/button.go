@@ -16,8 +16,8 @@ var DefaultButtonConfig = map[string]gui.ButtonCfg{
 		HAlign: gui.Some(gui.HAlignCenter),
 		VAlign: gui.Some(gui.VAlignMiddle),
 		Sizing: gui.FixedFixed,
-		Width:  25,
-		Height: 25,
+		Width:  38,
+		Height: 38,
 
 		// Color: theme.DefaultLightGNOME().ButtonDefault,
 		Colors: gui.ColorSet{
@@ -28,11 +28,12 @@ var DefaultButtonConfig = map[string]gui.ButtonCfg{
 			Hover:  theme.DefaultLightGNOME().ButtonHover,
 		},
 
-		Padding: gui.NewPadding(3, 3, 3, 3),
+		Padding: gui.NewPadding(5, 5, 5, 5),
 		// Padding:     gui.NoPadding,
 		SizeBorder: gui.NoBorder,
-		Radius:     gui.SomeF(8),
-		Content:    []gui.View{},
+		// Radius:     gui.SomeF(8),
+		Radius:  gui.RadiusPx(8),
+		Content: []gui.View{},
 	},
 }
 
@@ -40,7 +41,7 @@ func Button(bthID string, clickFunc func(w *gui.Window)) gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("Button: Invalid select style key")
+		panic("Button: Invalid select theme key")
 	}
 
 	cfg.ID = bthID
@@ -51,13 +52,14 @@ func Button(bthID string, clickFunc func(w *gui.Window)) gui.View {
 	return gui.Button(cfg)
 }
 
-func ButtonWithIcon(cfg *gui.ButtonCfg, bthID string, iconName string) {
+func ButtonWithIcon(cfg *gui.ButtonCfg, bthID string, svgId string, iconName string, svgSize [2]float32) {
 
 	cfg.ID = bthID
 	cfg.Content = []gui.View{
 		gui.Svg(gui.SvgCfg{
-			Width:    15,
-			Height:   15,
+			ID:       svgId,
+			Width:    svgSize[0],
+			Height:   svgSize[1],
 			Sizing:   gui.FixedFixed,
 			FileName: "assets/icons/" + iconName,
 		}),
@@ -104,10 +106,10 @@ func ButtonChooseFolder() gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("[Button chooseFolder]Invalid select style key")
+		panic("[Button chooseFolder]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "choose-addons-dir", "folder_open.svg")
+	ButtonWithIcon(&cfg, "choose-addons-dir", "icon-folder-open", "folder_open.svg", theme.DefaultTheme.HeaderIconSize)
 
 	cfg.OnClick = func(ec gui.EventCtx) {
 		chooseFolder(ec.Window)
@@ -119,10 +121,10 @@ func ButtonShowModInfo(mod *schema.Mod) gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("[Button save addoninfo]Invalid select style key")
+		panic("[Button save addoninfo]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "bth-show-mod-info-"+mod.Id, "file_save.svg")
+	ButtonWithIcon(&cfg, "bth-show-mod-info-"+mod.Id, "icon-file-save", "file_save.svg", theme.DefaultTheme.HeaderIconSize)
 
 	cfg.OnClick = func(ec gui.EventCtx) {
 		ec.Event.IsHandled = true
@@ -136,10 +138,10 @@ func ButtonDisableMod(mod *schema.Mod) gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("[Button disable mod]Invalid select style key")
+		panic("[Button disable mod]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "bth-disable-mod-"+mod.Id, "block.svg")
+	ButtonWithIcon(&cfg, "bth-disable-mod-"+mod.Id, "icon-disable-mod", "block.svg", theme.DefaultTheme.ModCardIconSize)
 
 	cfg.OnClick = func(ec gui.EventCtx) {
 		ec.Event.IsHandled = true
@@ -152,10 +154,10 @@ func ButtonDeleteMod(mod *schema.Mod) gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("[Button delete Mod]Invalid select style key")
+		panic("[Button delete Mod]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "bth-delete-mod-"+mod.Id, "delete.svg")
+	ButtonWithIcon(&cfg, "bth-delete-mod-"+mod.Id, "icon-delete-mod", "delete.svg", theme.DefaultTheme.ModCardIconSize)
 
 	cfg.OnClick = func(ec gui.EventCtx) {
 		ec.Event.IsHandled = true
@@ -167,10 +169,10 @@ func ScanButton(mod *schema.Mod) gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("[Button delete Mod]Invalid select style key")
+		panic("[Button delete Mod]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "more_horiz-"+mod.Id, "more_horiz.svg")
+	ButtonWithIcon(&cfg, "more_horiz-"+mod.Id, "icon-more", "more_horiz.svg", theme.DefaultTheme.ModCardIconSize)
 
 	cfg.OnClick = func(ec gui.EventCtx) {}
 
@@ -185,19 +187,20 @@ func DisplayModProfileButton(mod *schema.Mod) gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("[Button length scan]Invalid select style key")
+		panic("[Button length scan]Invalid select theme key")
 	}
 
-	cfg.ID = "view-profile-" + mod.Id
+	ButtonWithIcon(&cfg, "view-overview-"+mod.Id, "icon-overview", "find_in_page.svg", theme.DefaultTheme.ModCardIconSize)
+	// cfg.ID = "view-profile-" + mod.Id
 
-	cfg.Content = []gui.View{
-		gui.Svg(gui.SvgCfg{
-			ID:       "profile-mod-" + mod.Id,
-			FileName: "assets/icons/find_in_page.svg",
-			Width:    15,
-			Height:   15,
-		}),
-	}
+	// cfg.Content = []gui.View{
+	// 	gui.Svg(gui.SvgCfg{
+	// 		ID:       "profile-mod-" + mod.Id,
+	// 		FileName: "assets/icons/find_in_page.svg",
+	// 		Width:    theme.DefaultTheme.ModCardIconSize[0],
+	// 		Height:   theme.DefaultTheme.ModCardIconSize[1],
+	// 	}),
+	// }
 
 	cfg.OnClick = func(ec gui.EventCtx) {
 		// fmt.Printf("len --- > %s was clicked.", mod.Id)
@@ -212,19 +215,20 @@ func CRCScanButton(mod *schema.Mod) gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("[Button CRC]]Invalid select style key")
+		panic("[Button CRC]]Invalid select theme key")
 	}
 
-	cfg.ID = "CRC-scan" + mod.Id
+	ButtonWithIcon(&cfg, "CRC-scan-"+mod.Id, "icon-crc-scan", "fingerprint.svg", theme.DefaultTheme.ModCardIconSize)
+	// cfg.ID = "CRC-scan" + mod.Id
 
-	cfg.Content = []gui.View{
-		gui.Svg(gui.SvgCfg{
-			ID:       "crc-mod-" + mod.Id,
-			FileName: "assets/icons/fingerprint.svg",
-			Width:    15,
-			Height:   15,
-		}),
-	}
+	// cfg.Content = []gui.View{
+	// 	gui.Svg(gui.SvgCfg{
+	// 		ID:       "crc-mod-" + mod.Id,
+	// 		FileName: "assets/icons/fingerprint.svg",
+	// 		Width:    15,
+	// 		Height:   15,
+	// 	}),
+	// }
 	cfg.OnClick = func(ec gui.EventCtx) {
 		fmt.Printf("CRC --- > %s was clicked.", mod.Id)
 	}
@@ -238,8 +242,9 @@ func MoreHoriz(mod *schema.Mod) gui.View {
 		MaxWidth: 50,
 		Sizing:   gui.FillFill,
 		Padding:  gui.NoPadding,
-		Spacing:  gui.SomeF(1),
-		Color:    theme.DefaultLightGNOME().ButtonDefault,
+		// Spacing:  gui.SomeF(1),
+		Spacing: gui.SpacingPx(1),
+		Color:   theme.DefaultLightGNOME().ButtonDefault,
 		Content: []gui.View{
 			DisplayModProfileButton(mod),
 			CRCScanButton(mod),
@@ -254,7 +259,7 @@ func SelectAllButton() gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("[Button selectAll]]Invalid select style key")
+		panic("[Button selectAll]]Invalid select theme key")
 	}
 
 	cfg.ID = "select-all-mods"
@@ -263,8 +268,8 @@ func SelectAllButton() gui.View {
 		gui.Svg(gui.SvgCfg{
 			ID:       "select-all-svg",
 			FileName: "assets/icons/check_box.svg",
-			Width:    15,
-			Height:   15,
+			Width:    theme.DefaultTheme.HeaderIconSize[0],
+			Height:   theme.DefaultTheme.HeaderIconSize[1],
 		}),
 	}
 	cfg.OnClick = func(ec gui.EventCtx) {
@@ -283,7 +288,7 @@ func CancelAllButton() gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("[Button cancelAll]]Invalid select style key")
+		panic("[Button cancelAll]]Invalid select theme key")
 	}
 
 	cfg.ID = "remove-all-mods"
@@ -292,8 +297,8 @@ func CancelAllButton() gui.View {
 		gui.Svg(gui.SvgCfg{
 			ID:       "remove-all-svg",
 			FileName: "assets/icons/check_box_outline_blank.svg",
-			Width:    15,
-			Height:   15,
+			Width:    theme.DefaultTheme.HeaderIconSize[0],
+			Height:   theme.DefaultTheme.HeaderIconSize[1],
 		}),
 	}
 	cfg.OnClick = func(ec gui.EventCtx) {
@@ -312,19 +317,19 @@ func ButtonModDetailTab(tabName string, subPage int) gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("[Button mod detail tab]]Invalid select style key")
+		panic("[Button mod detail tab]]Invalid select theme key")
 	}
 
 	cfg.ID = "tab-" + tabName + "-mod"
 
 	cfg.Width = 80
-	cfg.Height = 25
+	cfg.Height = 36
 
 	cfg.Content = []gui.View{
 		gui.Text(gui.TextCfg{
 			Text: tabName,
 			TextStyle: gui.TextStyle{
-				Size:  10,
+				Size:  theme.DefaultTheme.HeaderTabFontSize,
 				Color: gui.RGBA(40, 40, 40, 255),
 			},
 		}),
@@ -354,21 +359,22 @@ func ButtonReturnModsView() gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("[Button cancelAll]]Invalid select style key")
+		panic("[Button cancelAll]]Invalid select theme key")
 	}
 
-	cfg.ID = "return-mods-view"
+	ButtonWithIcon(&cfg, "return-mods-view", "return-mods-view-svg", "close.svg", theme.DefaultTheme.ModCardIconSize)
+	// cfg.ID = "return-mods-view"
 
 	cfg.Colors.Base = theme.DefaultLightGNOME().ButtonActive
 
-	cfg.Content = []gui.View{
-		gui.Svg(gui.SvgCfg{
-			ID:       "return-mods-view-svg",
-			FileName: "assets/icons/close.svg",
-			Width:    15,
-			Height:   15,
-		}),
-	}
+	// cfg.Content = []gui.View{
+	// 	gui.Svg(gui.SvgCfg{
+	// 		ID:       "return-mods-view-svg",
+	// 		FileName: "assets/icons/close.svg",
+	// 		Width:    15,
+	// 		Height:   15,
+	// 	}),
+	// }
 	cfg.OnClick = func(ec gui.EventCtx) {
 		internal.SwitchSubPage(0, 0)
 	}

@@ -11,23 +11,29 @@ import (
 )
 
 const (
-	cardWidth  float32 = 160
-	cardHeight float32 = 170
-	imgHeight  float32 = 90
+	// cardWidth  float32 = 160
+	// cardHeight float32 = 170
+	// imgHeight  float32 = 90
+	cardWidth   float32 = 250
+	cardHeight  float32 = 270
+	imgHeight   float32 = 140
+	addontitle  float32 = 16
+	addonautohr float32 = 14
 )
 
 func ModCard(mod schema.Mod) gui.View {
 	return gui.Column(gui.ContainerCfg{
-		ID:           mod.Id,
-		Width:        cardWidth,
-		MaxWidth:     cardWidth,
-		Height:       cardHeight,
-		MaxHeight:    cardHeight,
-		Padding:      gui.NoPadding,
-		Spacing:      gui.NoSpacing,
-		Sizing:       gui.FitFit,
-		Radius:       gui.SomeF(12),
-		ClipContents: true,
+		ID:        mod.Id,
+		Width:     cardWidth,
+		MaxWidth:  cardWidth,
+		Height:    cardHeight,
+		MaxHeight: cardHeight,
+		Padding:   gui.NoPadding,
+		Spacing:   gui.NoSpacing,
+		Sizing:    gui.FitFit,
+		// Radius:       gui.SomeF(12),
+		Radius:        gui.RadiusPx(12),
+		ClipContents:  true,
 		// ClipContents: true,
 		ColorBorder: theme.DefaultLightGNOME().BorderColor,
 		Shadow: &gui.BoxShadow{
@@ -37,6 +43,44 @@ func ModCard(mod schema.Mod) gui.View {
 			BlurRadius: 8,
 		},
 		Content: []gui.View{
+			gui.Row(gui.ContainerCfg{
+				ID:           "block-mod-from",
+				Padding:      gui.NewPadding(4, 4, 4, 4),
+				Sizing:       gui.FillFit,
+				Float:        true,
+				FloatOffsetY: 10,
+				FloatOffsetX: 215,
+				// FloatZIndex:  2,
+				Radius: gui.RadiusPx(13),
+				Color: func(mod *schema.Mod) gui.Color {
+					if mod.IsFromWorkshop {
+						return gui.RGBA(0, 120, 212, 230)
+					}
+					return gui.RGBA(51, 65, 85, 230)
+				}(&mod),
+				Content: []gui.View{
+					// VerticalSpacer(),
+					gui.Text(gui.TextCfg{
+						ID: "mod-from-letter",
+						Text: func(mod *schema.Mod) string {
+							if mod.IsFromWorkshop {
+								return "W"
+							}
+							return "L"
+						}(&mod),
+						TextStyle: gui.TextStyle{
+							Size:  16,
+							Color: gui.RGBA(255, 255, 255, 255),
+							// BgColor: func(mod *schema.Mod) gui.Color {
+							// 	if mod.IsFromWorkshop {
+							// 		return gui.RGBA(0, 120, 212, 230)
+							// 	}
+							// 	return gui.RGBA(51, 65, 85, 230)
+							// }(&mod),
+						},
+					}),
+				},
+			}),
 			gui.Image(gui.ImageCfg{
 				ID:    "img-" + mod.Id,
 				Src:   img(&mod),
@@ -60,14 +104,15 @@ func ModCard(mod schema.Mod) gui.View {
 						ID:        mod.Id + "-text-col",
 						Sizing:    gui.FixedFixed,
 						Width:     cardWidth,
-						Height:    cardHeight - imgHeight - 32,
-						MaxHeight: cardHeight - imgHeight - 32,
+						Height:    cardHeight - imgHeight - 48,
+						MaxHeight: cardHeight - imgHeight - 48,
 						// ColorBorder: theme.DefaultLightGNOME().BorderColor,
 
 						// Padding:    gui.NoPadding,
-						Padding: gui.NewPadding(5, 10, 0, 10),
+						Padding: gui.NewPadding(10, 13, 0, 13),
 						// Spacing:    gui.NoSpacing,
-						Spacing:    gui.SomeF(2),
+						// Spacing:    gui.SomeF(2),
+						Spacing:    gui.SpacingPx(2),
 						SizeBorder: gui.NoBorder,
 						Clip:       true,
 						// ClipContents: true,
@@ -79,22 +124,12 @@ func ModCard(mod schema.Mod) gui.View {
 								Mode:   gui.TextModeWrap,
 								Clip:   true,
 								TextStyle: gui.TextStyle{
-									Size:        10,
+									Size:        addontitle,
 									LineSpacing: 2,
 									Color:       gui.RGB(0, 0, 0),
 									CellWidth:   120,
 								},
 							}),
-							// gui.Text(gui.TextCfg{
-							// 	ID:   "mod-id" + mod.Id,
-							// 	Text: mod.Id + ".vpk",
-							// 	Mode: gui.TextModeSingleLine,
-							// 	Clip: true,
-							// 	TextStyle: gui.TextStyle{
-							// 		Size:  9,
-							// 		Color: gui.RGB(0, 0, 0),
-							// 	},
-							// }),
 							gui.Text(gui.TextCfg{
 								ID: "mod-description" + mod.Id,
 								// Text: mod.Remark,
@@ -103,7 +138,7 @@ func ModCard(mod schema.Mod) gui.View {
 								Mode:   gui.TextModeSingleLine,
 								Clip:   true,
 								TextStyle: gui.TextStyle{
-									Size:      9,
+									Size:      addonautohr,
 									Color:     gui.RGB(0, 0, 0),
 									CellWidth: 120,
 								},
@@ -115,12 +150,13 @@ func ModCard(mod schema.Mod) gui.View {
 						VAlign:    gui.VAlignMiddle,
 						Width:     cardWidth,
 						MaxWidth:  cardWidth,
-						Height:    20,
-						MaxHeight: 20,
+						Height:    48,
+						MaxHeight: 48,
 						// Padding:    gui.NoPadding,
-						Padding:    gui.NewPadding(0, 10, 0, 10),
+						Padding:    gui.NewPadding(0, 10, 10, 10),
 						SizeBorder: gui.NoBorder,
-						Spacing:    gui.SomeF(2),
+						// Spacing:    gui.SomeF(2),
+						Spacing: gui.SpacingPx(8),
 						// Button()
 						// Color: gui.RGBA(0, 0, 0, 30),
 						Content: []gui.View{
@@ -135,8 +171,11 @@ func ModCard(mod schema.Mod) gui.View {
 							CRCScanButton(&mod),
 
 							gui.Toggle(gui.ToggleCfg{
-								ID:       "mod-toggle-" + mod.Id,
-								Label:    "",
+								ID:         "mod-toggle-" + mod.Id,
+								Label:      "",
+								Size:       gui.SomeF(26),
+								TextSelect: "✔",
+								// MinWidth: theme.DefaultTheme.ModCardToggleMinWidth,
 								Selected: internal.GLOBALAPP.DI.Task.IsSelected(mod.Id),
 								OnClick: func(ec gui.EventCtx) {
 									selected := internal.GLOBALAPP.DI.Task.IsSelected(mod.Id)
@@ -155,6 +194,12 @@ func ModCard(mod schema.Mod) gui.View {
 			}),
 		},
 	})
+}
+func modColor(mod *schema.Mod) gui.Color {
+	if mod.IsFromWorkshop {
+		return theme.DefaultTheme.ColorWorkshopMod
+	}
+	return theme.DefaultTheme.ColorLocalMod
 }
 
 func img(mod *schema.Mod) string {

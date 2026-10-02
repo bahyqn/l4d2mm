@@ -54,7 +54,7 @@ func forloopAside(app *internal.App) []gui.View {
 			HAlign: gui.Some(gui.HAlignLeft),
 			VAlign: gui.Some(gui.VAlignMiddle),
 			Sizing: gui.FillFit,
-			Height: 35,
+			Height: theme.DefaultTheme.AsideRowItemHeight,
 			// Color:       gui.RGBA(0, 0, 0, 13),
 			// Color:       gui.RGBA(53, 132, 228, 255),
 			Color: app.ButtonColorChoice(idx, theme.DefaultLightGNOME().ButtonActive, theme.DefaultLightGNOME().ButtonDefault),
@@ -64,23 +64,24 @@ func forloopAside(app *internal.App) []gui.View {
 				Hover:  theme.DefaultLightGNOME().BorderColor,
 			},
 			SizeBorder: gui.NoBorder,
-			Padding:    gui.NewPadding(8, 22, 8, 20),
-			Radius:     gui.SomeF(8),
+			Padding:    theme.DefaultTheme.AsideRowItemPadding,
+			// Radius:     gui.SomeF(8),
+			Radius: gui.RadiusPx(8),
 			OnClick: func(ec gui.EventCtx) {
 				ec.Event.IsHandled = true
 				app.SetAsideIdx(idx)
 			},
 			Content: []gui.View{
 				gui.Svg(gui.SvgCfg{
-					Width:    15,
-					Height:   15,
+					Width:    theme.DefaultTheme.AsideIconSIze[0],
+					Height:   theme.DefaultTheme.AsideIconSIze[1],
 					Sizing:   gui.FixedFixed,
 					FileName: "assets/icons/" + el.icon,
 				}),
 				gui.Text(gui.TextCfg{
 					Text: el.name,
 					TextStyle: gui.TextStyle{
-						Size:  10,
+						Size:  theme.DefaultTheme.AsideFontSize,
 						Color: gui.RGB(0, 0, 0),
 					},
 				}),
@@ -96,14 +97,16 @@ func AsideView() gui.View {
 	return gui.Column(gui.ContainerCfg{
 		ID:       "aside",
 		Sizing:   gui.FixedFill,
-		Width:    float32(internal.GLOBALAPP.AppConfig.AsideWidth),
-		MaxWidth: float32(internal.GLOBALAPP.AppConfig.AsideWidth),
+		Width:    theme.DefaultTheme.AsideMaxSize,
+		MaxWidth: theme.DefaultTheme.AsideMaxSize,
 		// Height:   float32(internal.GLOBALAPP.AppConfig.Height),
 		// 5,5,5,5
 		// Padding:  gui.Some(gui.PaddingSmall),
-		Padding: gui.NewPadding(9, 5, 9, 5),
+		// Padding: gui.NewPadding(9, 5, 9, 5),
+		Padding: theme.DefaultTheme.AsideRowBoxPadding,
 		Radius:  gui.NoRadius,
-		Spacing: gui.SomeF(5),
+		// Spacing: gui.SomeF(5),
+		Spacing: gui.SpacingPx(5),
 		// Color:       gui.RGBA(255, 255, 255, 255),
 		Color:       theme.DefaultLightGNOME().ButtonHover,
 		SizeBorder:  gui.NoBorder,
