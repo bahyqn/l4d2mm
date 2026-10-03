@@ -33,6 +33,11 @@ type GNOMETheme struct {
 	ColorWorkshopMod gui.Color
 	ColorLocalMod    gui.Color
 
+	// fonts
+	Title          gui.Color
+	SubTitle       gui.Color
+	SecondaryLabel gui.Color
+
 	WindowBackground gui.Color // Window background color (`#fafafa`)
 	ViewBackground   gui.Color // Sidebar / View background color (`#ffffff`)
 	BorderColor      gui.Color // General border color (`1px` divider line)
@@ -68,8 +73,11 @@ func DefaultLightGNOME() GNOMETheme {
 
 		ColorWorkshopMod: gui.RGBA(239, 246, 255, 255),
 		ColorLocalMod:    gui.RGBA(248, 250, 252, 255),
+		SecondaryLabel:   gui.RGBA(119, 118, 123, 255),
 
 		// theme
+		Title:            gui.RGBA(46, 52, 54, 255),
+		SubTitle:         gui.RGBA(119, 118, 123, 255),
 		WindowBackground: gui.RGBA(250, 250, 250, 255), // rgba(250, 250, 250, 1)
 		ViewBackground:   gui.RGBA(255, 255, 255, 255), // rgba(255, 255, 255, 1)
 		BorderColor:      gui.RGBA(0, 0, 0, 20),        // rgba(0, 0, 0, 0.08) Approx. 0.08 opacity

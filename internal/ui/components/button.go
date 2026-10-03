@@ -380,3 +380,55 @@ func ButtonReturnModsView() gui.View {
 	}
 	return gui.Button(cfg)
 }
+
+func ToolCard(cardInfo schema.ToolCardInfo) gui.View {
+	return gui.Row(gui.ContainerCfg{
+		ID:          "card-row-" + cardInfo.Title,
+		Width:       330,
+		Height:      170,
+		Sizing:      gui.FixedFixed,
+		Color:       theme.DefaultTheme.ButtonDefault,
+		ColorBorder: theme.DefaultTheme.BorderColor,
+		SizeBorder:  gui.BorderPx(2),
+		Content: []gui.View{
+			gui.Svg(gui.SvgCfg{
+				ID:       "card-svg-" + cardInfo.SvgFilename,
+				FileName: "assets/icons/" + cardInfo.SvgFilename,
+				Width:    30,
+				Height:   30,
+			}),
+			gui.Column(gui.ContainerCfg{
+				ID:       "card-row-column-" + cardInfo.Title,
+				Sizing:   gui.FixedFixed,
+				Width:    240,
+				MaxWidth: 240,
+				Height:   120,
+				Padding:  gui.NoPadding,
+				Clip:     true,
+				Content: []gui.View{
+					gui.Text(gui.TextCfg{
+						ID:     "card-title-" + cardInfo.Title,
+						Sizing: gui.FillFit,
+						Text:   cardInfo.Title,
+						Mode:   gui.TextModeWrap,
+						TextStyle: gui.TextStyle{
+							Size:  20,
+							Color: theme.DefaultTheme.Title,
+						},
+					}),
+					gui.Text(gui.TextCfg{
+						ID:     "card-describe-" + cardInfo.Title,
+						Text:   cardInfo.Describe,
+						Sizing: gui.FillFit,
+						Mode:   gui.TextModeWrap,
+						// MinWidth: 240,
+						TextStyle: gui.TextStyle{
+							Size:  15,
+							Color: theme.DefaultTheme.SubTitle,
+						},
+					}),
+				},
+			}),
+		},
+	})
+}

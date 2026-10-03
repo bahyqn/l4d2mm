@@ -85,3 +85,9 @@ type VpkInfo struct {
 	Missions  []map[string]any
 	Version   int
 }
+
+type ToolCardInfo struct {
+	SvgFilename string
+	Title       string
+	Describe    string
+}

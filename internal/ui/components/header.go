@@ -72,6 +72,7 @@ func ModsHeader() gui.View {
 	}
 
 	return gui.Row(gui.ContainerCfg{
+		ID:      "mods-header",
 		Sizing:  gui.FillFit,
 		Padding: gui.NoPadding,
 		Content: components,
