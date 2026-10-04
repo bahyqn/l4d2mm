@@ -35,6 +35,11 @@ var cardInfo = []schema.ToolCardInfo{
 		Title:       "Conflict Detection",
 		Describe:    "Detect conflicts by category or collection",
 	},
+	{
+		SvgFilename: "edit_document.svg",
+		Title:       "Edit GameInfo",
+		Describe:    "Configure game search paths & mod loading",
+	},
 }
 
 var s string
