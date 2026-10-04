@@ -67,7 +67,7 @@ type Mod struct {
 	HasConflict    bool             `horm:"column:has_conflict"`
 	Addoninfo      map[string]any   `gorm:"-"`
 	Missions       []map[string]any `gorm:"-"`
-	Version        int              `gorm:"-"`
+	VpkVersion     int              `gorm:"-"`
 }
 
 type Collection struct {
@@ -81,9 +81,9 @@ type Collection struct {
 }
 
 type VpkInfo struct {
-	Addoninfo map[string]any
-	Missions  []map[string]any
-	Version   int
+	Addoninfo  map[string]any
+	Missions   []map[string]any
+	VpkVersion int
 }
 
 type ToolCardInfo struct {

@@ -135,8 +135,8 @@ func overview() gui.View {
 	mod := internal.GLOBALAPP.ComponentStatus.PageMods.ModDetails
 	return gui.Column(gui.ContainerCfg{
 		ID:       "profile-mod-" + mod.Id,
-		Width:    531,
-		MaxWidth: 531,
+		Width:    750,
+		MaxWidth: 750,
 		Sizing:   gui.FillFit,
 		Padding:  gui.NoPadding,
 		// Color:   theme.DefaultLightGNOME().ButtonHover,
@@ -147,30 +147,36 @@ func overview() gui.View {
 			// components.VerticalGap(5, gui.FillFixed),
 			modProfileRow1("Id", mod.Id),
 			components.HDivider(1),
-			modProfileRow2("AddonTitle", mod.Name, 0, "No title"),
+			modProfileRow2("AddonTitle", internal.GetValueFromMap(mod.Addoninfo, "addontitle", "No title"), 0),
 			components.HDivider(1),
-			modProfileRow2("AddonAuthor", mod.Author, 1, "No author"),
+			modProfileRow2("AddonAuthor", internal.GetValueFromMap(mod.Addoninfo, "addonauthor", "No author"), 1),
 			components.HDivider(1),
-			modProfileRow1("Verison", strconv.Itoa(mod.Version)),
+			modProfileRow1("AddonVersion", internal.GetValueFromMap(mod.Addoninfo, "addonversion", "No version")),
+			// components.HDivider(1),
+			// modProfileRow1("Verison", strconv.Itoa(mod.VpkVersion)),
 			components.HDivider(1),
-			modProfileRow2("URL", mod.Url, 2, "No URL"),
+			modProfileRow2("URL", internal.GetValueFromMap(mod.Addoninfo, "addonurl0", "No url"), 2),
+			components.HDivider(1),
+			modProfileRow1("Description", internal.GetValueFromMap(mod.Addoninfo, "addondescription", "No description")),
+			// components.HDivider(1),
+			// modProfileRow2("Describe", mod.Describe, 2, "No URL"),
 			// components.VerticalGap(5, gui.FillFixed),
 		},
 	})
 }
 
-func modProfileRow1(k string, v string) gui.View {
+func modProfileRow1(key string, value string) gui.View {
 	return gui.Row(gui.ContainerCfg{
-		ID:      "page-mod-details-" + k,
+		ID:      "page-mod-details-" + key,
 		Sizing:  gui.FillFit,
 		HAlign:  gui.HAlignLeft,
 		VAlign:  gui.VAlignMiddle,
-		Padding: gui.NewPadding(8, 14, 8, 14),
+		Padding: gui.NewPadding(8, 12, 8, 12),
 		Content: []gui.View{
 			components.HorizontalGap(25, gui.FixedFixed),
 			gui.Text(gui.TextCfg{
-				ID:       "row-" + k,
-				Text:     k,
+				ID:       "row-" + key,
+				Text:     key,
 				MinWidth: 100,
 				TextStyle: gui.TextStyle{
 					CellWidth: 100,
@@ -180,9 +186,10 @@ func modProfileRow1(k string, v string) gui.View {
 			}),
 			components.HorizontalSpacer(),
 			gui.Text(gui.TextCfg{
-				ID:       "row-" + v,
-				Text:     v,
-				MinWidth: 190,
+				ID:       "row-" + value,
+				Text:     value,
+				MinWidth: 500,
+				Mode:     gui.TextModeWrap,
 				TextStyle: gui.TextStyle{
 					CellWidth: 190,
 					Size:      theme.DefaultTheme.FontSize,
@@ -194,13 +201,13 @@ func modProfileRow1(k string, v string) gui.View {
 	})
 }
 
-func modProfileRow2(k string, v string, tidx int, placeHOlder string) gui.View {
+func modProfileRow2(k string, v string, tidx int) gui.View {
 	return gui.Row(gui.ContainerCfg{
 		ID:      "page-mod-details-" + k,
 		Sizing:  gui.FillFit,
 		HAlign:  gui.HAlignLeft,
 		VAlign:  gui.VAlignMiddle,
-		Padding: gui.NewPadding(8, 14, 8, 14),
+		Padding: gui.NewPadding(8, 12, 8, 12),
 		Content: []gui.View{
 			components.HorizontalGap(25, gui.FixedFixed),
 			gui.Text(gui.TextCfg{
@@ -214,7 +221,7 @@ func modProfileRow2(k string, v string, tidx int, placeHOlder string) gui.View {
 				},
 			}),
 			components.HorizontalSpacer(),
-			components.InputPageModDetails(v, tidx, placeHOlder),
+			components.InputPageModDetails(v, tidx),
 			components.HorizontalGap(25, gui.FixedFixed),
 		},
 	})

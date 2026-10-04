@@ -85,7 +85,7 @@ func (vpk *Vpk) ReadVpkInfo(mod *schema.Mod) schema.VpkInfo {
 		}
 	}
 
-	vpkInfo.Version = int(fmap.Version)
+	vpkInfo.VpkVersion = int(fmap.Version)
 
 	return vpkInfo
 }
@@ -127,7 +127,7 @@ func (vpk *Vpk) ReadAllVpk(ppath string) {
 
 			mod.Addoninfo = info.Addoninfo
 			mod.Missions = info.Missions
-			mod.Version = int(info.Version)
+			mod.VpkVersion = int(info.VpkVersion)
 
 			if v, ok := GetValue[string](info.Addoninfo, "addontitle"); ok {
 				mod.Name = v
@@ -135,6 +135,9 @@ func (vpk *Vpk) ReadAllVpk(ppath string) {
 			if v, ok := GetValue[string](info.Addoninfo, "addonauthor"); ok {
 				mod.Author = v
 			}
+			// if v, ok := GetValue[string](info.Addoninfo, "addonurl0"); ok {
+			// 	mod.Url = v
+			// }
 
 			// if v, ok := GetValue[string](info.Addoninfo, "title"); ok {
 			// 	vpk.Mods[idx].Name = v

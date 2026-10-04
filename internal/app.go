@@ -106,7 +106,7 @@ func NewApp() *App {
 				PageEnd:         []string{""},
 				SourceMode:      AllSourceModes[0].Value,
 
-				// modDetails
+				// modDetails: addontile, addonauthor, addonurl0
 				TempModDetailsFields: [3]string{"", "", ""},
 			},
 			PageTools: schema.PageTools{},
@@ -251,4 +251,12 @@ func GetValue[T any](m map[string]any, key string) (T, bool) {
 		return v, true
 	}
 	return v, false
+}
+
+func GetValueFromMap(m map[string]any, key string, notFoundValue string) string {
+	v, ok := m[key].(string)
+	if ok {
+		return v
+	}
+	return notFoundValue
 }

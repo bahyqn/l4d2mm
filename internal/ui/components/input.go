@@ -68,27 +68,24 @@ func Input(text string) gui.View {
 }
 
 // tidx: {title, author, url}
-func InputPageModDetails(text string, tidx int, placeHolder string) gui.View {
+func InputPageModDetails(text string, tidx int) gui.View {
 	cfg, ok := DefaultInputConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
 		panic("[Input pageModDetails]invalid input theme key")
 	}
 
-	cfg.Width = 200
-	cfg.MaxWidth = 200
+	cfg.Width = 510
+	cfg.MaxWidth = 510
 	cfg.Text = text
 
-	if text == "" {
-		cfg.Placeholder = placeHolder
-	}
 	cfg.OnTextChanged = func(s string, ec gui.EventCtx) {
-		internal.GLOBALAPP.ComponentStatus.PageMods.TempModDetailsFields[tidx] = s
-		fmt.Println(s)
+		// internal.GLOBALAPP.ComponentStatus.PageMods.TempModDetailsFields[tidx] = s
+		// fmt.Println("changed", s)
 	}
 	cfg.OnTextCommit = func(s string, icr gui.InputCommitReason, ec gui.EventCtx) {
 		// internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue = s
-		fmt.Println("commit: ", internal.GLOBALAPP.ComponentStatus.PageMods.TempModDetailsFields[tidx])
+		// fmt.Println("commit: ", internal.GLOBALAPP.ComponentStatus.PageMods.TempModDetailsFields[tidx])
 	}
 
 	return gui.Input(cfg)
