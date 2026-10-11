@@ -12,10 +12,9 @@ var GLOBALAPP *App
 
 func DefaultAppConfig() schema.AppConfig {
 	return schema.AppConfig{
-		Id:         1,
-		Width:      700,
-		Height:     500,
-		AsideWidth: 130,
+		Id:       1,
+		Theme:    "gnome",
+		GamePath: "",
 	}
 }
 
@@ -27,9 +26,9 @@ type DIContainer struct {
 }
 
 type App struct {
-	DI              DIContainer
-	ComponentStatus schema.ComponentStatus
-	AppConfig       schema.AppConfig
+	DI              DIContainer            `gorm:"-"`
+	ComponentStatus schema.ComponentStatus `gorm:"-"`
+	AppConfig       schema.AppConfig       `gorm:"-"`
 }
 
 func NewApp() *App {
@@ -109,7 +108,9 @@ func NewApp() *App {
 				// modDetails: addontile, addonauthor, addonurl0
 				TempModDetailsFields: [3]string{"", "", ""},
 			},
-			PageTools: schema.PageTools{},
+			PageTools: schema.PageTools{
+				BreadCrumb: []string{"Tools"},
+			},
 		},
 		AppConfig: schema.AppConfig{
 			// Width:      700,
@@ -119,7 +120,8 @@ func NewApp() *App {
 			Height:     theme.DefaultTheme.AppSize[1],
 			AsideWidth: theme.DefaultTheme.AsideMaxSize,
 
-			Theme: "gnome",
+			Theme:    "gnome",
+			GamePath: "",
 		},
 		DI: DIContainer{
 			Sql:    nil,
@@ -135,20 +137,16 @@ func NewApp() *App {
 
 func (app *App) RegisterAllDependencies(w *gui.Window) {
 	app.DI.Window = w
+	app.DI.Sql = NewSqlite3(app)
 	app.DI.Vpk = NewVpk(app)
 	app.DI.Task = NewTask()
 }
 
-func (app *App) VpkRegister(vpk *Vpk) {
-	app.DI.Vpk = vpk
-}
-
-func (app *App) TaskRegister(task *Task) {
-	app.DI.Task = task
-}
-
-func (app *App) Sql3Register(sql3 *Sqlite3) {
-	app.DI.Sql = sql3
+func (app *App) Prepare() {
+	// chosed the path, query all mods from .db by local & workshop .vpk files
+	if app.AppConfig.GamePath != "" {
+		app.DI.Vpk.SyncVPKs(app.AppConfig.GamePath)
+	}
 }
 
 func (app *App) SetTheme(theme gui.Theme) {

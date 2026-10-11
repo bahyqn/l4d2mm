@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
 	"l4d2mm/internal/theme"
 	"l4d2mm/internal/ui/components"
@@ -44,38 +45,68 @@ var cardInfo = []schema.ToolCardInfo{
 
 var s string
 
-func ToolsView() gui.View {
+func ToolsPage() gui.View {
+	app := internal.GLOBALAPP.ComponentStatus
+
+	bread := []gui.BreadcrumbItemCfg{}
+	comps := []gui.View{}
+
+	for _, el := range app.PageTools.BreadCrumb {
+		bread = append(bread, gui.NewBreadcrumbItem(el, el, nil))
+	}
+
+	comps = append(comps, gui.Breadcrumb(gui.BreadcrumbCfg{
+		ID: "tools-nav",
+		TextStyle: gui.TextStyle{
+			Size:     16,
+			Color:    gui.RGBA(0, 0, 0, 255),
+			Typeface: gui.DefaultTextStyle.Italic().Typeface,
+		},
+		Items:    bread,
+		Selected: s,
+		OnSelect: func(s string, ec gui.EventCtx) {
+			fmt.Println(s)
+		},
+	}))
+
+	// if app.SubAsideIndices.
+	if app.SubAsideIndices[3] == 0 {
+		comps = append(comps, components.VerticalGap(3, gui.FixedFixed))
+		comps = append(comps, components.HDivider(2))
+		comps = append(comps, sectionHeader("COLLECTION MANAGEMENT"))
+		comps = append(comps, rowCard(cardInfo[:3]))
+		comps = append(comps, sectionHeader("UTILITIES & DIAGNOSTICS"))
+		comps = append(comps, rowCard(cardInfo[3:]))
+	}
+
 	return gui.Column(gui.ContainerCfg{
 		ID:      "page-tools",
 		Sizing:  gui.FillFill,
 		Spacing: gui.NoSpacing,
-		Content: []gui.View{
-			gui.Breadcrumb(gui.BreadcrumbCfg{
-				ID: "tools-nav",
-				TextStyle: gui.TextStyle{
-					Size:     16,
-					Color:    gui.RGBA(0, 0, 0, 255),
-					Typeface: gui.DefaultTextStyle.Italic().Typeface,
-				},
-				Items: []gui.BreadcrumbItemCfg{
-					gui.NewBreadcrumbItem("tool", "Tools", nil),
-					gui.NewBreadcrumbItem("docs", "Docs", nil),
-					gui.NewBreadcrumbItem("api", "API Reference", nil),
-				},
-				Selected: s,
-				OnSelect: func(s string, ec gui.EventCtx) {
-					fmt.Println(s)
-				},
-			}),
+		Content: comps,
+		// Content: []gui.View{
+		// 	gui.Breadcrumb(gui.BreadcrumbCfg{
+		// 		ID: "tools-nav",
+		// 		TextStyle: gui.TextStyle{
+		// 			Size:     16,
+		// 			Color:    gui.RGBA(0, 0, 0, 255),
+		// 			Typeface: gui.DefaultTextStyle.Italic().Typeface,
+		// 		},
+		// 		Items:    bread,
+		// 		Selected: s,
+		// 		OnSelect: func(s string, ec gui.EventCtx) {
+		// 			fmt.Println(s)
+		// 		},
+		// 	}),
 
-			components.VerticalGap(3, gui.FixedFixed),
-			components.HDivider(2),
+		// 	components.VerticalGap(3, gui.FixedFixed),
+		// 	components.HDivider(2),
 
-			sectionHeader("COLLECTION MANAGEMENT"),
-			rowCard(cardInfo[:3]),
-			sectionHeader("UTILITIES & DIAGNOSTICS"),
-			rowCard(cardInfo[3:]),
-		},
+		// 	sectionHeader("COLLECTION MANAGEMENT"),
+		// 	rowCard(cardInfo[:3]),
+		// 	sectionHeader("UTILITIES & DIAGNOSTICS"),
+		// 	rowCard(cardInfo[3:]),
+		// },
 	})
 }
 

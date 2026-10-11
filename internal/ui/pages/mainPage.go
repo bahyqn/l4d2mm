@@ -132,7 +132,7 @@ func MainView() gui.View {
 	case 2:
 		tmp = DownloadView()
 	case 3:
-		tmp = ToolsView()
+		tmp = ToolsPage()
 	case 4:
 		tmp = ServersView()
 	case 5:

@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"l4d2mm/internal/schema"
+	"maps"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -28,8 +29,9 @@ type TempVpk struct {
 }
 
 type Vpk struct {
-	AppDi       *App
-	ppath       string
+	AppDi *App
+	ppath string
+	// addonlist.txt
 	Addonlist   []string
 	AddonsDir   string
 	WorkshopDir string
@@ -43,8 +45,8 @@ func NewVpk(di *App) *Vpk {
 	}
 }
 
-func (vpk *Vpk) SetupPath(ppath string) {
-	vpk.ppath = ppath
+func (vpk *Vpk) SetupPath(path string) {
+	vpk.ppath = path
 
 	vpk.AddonsDir = filepath.Join(vpk.ppath, localModsPath)
 	vpk.WorkshopDir = filepath.Join(vpk.ppath, workshopModsPath)
@@ -54,7 +56,78 @@ func (vpk *Vpk) SetupPath(ppath string) {
 	// fmt.Println("workshopDir: ", vpk.WorkshopDir)
 
 	vpk.OpenAddonlist()
-	vpk.ReadAllVpk(vpk.WorkshopDir)
+	// vpk.ReadAllVpk(vpk.WorkshopDir)
+}
+
+func (vpk *Vpk) SyncVPKs(path string) {
+	if path == "" {
+		return
+	}
+
+	vpk.SetupPath(path)
+	// sqlite3 := vpk.AppDi.DI.Sql
+	mods, err := vpk.AppDi.DI.Sql.QueryAllMods()
+	if err != nil {
+		panic("Failed query table mods from sqlite")
+	}
+
+	// .../steam/steamapps/common/Left 4 Dead 2/left4dead2/addons/workshop
+	// twvpks: sort by disk
+	// wmods: map{ "1111": ".../steam/steamapps/common/Left 4 Dead 2/left4dead2/addons/workshop/1111.vpk"}
+	twvpks, wmods, ok := vpk.GetMods(vpk.WorkshopDir)
+	if !ok {
+		panic("Failed to query mods from workshop")
+	}
+	vpk.syncWorkshopVPKs(mods, twvpks, wmods)
+
+	// steam/steamapps/common/Left 4 Dead 2/left4dead2/addons
+	// vpk.findNewVPKs(vpk.AddonsDir, mods)
+}
+
+func (vpk *Vpk) findNewVPKs(path string, modsFromDB []schema.Mod) []string {
+	var newVPKs []string
+
+	// var wg sync.WaitGroup
+	// ch := make(chan struct{}, maxWrokers)
+
+	// if localMods, ok := vpk.GetMods(path); ok {
+	// 	for idx, el := range localMods {
+
+	// 	}
+	// }
+
+	return newVPKs
+}
+
+func (vpk *Vpk) syncWorkshopVPKs(dbmods []schema.Mod, twvpks []string, wmods map[string]string) {
+	// sqlite has no any mods, but have l4d2 path
+	if len(dbmods) == 0 {
+		vpk.parseAndSaveNewVPKs(twvpks)
+		return
+	}
+
+	// sqlite has mods
+	var newMods []string
+	cloneWmods := maps.Clone(wmods)
+
+	for _, el := range dbmods {
+		_, ok := cloneWmods[el.Id]
+		if ok && el.IsFromWorkshop {
+			delete(cloneWmods, el.Id)
+		}
+
+		newMods = append(newMods, el.Id)
+	}
+
+	if len(cloneWmods) == 0 {
+		return
+	}
+
+	vpk.parseAndSaveNewVPKs(newMods)
+}
+
+func (vpk *Vpk) scanAddonsVPKs() {
+
 }
 
 func (vpk *Vpk) GetModAbsPath(mod *schema.Mod) string {
@@ -90,12 +163,91 @@ func (vpk *Vpk) ReadVpkInfo(mod *schema.Mod) schema.VpkInfo {
 	return vpkInfo
 }
 
-func (vpk *Vpk) ReadAllVpk(ppath string) {
-	pattern := filepath.Join(ppath, "*.vpk")
+// func (vpk *Vpk) FecthAllMods(path string) bool {
+// 	tvpks := []string{}
+
+// 	wsvpks, ok := vpk.GetMods(vpk.WorkshopDir)
+// 	if ok {
+// 		tvpks = append(tvpks, wsvpks...)
+// 	}
+
+// 	localaVpks, ok := vpk.GetMods(vpk.AddonsDir)
+// 	if ok {
+// 		tvpks = append(tvpks, localaVpks...)
+// 	}
+
+// 	if len(tvpks) == 0 {
+// 		return false
+// 	}
+// 	return true
+// }
+
+func (vpk *Vpk) GetModsSlice(path string) ([]string, bool) {
+	pattern := filepath.Join(path, "*.vpk")
+	tvpks, err := filepath.Glob(pattern)
+
+	if err != nil {
+		return nil, false
+	}
+	return tvpks, true
+}
+
+func (vpk *Vpk) GetMods(path string) ([]string, map[string]string, bool) {
+	pattern := filepath.Join(path, "*.vpk")
 	tvpks, err := filepath.Glob(pattern)
 	if err != nil {
-		panic(err)
+		return nil, nil, false
 	}
+
+	filenames := make(map[string]string, len(tvpks))
+	for _, fullPath := range tvpks {
+		key := strings.Split(filepath.Base(fullPath), ".")[0]
+		filenames[key] = fullPath
+	}
+
+	return tvpks, filenames, true
+}
+
+func (vpk *Vpk) getMissingModIDs(ids []string) ([]string, error) {
+	idsLength := len(ids)
+
+	if idsLength == 0 {
+		return nil, nil
+	}
+
+	var batchSize = 500
+	var missingIDs []string
+	existngMap := make(map[string]bool, idsLength)
+
+	for i := 0; i < idsLength; i += batchSize {
+		end := i + batchSize
+		if end > idsLength {
+			end = idsLength
+		}
+
+		batch := ids[i:end]
+
+		var batchExistIDs []string
+		err := vpk.AppDi.DI.Sql.SDB.Model(&schema.Mod{}).Where("id in ?", batch).Pluck("id", &batchExistIDs).Error
+
+		if err != nil {
+			return nil, err
+		}
+
+		for _, id := range batchExistIDs {
+			existngMap[id] = true
+		}
+
+		for _, id := range ids {
+			if !existngMap[id] {
+				missingIDs = append(missingIDs, id)
+			}
+		}
+	}
+	return missingIDs, nil
+}
+
+func (vpk *Vpk) parseAndSaveNewVPKs(tvpks []string) {
 
 	localMods := make([]schema.Mod, len(tvpks))
 
@@ -156,6 +308,10 @@ func (vpk *Vpk) ReadAllVpk(ppath string) {
 	vpk.Mods = append(vpk.Mods, localMods...)
 	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, localMods...)
 	GLOBALAPP.DynamicPageSelect()
+}
+
+func (vpk *Vpk) FecthVpks() {
+
 }
 
 func (vpk *Vpk) OpenAddonlist() {

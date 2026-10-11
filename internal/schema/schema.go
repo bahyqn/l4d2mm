@@ -4,9 +4,64 @@ import (
 	"github.com/go-gui-org/go-gui/gui"
 )
 
+type Mod struct {
+	Idx            int              `gorm:"-"`
+	Id             string           `gorm:"primaryKey;column:id"`
+	Name           string           `gorm:"column:name"`
+	Author         string           `gorm:"column:author"`
+	Category       string           `gorm:"column:category"`
+	SubType        string           `gorm:"column:sub_type"`
+	Url            string           `gorm:"column:url"`
+	Remark         string           `gorm:"column:remark"`
+	IsEnable       bool             `gorm:"column:is_enable"`
+	IsRemoved      bool             `gorm:"column:is_removed"`
+	IsFromWorkshop bool             `gorm:"column:is_from_workshop"`
+	HasConflict    bool             `gorm:"column:has_conflict"`
+	Addoninfo      map[string]any   `gorm:"column:addinfo;serializer:json"`
+	Missions       []map[string]any `gorm:"column:missions;serializer:json"`
+	VpkVersion     int              `gorm:"column:vpk_version"`
+}
+
+func (mod *Mod) TableName() string {
+	return "mods"
+}
+
+type Collection struct {
+	Id             string   `gorm:"column:id"`
+	Name           string   `gorm:"column:name"`
+	Url            string   `gorm:"column:url"`
+	Mods           []string `gorm:"column:mods;serializer:json"`
+	Remark         string   `gorm:"column:remark"`
+	IsEnable       bool     `gorm:"column:is_enable"`
+	IsRemoved      bool     `gorm:"column:is_removed"`
+	IsFromWorkshop bool     `gorm:"column:is_from_workshop"`
+}
+
+func (collection *Collection) TableName() string {
+	return "collections"
+}
+
+type AppConfig struct {
+	Id         int     `gorm:"column:id"`
+	Width      float32 `gorm:"-"`
+	Height     float32 `gorm:"-"`
+	AsideWidth float32 `gorm:"-"`
+
+	Theme string `gorm:"column:theme"`
+
+	// automatic get value by FetchTables(sqlite.go)
+	GamePath string `gorm:"column:game_path"`
+}
+
+func (cf *AppConfig) TableName() string {
+	return "app_config"
+}
+
+// no gorm
+
 type ComponentStatus struct {
 	AsideIdx        int
-	SubAsideIndices [6]int // ): mods, 1, workshop, 2. tasks, 3.tools,  4.servers, 5. settings
+	SubAsideIndices [6]int // 0: mods, 1: workshop, 2: tasks, 3: tools,  4: servers, 5: settings
 	PageMods        PageMods
 	PageTools       PageTools
 }
@@ -31,6 +86,7 @@ type PageMods struct {
 }
 
 type PageTools struct {
+	BreadCrumb []string
 }
 
 type TemplateSelect struct {
@@ -41,43 +97,6 @@ type TemplateSelect struct {
 	Options      []gui.SelectOption
 	Invisible    bool
 	OnSelectFunc func([]string, gui.EventCtx)
-}
-
-type AppConfig struct {
-	Id         int
-	Width      float32
-	Height     float32
-	AsideWidth float32
-
-	Theme string
-}
-
-type Mod struct {
-	Idx            int              `gorm:"-"`
-	Id             string           `gorm:"column:id"`
-	Name           string           `gorm:"column:name"`
-	Author         string           `gorm:"column:author"`
-	Category       string           `gorm:"column:category"`
-	SubType        string           `gorm:"column:sub_type"`
-	Url            string           `gorm:"column:url"`
-	Remark         string           `gorm:"column:remark"`
-	IsEnable       bool             `gorm:"column:is_enable"`
-	IsRemoved      bool             `gorm:"column:is_removed"`
-	IsFromWorkshop bool             `gorm:"column:is_from_workshop"` // true: workshop, false: local
-	HasConflict    bool             `horm:"column:has_conflict"`
-	Addoninfo      map[string]any   `gorm:"-"`
-	Missions       []map[string]any `gorm:"-"`
-	VpkVersion     int              `gorm:"-"`
-}
-
-type Collection struct {
-	Id        string   `gorm:"column:id"`
-	Name      string   `gorm:"column:name"`
-	Url       string   `gorm:"column:url"`
-	Mods      []string `gorm:"column:mods;serializer:json"`
-	Remark    string   `gorm:"column:remark"`
-	IsEnable  bool     `gorm:"column:is_enable"`
-	IsRemoved bool     `gorm:"column:is_removed"`
 }
 
 type VpkInfo struct {
