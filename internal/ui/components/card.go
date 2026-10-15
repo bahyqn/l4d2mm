@@ -32,8 +32,8 @@ func ModCard(mod schema.Mod) gui.View {
 		Spacing:   gui.NoSpacing,
 		Sizing:    gui.FitFit,
 		// Radius:       gui.SomeF(12),
-		Radius:        gui.RadiusPx(12),
-		ClipContents:  true,
+		Radius:       gui.RadiusPx(12),
+		ClipContents: true,
 		// ClipContents: true,
 		ColorBorder: theme.DefaultLightGNOME().BorderColor,
 		Shadow: &gui.BoxShadow{
@@ -120,7 +120,7 @@ func ModCard(mod schema.Mod) gui.View {
 							gui.Text(gui.TextCfg{
 								ID:     "mod-title" + mod.Id,
 								Sizing: gui.FillFit,
-								Text:   mod.Name,
+								Text:   mod.ModName,
 								Mode:   gui.TextModeWrap,
 								Clip:   true,
 								TextStyle: gui.TextStyle{
@@ -134,7 +134,7 @@ func ModCard(mod schema.Mod) gui.View {
 								ID: "mod-description" + mod.Id,
 								// Text: mod.Remark,
 								Sizing: gui.FixedFit,
-								Text:   mod.Author,
+								Text:   "By " + mod.Author,
 								Mode:   gui.TextModeSingleLine,
 								Clip:   true,
 								TextStyle: gui.TextStyle{

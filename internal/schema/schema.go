@@ -4,22 +4,32 @@ import (
 	"github.com/go-gui-org/go-gui/gui"
 )
 
+type ModLocation string
+
+const (
+	LocationGame ModLocation = "game"
+	LocationApp  ModLocation = "app"
+)
+
 type Mod struct {
 	Idx            int              `gorm:"-"`
 	Id             string           `gorm:"primaryKey;column:id"`
-	Name           string           `gorm:"column:name"`
+	Filename       string           `gorm:"column:filename"`
+	ModName        string           `gorm:"column:mod_name"`
 	Author         string           `gorm:"column:author"`
 	Category       string           `gorm:"column:category"`
 	SubType        string           `gorm:"column:sub_type"`
 	Url            string           `gorm:"column:url"`
 	Remark         string           `gorm:"column:remark"`
+	Location       ModLocation      `gorm:"column:location"`
 	IsEnable       bool             `gorm:"column:is_enable"`
 	IsRemoved      bool             `gorm:"column:is_removed"`
 	IsFromWorkshop bool             `gorm:"column:is_from_workshop"`
 	HasConflict    bool             `gorm:"column:has_conflict"`
 	Addoninfo      map[string]any   `gorm:"column:addinfo;serializer:json"`
 	Missions       []map[string]any `gorm:"column:missions;serializer:json"`
-	VpkVersion     int              `gorm:"column:vpk_version"`
+	VpkVersion     uint32           `gorm:"column:vpk_version"`
+	Treesize       uint32           `gorm:"column:tree_size"`
 }
 
 func (mod *Mod) TableName() string {
@@ -102,7 +112,8 @@ type TemplateSelect struct {
 type VpkInfo struct {
 	Addoninfo  map[string]any
 	Missions   []map[string]any
-	VpkVersion int
+	VpkVersion uint32
+	Treesize   uint32
 }
 
 type ToolCardInfo struct {

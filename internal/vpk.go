@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"l4d2mm/internal/schema"
 	"maps"
+	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -31,12 +33,18 @@ type TempVpk struct {
 type Vpk struct {
 	AppDi *App
 	ppath string
-	// addonlist.txt
-	Addonlist   []string
-	AddonsDir   string
+
+	// steam/steamapps/common/Left 4 Dead 2/left4dead2/addons
+	AddonsDir string
+	// steam/steamapps/common/Left 4 Dead 2/left4dead2/addons/workshop
 	WorkshopDir string
 	Mods        []schema.Mod
 	Collections []string
+
+	// addonlist.txt
+	AddonlistRawStr []string
+	// key 11111	value: index (index 111 in addonlistRawStr)
+	AddonlistIdxMap map[string]int
 }
 
 func NewVpk(di *App) *Vpk {
@@ -51,12 +59,32 @@ func (vpk *Vpk) SetupPath(path string) {
 	vpk.AddonsDir = filepath.Join(vpk.ppath, localModsPath)
 	vpk.WorkshopDir = filepath.Join(vpk.ppath, workshopModsPath)
 
-	// fmt.Println("addonlist.txt: ", vpk.Addonlist)
 	// fmt.Println("addonsDir: ", vpk.AddonsDir)
 	// fmt.Println("workshopDir: ", vpk.WorkshopDir)
 
 	vpk.OpenAddonlist()
 	// vpk.ReadAllVpk(vpk.WorkshopDir)
+}
+
+func (vpk *Vpk) ModPath(mod *schema.Mod) string {
+	path := ""
+
+	if mod.Location == schema.LocationGame {
+		if mod.IsFromWorkshop {
+			path = vpk.WorkshopDir
+		} else {
+			path = vpk.AddonsDir
+		}
+		path = filepath.Join(path, mod.Filename)
+	} else {
+		p, err := os.Getwd()
+
+		if err == nil {
+			path = p
+		}
+	}
+
+	return path
 }
 
 func (vpk *Vpk) SyncVPKs(path string) {
@@ -66,7 +94,7 @@ func (vpk *Vpk) SyncVPKs(path string) {
 
 	vpk.SetupPath(path)
 	// sqlite3 := vpk.AppDi.DI.Sql
-	mods, err := vpk.AppDi.DI.Sql.QueryAllMods()
+	dbmods, err := vpk.AppDi.DI.Sql.QueryAllMods()
 	if err != nil {
 		panic("Failed query table mods from sqlite")
 	}
@@ -74,14 +102,22 @@ func (vpk *Vpk) SyncVPKs(path string) {
 	// .../steam/steamapps/common/Left 4 Dead 2/left4dead2/addons/workshop
 	// twvpks: sort by disk
 	// wmods: map{ "1111": ".../steam/steamapps/common/Left 4 Dead 2/left4dead2/addons/workshop/1111.vpk"}
+
 	twvpks, wmods, ok := vpk.GetMods(vpk.WorkshopDir)
 	if !ok {
 		panic("Failed to query mods from workshop")
 	}
-	vpk.syncWorkshopVPKs(mods, twvpks, wmods)
+
+	vpk.syncWorkshopVPKs(dbmods, twvpks, wmods, schema.LocationGame)
 
 	// steam/steamapps/common/Left 4 Dead 2/left4dead2/addons
-	// vpk.findNewVPKs(vpk.AddonsDir, mods)
+	tlvpks, lmods, ok := vpk.GetMods(vpk.AddonsDir)
+	if !ok {
+		panic("Failed to query mods from adddons")
+	}
+	vpk.syncAddonsVPKs(dbmods, tlvpks, lmods, schema.LocationGame)
+
+	// fmt.Printf("%+v\n", tlvpks)
 }
 
 func (vpk *Vpk) findNewVPKs(path string, modsFromDB []schema.Mod) []string {
@@ -99,10 +135,10 @@ func (vpk *Vpk) findNewVPKs(path string, modsFromDB []schema.Mod) []string {
 	return newVPKs
 }
 
-func (vpk *Vpk) syncWorkshopVPKs(dbmods []schema.Mod, twvpks []string, wmods map[string]string) {
+func (vpk *Vpk) syncWorkshopVPKs(dbmods []schema.Mod, twvpks []string, wmods map[string]string, location schema.ModLocation) {
 	// sqlite has no any mods, but have l4d2 path
 	if len(dbmods) == 0 {
-		vpk.parseAndSaveNewVPKs(twvpks)
+		vpk.parseAndSaveNewVPKs(twvpks, true, location)
 		return
 	}
 
@@ -123,42 +159,48 @@ func (vpk *Vpk) syncWorkshopVPKs(dbmods []schema.Mod, twvpks []string, wmods map
 		return
 	}
 
-	vpk.parseAndSaveNewVPKs(newMods)
+	vpk.parseAndSaveNewVPKs(newMods, true, location)
 }
 
-func (vpk *Vpk) scanAddonsVPKs() {
+func (vpk *Vpk) syncAddonsVPKs(dbmods []schema.Mod, tlmods []string, lmods map[string]string, location schema.ModLocation) {
+	if len(dbmods) == 0 {
+		vpk.parseAndSaveNewVPKs(tlmods, false, location)
+		return
+	}
 
+	// var newMods []string
 }
 
 func (vpk *Vpk) GetModAbsPath(mod *schema.Mod) string {
 	if mod.IsFromWorkshop {
 		return filepath.Join(vpk.ppath, workshopModsPath, mod.Id+".vpk")
 	}
-	return filepath.Join(vpk.ppath, localModsPath+".vpk")
+	return filepath.Join(vpk.ppath, localModsPath, mod.Id+".vpk")
 }
 
-func (vpk *Vpk) ReadVpkInfo(mod *schema.Mod) schema.VpkInfo {
-	var absPath = ""
+func (vpk *Vpk) ReadVpkInfo(path string, mod *schema.Mod) schema.VpkInfo {
+	// var absPath = ""
 
-	absPath = vpk.GetModAbsPath(mod)
+	// absPath = vpk.GetModAbsPath(mod)
 
 	// pak, err := vpk.OpenAny(absPath)
-	fmap := vvpk.OpenVpk(absPath)
+	vpkSummary := vvpk.OpenVpk(path)
 
 	vpkInfo := schema.VpkInfo{}
 
 	// fmt.Printf("id: %s --> name: %s \n", mod.Id, mod.Name)
-	if addoninfo, err := vvdf.StringToMap(fmap.Addoninfo); err == nil {
+	if addoninfo, err := vvdf.StringToMap(vpkSummary.Addoninfo); err == nil {
 		vpkInfo.Addoninfo = addoninfo
 	}
 
-	for _, el := range fmap.Missions {
+	for _, el := range vpkSummary.Missions {
 		if missions, err := vvdf.StringToMap(el); err == nil {
 			vpkInfo.Missions = append(vpkInfo.Missions, missions)
 		}
 	}
 
-	vpkInfo.VpkVersion = int(fmap.Version)
+	vpkInfo.VpkVersion = vpkSummary.VpkVersion
+	vpkInfo.Treesize = vpkSummary.TreeSize
 
 	return vpkInfo
 }
@@ -247,7 +289,7 @@ func (vpk *Vpk) getMissingModIDs(ids []string) ([]string, error) {
 	return missingIDs, nil
 }
 
-func (vpk *Vpk) parseAndSaveNewVPKs(tvpks []string) {
+func (vpk *Vpk) parseAndSaveNewVPKs(tvpks []string, IsFromWorkshop bool, location schema.ModLocation) {
 
 	localMods := make([]schema.Mod, len(tvpks))
 
@@ -258,16 +300,18 @@ func (vpk *Vpk) parseAndSaveNewVPKs(tvpks []string) {
 		wg.Add(1)
 		ch <- struct{}{}
 
-		go func(idx int, path string) {
+		go func(idx int, path string, loc schema.ModLocation) {
 			defer wg.Done()
 			defer func() { <-ch }()
 			// 1xxxxx.vpk
 			// vpk.ReadVpkInfo()
 			mod := schema.Mod{
 				Idx:            idx,
+				Filename:       filepath.Base(path),
 				Id:             strings.Split(filepath.Base(path), ".")[0],
 				IsEnable:       true,
-				IsFromWorkshop: true,
+				Location:       loc,
+				IsFromWorkshop: IsFromWorkshop,
 			}
 
 			// local addons
@@ -275,14 +319,19 @@ func (vpk *Vpk) parseAndSaveNewVPKs(tvpks []string) {
 			// 	mod.IsFromWorkshop = false
 			// }
 
-			info := vpk.ReadVpkInfo(&mod)
+			info := vpk.ReadVpkInfo(path, &mod)
 
 			mod.Addoninfo = info.Addoninfo
 			mod.Missions = info.Missions
-			mod.VpkVersion = int(info.VpkVersion)
+			mod.VpkVersion = info.VpkVersion
+			mod.Treesize = info.Treesize
+
+			if !IsFromWorkshop {
+				mod.Id = vpk.newAddonsVpkId(path, mod.Treesize)
+			}
 
 			if v, ok := GetValue[string](info.Addoninfo, "addontitle"); ok {
-				mod.Name = v
+				mod.ModName = v
 			}
 			if v, ok := GetValue[string](info.Addoninfo, "addonauthor"); ok {
 				mod.Author = v
@@ -298,7 +347,7 @@ func (vpk *Vpk) parseAndSaveNewVPKs(tvpks []string) {
 			// 	vpk.Mods[idx].Author = v
 			// }
 			localMods[idx] = mod
-		}(i, p)
+		}(i, p, location)
 
 	}
 
@@ -310,26 +359,40 @@ func (vpk *Vpk) parseAndSaveNewVPKs(tvpks []string) {
 	GLOBALAPP.DynamicPageSelect()
 }
 
+func (vpk *Vpk) newAddonsVpkId(path string, treesize uint32) string {
+	if size, err := GetFileSize(path); err == nil {
+		newId := uint64(treesize) + size
+		return strconv.FormatUint(newId, 10)
+	}
+	return ""
+}
+
 func (vpk *Vpk) FecthVpks() {
 
 }
 
 func (vpk *Vpk) OpenAddonlist() {
-	tpath := filepath.Join(vpk.ppath, addonlist)
+	vpk.AddonlistRawStr = vpk.AddonlistRawStr[:0]
+	clear(vpk.AddonlistIdxMap)
 
+	tpath := filepath.Join(vpk.ppath, addonlist)
 	if ok := StatPath(tpath); !ok {
-		return
+		panic("addonlist path is invalid")
+		// return
 	}
 
-	var err error
-	if vpk.Addonlist, err = vvpk.OpenAddonlist(tpath); err != nil {
+	addonlistRawStr, idxMap, err := vvpk.OpenAddonlist(tpath)
+	if err == nil {
+		vpk.AddonlistRawStr = addonlistRawStr
+		vpk.AddonlistIdxMap = idxMap
+
 		return
 	}
 }
 
 func (vpk *Vpk) DisableMod(mod *schema.Mod) {
 	vpk.Mods[mod.Idx].IsEnable = !vpk.Mods[mod.Idx].IsEnable
-	vvpk.UpdateModStatus(vpk.Addonlist, mod.Id)
+	vvpk.UpdateModStatus(vpk.AddonlistRawStr, mod.Id, "0")
 }
 
 func (vpk *Vpk) SaveVpkInfo(mod *schema.Mod) {

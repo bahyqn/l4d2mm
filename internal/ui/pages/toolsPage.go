@@ -41,6 +41,21 @@ var cardInfo = []schema.ToolCardInfo{
 		Title:       "Edit GameInfo",
 		Describe:    "Configure game search paths & mod loading",
 	},
+	{
+		SvgFilename: "arrow_left_alt.svg",
+		Title:       "Sync DB to Addonlist",
+		Describe:    "Overwrite addonlist.txt using app database states to resolve Cloud Sync issues.",
+	},
+	{
+		SvgFilename: "arrow_right_alt.svg",
+		Title:       "Sync Addonlist to DB",
+		Describe:    "Update app database with in-game toggle states and scan for newly added VPKs.",
+	},
+	{
+		SvgFilename: "drive_file_move.svg",
+		Title:       "Move VPKs",
+		Describe:    "Batch move all VPKs from Steam Workshop folder to the app managed folder.",
+	},
 }
 
 var s string
@@ -76,7 +91,9 @@ func ToolsPage() gui.View {
 		comps = append(comps, sectionHeader("COLLECTION MANAGEMENT"))
 		comps = append(comps, rowCard(cardInfo[:3]))
 		comps = append(comps, sectionHeader("UTILITIES & DIAGNOSTICS"))
-		comps = append(comps, rowCard(cardInfo[3:]))
+		comps = append(comps, rowCard(cardInfo[3:6]))
+		comps = append(comps, sectionHeader("MOD & CONFIG SYNCHRONIZATION"))
+		comps = append(comps, rowCard(cardInfo[6:]))
 	}
 
 	return gui.Column(gui.ContainerCfg{

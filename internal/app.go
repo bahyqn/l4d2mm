@@ -172,9 +172,9 @@ func (app *App) DynamicPageSelect() {
 		return
 	}
 
-	t := make([]gui.SelectOption, 0, modLen/app.ComponentStatus.PageMods.PageAmount+1)
+	t := make([]gui.SelectOption, 0, modLen/app.ComponentStatus.PageMods.PageAmount)
 
-	for i := app.ComponentStatus.PageMods.PageAmount; i < modLen; i += app.ComponentStatus.PageMods.PageAmount {
+	for i := app.ComponentStatus.PageMods.PageAmount; i <= modLen; i += app.ComponentStatus.PageMods.PageAmount {
 		t = append(t, gui.SelectOption{
 			Label: strconv.Itoa(i),
 			Value: strconv.Itoa(i),

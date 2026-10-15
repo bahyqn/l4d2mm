@@ -33,3 +33,12 @@ func GetSubCategories(option string) {
 	}
 	GLOBALAPP.ComponentStatus.PageMods.SelectedSubLabel = []string{option}
 }
+
+func GetFileSize(filePath string) (uint64, error) {
+	info, err := os.Stat(filePath)
+	if err != nil {
+		return 0, err
+	}
+
+	return uint64(info.Size()), nil
+}
