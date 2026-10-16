@@ -272,8 +272,12 @@ const (
 	SourceDefault       SourceMode = "Default"
 	SourceWorkshopFirst SourceMode = "Workshop First"
 	SourceLocalFirst    SourceMode = "Local First"
-	SourceWorkshopOnly  SourceMode = "Workshop only"
-	SourceLocalOnly     SourceMode = "Local only"
+	SourceEnableFirst   SourceMode = "Enable First"
+	SourceDisableFirst  SourceMode = "Disable First"
+	SourceWorkshopOnly  SourceMode = "Workshop Only"
+	SourceLocalOnly     SourceMode = "Local Only"
+	SourceEnableOnly    SourceMode = "Enable Only"
+	SourceDisableOnly   SourceMode = "Disable Only"
 )
 
 var AllSourceModes = []gui.SelectOption{
@@ -290,11 +294,27 @@ var AllSourceModes = []gui.SelectOption{
 		Value: string(SourceLocalFirst),
 	},
 	{
+		Label: string(SourceEnableFirst),
+		Value: string(SourceEnableFirst),
+	},
+	{
+		Label: string(SourceDisableFirst),
+		Value: string(SourceDisableFirst),
+	},
+	{
 		Label: string(SourceWorkshopOnly),
 		Value: string(SourceWorkshopOnly),
 	},
 	{
 		Label: string(SourceLocalOnly),
 		Value: string(SourceLocalOnly),
+	},
+	{
+		Label: string(SourceEnableOnly),
+		Value: string(SourceEnableOnly),
+	},
+	{
+		Label: string(SourceDisableOnly),
+		Value: string(SourceDisableOnly),
 	},
 }

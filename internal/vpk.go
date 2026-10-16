@@ -44,7 +44,7 @@ type Vpk struct {
 	// addonlist.txt
 	AddonlistRawStr []string
 	// key 11111	value: index (index 111 in addonlistRawStr)
-	AddonlistIdxMap map[string]int
+	AddonlistIdxMap map[string]vvpk.IdxMap
 }
 
 func NewVpk(di *App) *Vpk {
@@ -94,7 +94,7 @@ func (vpk *Vpk) SyncVPKs(path string) {
 
 	vpk.SetupPath(path)
 	// sqlite3 := vpk.AppDi.DI.Sql
-	dbmods, err := vpk.AppDi.DI.Sql.QueryAllMods()
+	dbMods, err := vpk.AppDi.DI.Sql.QueryAllMods()
 	if err != nil {
 		panic("Failed query table mods from sqlite")
 	}
@@ -108,16 +108,30 @@ func (vpk *Vpk) SyncVPKs(path string) {
 		panic("Failed to query mods from workshop")
 	}
 
-	vpk.syncWorkshopVPKs(dbmods, twvpks, wmods, schema.LocationGame)
+	fmt.Println("twvpks ", len(twvpks))
+
+	vpk.syncWorkshopVPKs(dbMods, twvpks, wmods, schema.LocationGame)
 
 	// steam/steamapps/common/Left 4 Dead 2/left4dead2/addons
 	tlvpks, lmods, ok := vpk.GetMods(vpk.AddonsDir)
 	if !ok {
 		panic("Failed to query mods from adddons")
 	}
-	vpk.syncAddonsVPKs(dbmods, tlvpks, lmods, schema.LocationGame)
+	vpk.syncAddonsVPKs(dbMods, tlvpks, lmods, schema.LocationGame)
 
-	// fmt.Printf("%+v\n", tlvpks)
+	err = GLOBALAPP.DI.Sql.InsertMods(&vpk.Mods)
+
+	if err != nil {
+		panic("inserts mods to sqlite failed.")
+	}
+
+	clear(dbMods)
+	dbMods = dbMods[:0]
+	// get all vpks from sqlite
+	dbMods, err = vpk.AppDi.DI.Sql.QueryAllMods()
+	vpk.Mods = append(vpk.Mods, dbMods...)
+	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, dbMods...)
+	GLOBALAPP.DynamicPageSelect()
 }
 
 func (vpk *Vpk) findNewVPKs(path string, modsFromDB []schema.Mod) []string {
@@ -205,25 +219,6 @@ func (vpk *Vpk) ReadVpkInfo(path string, mod *schema.Mod) schema.VpkInfo {
 	return vpkInfo
 }
 
-// func (vpk *Vpk) FecthAllMods(path string) bool {
-// 	tvpks := []string{}
-
-// 	wsvpks, ok := vpk.GetMods(vpk.WorkshopDir)
-// 	if ok {
-// 		tvpks = append(tvpks, wsvpks...)
-// 	}
-
-// 	localaVpks, ok := vpk.GetMods(vpk.AddonsDir)
-// 	if ok {
-// 		tvpks = append(tvpks, localaVpks...)
-// 	}
-
-// 	if len(tvpks) == 0 {
-// 		return false
-// 	}
-// 	return true
-// }
-
 func (vpk *Vpk) GetModsSlice(path string) ([]string, bool) {
 	pattern := filepath.Join(path, "*.vpk")
 	tvpks, err := filepath.Glob(pattern)
@@ -307,17 +302,12 @@ func (vpk *Vpk) parseAndSaveNewVPKs(tvpks []string, IsFromWorkshop bool, locatio
 			// vpk.ReadVpkInfo()
 			mod := schema.Mod{
 				Idx:            idx,
-				Filename:       filepath.Base(path),
+				Filename:       strings.Split(filepath.Base(path), ".")[0],
 				Id:             strings.Split(filepath.Base(path), ".")[0],
 				IsEnable:       true,
 				Location:       loc,
 				IsFromWorkshop: IsFromWorkshop,
 			}
-
-			// local addons
-			// if idx%2 == 0 {
-			// 	mod.IsFromWorkshop = false
-			// }
 
 			info := vpk.ReadVpkInfo(path, &mod)
 
@@ -336,16 +326,7 @@ func (vpk *Vpk) parseAndSaveNewVPKs(tvpks []string, IsFromWorkshop bool, locatio
 			if v, ok := GetValue[string](info.Addoninfo, "addonauthor"); ok {
 				mod.Author = v
 			}
-			// if v, ok := GetValue[string](info.Addoninfo, "addonurl0"); ok {
-			// 	mod.Url = v
-			// }
 
-			// if v, ok := GetValue[string](info.Addoninfo, "title"); ok {
-			// 	vpk.Mods[idx].Name = v
-			// }
-			// if v, ok := GetValue[string](info.Addoninfo, "author"); ok {
-			// 	vpk.Mods[idx].Author = v
-			// }
 			localMods[idx] = mod
 		}(i, p, location)
 
@@ -354,9 +335,12 @@ func (vpk *Vpk) parseAndSaveNewVPKs(tvpks []string, IsFromWorkshop bool, locatio
 	wg.Wait()
 	close(ch)
 
-	vpk.Mods = append(vpk.Mods, localMods...)
-	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, localMods...)
-	GLOBALAPP.DynamicPageSelect()
+	if err := GLOBALAPP.DI.Sql.InsertMods(&localMods); err != nil {
+		fmt.Println("insert vpks to sqlite failed.")
+	}
+	// vpk.Mods = append(vpk.Mods, localMods...)
+	// GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, localMods...)
+	// GLOBALAPP.DynamicPageSelect()
 }
 
 func (vpk *Vpk) newAddonsVpkId(path string, treesize uint32) string {
@@ -420,4 +404,34 @@ func (vpk *Vpk) GetWorkshopMods(WorkshopDir string) {
 
 func (vpk *Vpk) InsertCollection() {
 
+}
+
+func (vpk *Vpk) clearAddonlistInfo() {
+	clear(vpk.AddonlistRawStr)
+	vpk.AddonlistRawStr = vpk.AddonlistRawStr[:0]
+	clear(vpk.AddonlistIdxMap)
+}
+
+func (vpk *Vpk) SyncAddonlistToDB() {
+	vpk.clearAddonlistInfo()
+
+	vpk.OpenAddonlist()
+
+	for idx, el := range vpk.Mods {
+		id := el.Id
+		if vmap, ok := vpk.AddonlistIdxMap[id]; ok {
+
+			switch vmap.Value {
+			case "0":
+				vpk.Mods[idx].IsEnable = false
+			case "1":
+				vpk.Mods[idx].IsEnable = true
+			}
+		}
+	}
+
+	clear(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx)
+	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[:0]
+	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[:0]
+	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, vpk.Mods...)
 }

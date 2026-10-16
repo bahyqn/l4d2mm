@@ -33,6 +33,7 @@ func SwitchDsiableMod(mod *schema.Mod) gui.View {
 	cfg.Selected = mod.IsEnable
 	cfg.OnClick = func(ec gui.EventCtx) {
 		internal.GLOBALAPP.DI.Vpk.DisableMod(mod)
+		// fmt.Println(mod.IsEnable)
 	}
 
 	return gui.Switch(cfg)

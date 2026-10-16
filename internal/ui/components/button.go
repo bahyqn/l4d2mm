@@ -97,13 +97,16 @@ func chooseFolder(w *gui.Window) {
 
 			vpk := internal.GLOBALAPP.DI.Vpk
 
-			vpk.SetupPath(folder)
+			// vpk.SetupPath(folder)
 
 			err := internal.GLOBALAPP.DI.Sql.UpdateGamePath(folder)
 
 			if err != nil {
 				fmt.Println("err: ", err)
+				return
 			}
+
+			vpk.SyncVPKs(folder)
 		},
 	})
 }

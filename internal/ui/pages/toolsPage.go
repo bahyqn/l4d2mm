@@ -14,37 +14,37 @@ var cardInfo = []schema.ToolCardInfo{
 	{
 		SvgFilename: "library_add.svg",
 		Title:       "Add Collection",
-		Describe:    "Create a brand new collection",
+		Describe:    "Create a brand new collection. (UNAVAILABLE)",
 	},
 	{
 		SvgFilename: "delete_forever.svg",
 		Title:       "Delete Collection",
-		Describe:    "Remove an existing collection",
+		Describe:    "Remove an existing collection. (UNAVAILABLE)",
 	},
 	{
 		SvgFilename: "edit_note.svg",
 		Title:       "Modify Collection",
-		Describe:    "Add or remove mods in existing ones",
+		Describe:    "Add or remove mods in existing ones. (UNAVAILABLE)",
 	},
 	{
 		SvgFilename: "category.svg",
 		Title:       "Classify Mods",
-		Describe:    "Auto-categorize & adjust mod types",
+		Describe:    "Auto-categorize & adjust mod types. (UNAVAILABLE)",
 	},
 	{
 		SvgFilename: "warning.svg",
 		Title:       "Conflict Detection",
-		Describe:    "Detect conflicts by category or collection",
+		Describe:    "Detect conflicts by category or collection. (UNAVAILABLE)",
 	},
 	{
 		SvgFilename: "edit_document.svg",
 		Title:       "Edit GameInfo",
-		Describe:    "Configure game search paths & mod loading",
+		Describe:    "Configure game search paths & mod loading. (UNAVAILABLE)",
 	},
 	{
 		SvgFilename: "arrow_left_alt.svg",
 		Title:       "Sync DB to Addonlist",
-		Describe:    "Overwrite addonlist.txt using app database states to resolve Cloud Sync issues.",
+		Describe:    "Overwrite addonlist.txt using app database states to resolve Cloud Sync issues. (UNAVAILABLE)",
 	},
 	{
 		SvgFilename: "arrow_right_alt.svg",
@@ -54,7 +54,7 @@ var cardInfo = []schema.ToolCardInfo{
 	{
 		SvgFilename: "drive_file_move.svg",
 		Title:       "Move VPKs",
-		Describe:    "Batch move all VPKs from Steam Workshop folder to the app managed folder.",
+		Describe:    "Batch move all VPKs from Steam Workshop folder to the app managed folder. (UNAVAILABLE)",
 	},
 }
 
@@ -101,29 +101,6 @@ func ToolsPage() gui.View {
 		Sizing:  gui.FillFill,
 		Spacing: gui.NoSpacing,
 		Content: comps,
-		// Content: []gui.View{
-		// 	gui.Breadcrumb(gui.BreadcrumbCfg{
-		// 		ID: "tools-nav",
-		// 		TextStyle: gui.TextStyle{
-		// 			Size:     16,
-		// 			Color:    gui.RGBA(0, 0, 0, 255),
-		// 			Typeface: gui.DefaultTextStyle.Italic().Typeface,
-		// 		},
-		// 		Items:    bread,
-		// 		Selected: s,
-		// 		OnSelect: func(s string, ec gui.EventCtx) {
-		// 			fmt.Println(s)
-		// 		},
-		// 	}),
-
-		// 	components.VerticalGap(3, gui.FixedFixed),
-		// 	components.HDivider(2),
-
-		// 	sectionHeader("COLLECTION MANAGEMENT"),
-		// 	rowCard(cardInfo[:3]),
-		// 	sectionHeader("UTILITIES & DIAGNOSTICS"),
-		// 	rowCard(cardInfo[3:]),
-		// },
 	})
 }
 
@@ -158,5 +135,8 @@ func rowCard(slice []schema.ToolCardInfo) gui.View {
 		Spacing: gui.SpacingPx(20),
 		Padding: gui.NewPadding(0, 14, 0, 14),
 		Content: comps,
+		OnClick: func(ec gui.EventCtx) {
+			internal.GLOBALAPP.DI.Vpk.SyncAddonlistToDB()
+		},
 	})
 }

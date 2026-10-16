@@ -8,6 +8,8 @@ github.com/bahyqn/vvdf v0.7.0 h1:NSUEoszrpSIHYXK89Qd/pfsPCbgnMakcdaGMBHylAEc=
 github.com/bahyqn/vvdf v0.7.0/go.mod h1:qoGHAfoc+wAdXG/w2GdH3p5aUhfbrWsUfjzpCKd4m4s=
 github.com/bahyqn/vvpk v0.6.0 h1:Q5G4Y4Ld11e0KIePRHjbRY9spdCrpFIjPo6WDBCm+ec=
 github.com/bahyqn/vvpk v0.6.0/go.mod h1:iv+wnI4nT76noMC4PuRD0k/8VYGWmZj3GXIwo7HUnXc=
+github.com/bahyqn/vvpk v0.6.1 h1:PsdNKB0FfEEOvKSkOgqmgCwrvdrFb9uM4TlAcn9RCd8=
+github.com/bahyqn/vvpk v0.6.1/go.mod h1:iv+wnI4nT76noMC4PuRD0k/8VYGWmZj3GXIwo7HUnXc=
 github.com/dlclark/regexp2/v2 v2.2.2 h1:MYWvNYw8okuqNhwTYO587EZMiDruVa2vhV6fsGpfya0=
 github.com/dlclark/regexp2/v2 v2.2.2/go.mod h1:avUrQvPaLz2DrFNHJF0taWAFFX2C1GMSSoeiqFjcBmU=
 github.com/ebitengine/purego v0.11.1 h1:2zpWRSQNVKN4eKsKO9eM1ILDgWfYMY9GwqRmK6XeQ/0=
@@ -16,6 +18,8 @@ github.com/go-gui-org/go-glyph v1.26.4 h1:7FlbBV7S+g1HwdU/ypTBkbyoumQZfd/4Tdg3Nb
 github.com/go-gui-org/go-glyph v1.26.4/go.mod h1:aP4jOhDJbaHwrIGjlBk9uV4OvWxr09JI7Z93Ad9lO2w=
 github.com/go-gui-org/go-gui v0.88.3 h1:p011civQwHfzQgfigxxpVZOnD+YY/iB5L3elEStEk2k=
 github.com/go-gui-org/go-gui v0.88.3/go.mod h1:gBYp7hon3TtDquD1IG2xVwpmPjOoeqjFBbf4eytkNdE=
+github.com/go-gui-org/go-gui v0.89.1 h1:fb7ZzrhTllnlD9qmki2FGvZ0GCaGZdR3YG1MHTDSmaw=
+github.com/go-gui-org/go-gui v0.89.1/go.mod h1:gBYp7hon3TtDquD1IG2xVwpmPjOoeqjFBbf4eytkNdE=
 github.com/go-pdf/fpdf v0.9.0 h1:PPvSaUuo1iMi9KkaAn90NuKi+P4gwMedWPHhj8YlJQw=
 github.com/go-pdf/fpdf v0.9.0/go.mod h1:oO8N111TkmKb9D7VvWGLvLJlaZUQVPM+6V42pp3iV4Y=
 github.com/go-text/typesetting v0.3.5 h1:XZPUooClHY0Vf/rFyUyuPRNEkawARaFzLMQcXLSEyPk=

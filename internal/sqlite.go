@@ -81,9 +81,9 @@ func (sql3 *Sqlite3) UpdateGamePath(path string) error {
 	return nil
 }
 
-func (sql3 *Sqlite3) InsertMods(mods *schema.Mod) error {
+func (sql3 *Sqlite3) InsertMods(batch *[]schema.Mod) error {
 	err := sql3.SDB.Transaction(func(tx *gorm.DB) error {
-		return tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(mods, 1000).Error
+		return tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(batch, 1000).Error
 	})
 
 	if err != nil {
