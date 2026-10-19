@@ -15,11 +15,11 @@ type AsideItem struct {
 var taside = []AsideItem{
 	{
 		name: "Mods",
-		icon: "extension.svg",
+		icon: "extension",
 	},
 	{
 		name: "Workshop",
-		icon: "shopping_cart.svg",
+		icon: "shopping_cart",
 	},
 	// {
 	// 	name: "Download",
@@ -27,19 +27,19 @@ var taside = []AsideItem{
 	// },
 	{
 		name: "Tasks",
-		icon: "check_circle_unread.svg",
+		icon: "check_circle_unread",
 	},
 	{
 		name: "Tools",
-		icon: "build.svg",
+		icon: "build",
 	},
 	{
 		name: "Servers",
-		icon: "host.svg",
+		icon: "host",
 	},
 	{
 		name: "Settings",
-		icon: "settings.svg",
+		icon: "settings",
 	},
 }
 
@@ -73,10 +73,10 @@ func forloopAside(app *internal.App) []gui.View {
 			},
 			Content: []gui.View{
 				gui.Svg(gui.SvgCfg{
-					Width:    theme.DefaultTheme.AsideIconSIze[0],
-					Height:   theme.DefaultTheme.AsideIconSIze[1],
-					Sizing:   gui.FixedFixed,
-					FileName: "assets/icons/" + el.icon,
+					Width:   theme.DefaultTheme.AsideIconSIze[0],
+					Height:  theme.DefaultTheme.AsideIconSIze[1],
+					Sizing:  gui.FixedFixed,
+					SvgData: app.GetSvg(el.icon),
 				}),
 				gui.Text(gui.TextCfg{
 					Text: el.name,

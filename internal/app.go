@@ -1,9 +1,12 @@
 package internal
 
 import (
+	"embed"
 	"l4d2mm/internal/schema"
 	"l4d2mm/internal/theme"
+	"path"
 	"strconv"
+	"strings"
 
 	"github.com/go-gui-org/go-gui/gui"
 )
@@ -19,20 +22,22 @@ func DefaultAppConfig() schema.AppConfig {
 }
 
 type DIContainer struct {
+	Window *gui.Window
 	Sql    *Sqlite3
 	Vpk    *Vpk
 	Task   *Task
-	Window *gui.Window
 }
 
 type App struct {
 	DI              DIContainer            `gorm:"-"`
 	ComponentStatus schema.ComponentStatus `gorm:"-"`
 	AppConfig       schema.AppConfig       `gorm:"-"`
+	assetfile       embed.FS               `gorm:"-"`
 }
 
-func NewApp() *App {
+func NewApp(as embed.FS) *App {
 	GLOBALAPP = &App{
+		assetfile: as,
 		ComponentStatus: schema.ComponentStatus{
 			AsideIdx:        0,
 			SubAsideIndices: [6]int{0, 0, 0, 0, 0, 0},
@@ -113,6 +118,7 @@ func NewApp() *App {
 			},
 		},
 		AppConfig: schema.AppConfig{
+			Svg: make(map[string]string),
 			// Width:      700,
 			// Height:     500,
 			// AsideWidth: 130,
@@ -131,6 +137,7 @@ func NewApp() *App {
 		},
 	}
 
+	GLOBALAPP.setupSvg()
 	GetSubCategories(GLOBALAPP.ComponentStatus.PageMods.SelectedategoryLabel[0])
 	return GLOBALAPP
 }
@@ -151,6 +158,33 @@ func (app *App) Prepare() {
 
 func (app *App) SetTheme(theme gui.Theme) {
 	gui.SetTheme(theme)
+}
+
+func (app *App) setupSvg() {
+	entries, err := app.assetfile.ReadDir("assets/icons")
+	if err != nil {
+		return
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".svg") {
+			continue
+		}
+
+		filename := strings.TrimSuffix(entry.Name(), ".svg")
+		if data, err := app.assetfile.ReadFile(path.Join("assets/icons", entry.Name())); err == nil {
+			app.AppConfig.Svg[filename] = string(data)
+		}
+	}
+}
+
+func (app *App) GetSvg(key string) string {
+	v, ok := app.AppConfig.Svg[key]
+	if ok {
+		return v
+	}
+
+	return ""
 }
 
 func (app *App) SetAsideIdx(cidx int) {

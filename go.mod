@@ -5,7 +5,7 @@ go 1.27.1
 require (
 	github.com/bahyqn/vvdf v0.7.0
 	github.com/bahyqn/vvpk v0.6.1
-	github.com/go-gui-org/go-gui v0.89.1
+	github.com/go-gui-org/go-gui v0.90.0
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.2
 )

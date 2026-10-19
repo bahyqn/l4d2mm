@@ -2,6 +2,9 @@ package internal
 
 import (
 	"os"
+	"path/filepath"
+
+	"github.com/go-gui-org/go-gui/gui"
 )
 
 // func ButtonColorChoice(app *internal.App, cidx int, color1 gui.Color, color2 gui.Color) gui.Color {
@@ -41,4 +44,40 @@ func GetFileSize(filePath string) (uint64, error) {
 	}
 
 	return uint64(info.Size()), nil
+}
+
+func SetupIcon(iconName string) string {
+	return filepath.Join("assets/icons", iconName)
+}
+
+func ToastSuccess(title, body string) {
+	GLOBALAPP.DI.Window.Toast(gui.ToastCfg{
+		Title:    title,
+		Body:     body,
+		Severity: gui.ToastSuccess,
+	})
+}
+
+func ToastWarning(title, body string) {
+	GLOBALAPP.DI.Window.Toast(gui.ToastCfg{
+		Title:    title,
+		Body:     body,
+		Severity: gui.ToastWarning,
+	})
+}
+
+func ToastFailed(title, body string) {
+	GLOBALAPP.DI.Window.Toast(gui.ToastCfg{
+		Title:    title,
+		Body:     body,
+		Severity: gui.ToastError,
+	})
+}
+
+func ToastMsg(title, body string) {
+	GLOBALAPP.DI.Window.Toast(gui.ToastCfg{
+		Title:    title,
+		Body:     body,
+		Severity: gui.ToastSeverity(gui.ToastTopRight),
+	})
 }

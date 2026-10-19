@@ -88,7 +88,26 @@ func SelectSourceMode() {
 			return tmp[i].Idx < tmp[j].Idx
 		})
 		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = tmp
-	case internal.AllSourceModes[3].Value: // Workshop only
+
+	case internal.AllSourceModes[3].Value: // Enable First
+		sort.SliceStable(tmp, func(i, j int) bool {
+			if tmp[i].IsEnable != tmp[j].IsEnable {
+				return tmp[i].IsEnable
+			}
+			return tmp[i].Idx < tmp[j].Idx
+		})
+		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = tmp
+
+	case internal.AllSourceModes[4].Value: // Disaable First
+		sort.SliceStable(tmp, func(i, j int) bool {
+			if tmp[i].IsEnable != tmp[j].IsEnable {
+				return !tmp[i].IsEnable //
+			}
+			return tmp[i].Idx < tmp[j].Idx
+		})
+		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = tmp
+
+	case internal.AllSourceModes[5].Value: // Workshop only
 		ttmap := []schema.Mod{}
 
 		for _, el := range src {
@@ -97,11 +116,33 @@ func SelectSourceMode() {
 			}
 		}
 		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = ttmap
-	case internal.AllSourceModes[4].Value: // Local only
+	case internal.AllSourceModes[6].Value: // Local only
 		ttmap := []schema.Mod{}
 
 		for _, el := range src {
 			if !el.IsFromWorkshop {
+				ttmap = append(ttmap, el)
+			}
+		}
+
+		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = ttmap
+
+	case internal.AllSourceModes[7].Value: // Enable only
+		ttmap := []schema.Mod{}
+
+		for _, el := range src {
+			if el.IsEnable {
+				ttmap = append(ttmap, el)
+			}
+		}
+
+		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = ttmap
+
+	case internal.AllSourceModes[8].Value: // Disable only
+		ttmap := []schema.Mod{}
+
+		for _, el := range src {
+			if !el.IsEnable {
 				ttmap = append(ttmap, el)
 			}
 		}

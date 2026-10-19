@@ -51,12 +51,42 @@ func (collection *Collection) TableName() string {
 	return "collections"
 }
 
+type Svg struct {
+	ArrowLeft       string
+	ArrowRight      string
+	Block           string
+	Build           string
+	Cancel          string
+	Category        string
+	CheckBoxLine    string
+	CheckBox        string
+	CheckicleUnread string
+	CheckCicle      string
+	Close           string
+	DeleteForever   string
+	DriveFileMove   string
+	EditDocument    string
+	EditNote        string
+	Extension       string
+	FileSave        string
+	FindInPage      string
+	Fingerprint     string
+	FolderOpeb      string
+	Host            string
+	LibraryAdd      string
+	MoreHoriz       string
+	Settings        string
+	Shopping        string
+	Warning         string
+}
+
 type AppConfig struct {
 	Id         int     `gorm:"column:id"`
 	Width      float32 `gorm:"-"`
 	Height     float32 `gorm:"-"`
 	AsideWidth float32 `gorm:"-"`
 
+	Svg   map[string]string `gorm:"-"`
 	Theme string `gorm:"column:theme"`
 
 	// automatic get value by FetchTables(sqlite.go)
@@ -120,4 +150,5 @@ type ToolCardInfo struct {
 	SvgFilename string
 	Title       string
 	Describe    string
+	OnClick     func()
 }

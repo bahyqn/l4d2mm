@@ -52,16 +52,16 @@ func Button(bthID string, clickFunc func(w *gui.Window)) gui.View {
 	return gui.Button(cfg)
 }
 
-func ButtonWithIcon(cfg *gui.ButtonCfg, bthID string, svgId string, iconName string, svgSize [2]float32) {
+func ButtonWithIcon(cfg *gui.ButtonCfg, bthID string, svgId string, svgData string, svgSize [2]float32) {
 
 	cfg.ID = bthID
 	cfg.Content = []gui.View{
 		gui.Svg(gui.SvgCfg{
-			ID:       svgId,
-			Width:    svgSize[0],
-			Height:   svgSize[1],
-			Sizing:   gui.FixedFixed,
-			FileName: "assets/icons/" + iconName,
+			ID:      svgId,
+			Width:   svgSize[0],
+			Height:  svgSize[1],
+			Sizing:  gui.FixedFixed,
+			SvgData: svgData,
 		}),
 	}
 }
@@ -73,7 +73,7 @@ func ButtonWithIconText(cfg *gui.ButtonCfg, bthID string, iconName string, text 
 			Width:    15,
 			Height:   15,
 			Sizing:   gui.FixedFixed,
-			FileName: "assets/icons/" + iconName,
+			FileName: internal.SetupIcon(iconName),
 		}),
 		gui.Text(gui.TextCfg{}),
 	}
@@ -118,7 +118,7 @@ func ButtonChooseFolder() gui.View {
 		panic("[Button chooseFolder]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "choose-addons-dir", "icon-folder-open", "folder_open.svg", theme.DefaultTheme.HeaderIconSize)
+	ButtonWithIcon(&cfg, "choose-addons-dir", "icon-folder-open", internal.GLOBALAPP.GetSvg("folder_open"), theme.DefaultTheme.HeaderIconSize)
 
 	cfg.OnClick = func(ec gui.EventCtx) {
 		chooseFolder(ec.Window)
@@ -166,7 +166,7 @@ func ButtonDeleteMod(mod *schema.Mod) gui.View {
 		panic("[Button delete Mod]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "bth-delete-mod-"+mod.Id, "icon-delete-mod", "delete.svg", theme.DefaultTheme.ModCardIconSize)
+	ButtonWithIcon(&cfg, "bth-delete-mod-"+mod.Id, "icon-delete-mod", internal.GLOBALAPP.GetSvg("delete"), theme.DefaultTheme.ModCardIconSize)
 
 	cfg.OnClick = func(ec gui.EventCtx) {
 		ec.Event.IsHandled = true
@@ -181,7 +181,7 @@ func ScanButton(mod *schema.Mod) gui.View {
 		panic("[Button delete Mod]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "more_horiz-"+mod.Id, "icon-more", "more_horiz.svg", theme.DefaultTheme.ModCardIconSize)
+	ButtonWithIcon(&cfg, "more_horiz-"+mod.Id, "icon-more", internal.GLOBALAPP.GetSvg("more_horiz"), theme.DefaultTheme.ModCardIconSize)
 
 	cfg.OnClick = func(ec gui.EventCtx) {}
 
@@ -199,7 +199,7 @@ func DisplayModProfileButton(mod *schema.Mod) gui.View {
 		panic("[Button length scan]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "view-overview-"+mod.Id, "icon-overview", "find_in_page.svg", theme.DefaultTheme.ModCardIconSize)
+	ButtonWithIcon(&cfg, "view-overview-"+mod.Id, "icon-overview", internal.GLOBALAPP.GetSvg("find_in_page"), theme.DefaultTheme.ModCardIconSize)
 	// cfg.ID = "view-profile-" + mod.Id
 
 	// cfg.Content = []gui.View{
@@ -227,7 +227,7 @@ func CRCScanButton(mod *schema.Mod) gui.View {
 		panic("[Button CRC]]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "CRC-scan-"+mod.Id, "icon-crc-scan", "fingerprint.svg", theme.DefaultTheme.ModCardIconSize)
+	ButtonWithIcon(&cfg, "CRC-scan-"+mod.Id, "icon-crc-scan", internal.GLOBALAPP.GetSvg("fingerprint"), theme.DefaultTheme.ModCardIconSize)
 	// cfg.ID = "CRC-scan" + mod.Id
 
 	// cfg.Content = []gui.View{
@@ -275,10 +275,10 @@ func SelectAllButton() gui.View {
 
 	cfg.Content = []gui.View{
 		gui.Svg(gui.SvgCfg{
-			ID:       "select-all-svg",
-			FileName: "assets/icons/check_box.svg",
-			Width:    theme.DefaultTheme.HeaderIconSize[0],
-			Height:   theme.DefaultTheme.HeaderIconSize[1],
+			ID:      "select-all-svg",
+			SvgData: internal.GLOBALAPP.GetSvg("check_box"),
+			Width:   theme.DefaultTheme.HeaderIconSize[0],
+			Height:  theme.DefaultTheme.HeaderIconSize[1],
 		}),
 	}
 	cfg.OnClick = func(ec gui.EventCtx) {
@@ -304,10 +304,10 @@ func CancelAllButton() gui.View {
 
 	cfg.Content = []gui.View{
 		gui.Svg(gui.SvgCfg{
-			ID:       "remove-all-svg",
-			FileName: "assets/icons/check_box_outline_blank.svg",
-			Width:    theme.DefaultTheme.HeaderIconSize[0],
-			Height:   theme.DefaultTheme.HeaderIconSize[1],
+			ID:      "remove-all-svg",
+			SvgData: internal.GLOBALAPP.GetSvg("check_box_outline_blank"),
+			Width:   theme.DefaultTheme.HeaderIconSize[0],
+			Height:  theme.DefaultTheme.HeaderIconSize[1],
 		}),
 	}
 	cfg.OnClick = func(ec gui.EventCtx) {
@@ -371,7 +371,7 @@ func ButtonReturnModsView() gui.View {
 		panic("[Button cancelAll]]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "return-mods-view", "return-mods-view-svg", "close.svg", theme.DefaultTheme.ModCardIconSize)
+	ButtonWithIcon(&cfg, "return-mods-view", "return-mods-view-svg", internal.GLOBALAPP.GetSvg("close"), theme.DefaultTheme.ModCardIconSize)
 	// cfg.ID = "return-mods-view"
 
 	cfg.Colors.Base = theme.DefaultLightGNOME().ButtonActive
@@ -391,20 +391,33 @@ func ButtonReturnModsView() gui.View {
 }
 
 func ToolCard(cardInfo schema.ToolCardInfo) gui.View {
-	return gui.Row(gui.ContainerCfg{
-		ID:          "card-row-" + cardInfo.Title,
-		Width:       330,
-		Height:      170,
-		Sizing:      gui.FixedFixed,
-		Color:       theme.DefaultTheme.ButtonDefault,
-		ColorBorder: theme.DefaultTheme.BorderColor,
-		SizeBorder:  gui.BorderPx(2),
+	return gui.Button(gui.ButtonCfg{
+		ID:     "card-row-" + cardInfo.Title,
+		Width:  330,
+		Height: 170,
+		Sizing: gui.FixedFixed,
+		VAlign: gui.Some(gui.VAlignTop),
+		Color:  theme.DefaultTheme.ButtonDefault,
+		Colors: gui.ColorSet{
+			Base:  theme.DefaultTheme.ButtonDefault,
+			Hover: theme.DefaultTheme.ButtonHover,
+		},
+		// ColorBorder: theme.DefaultTheme.BorderColor,
+		SizeBorder: gui.BorderPx(2),
+		Padding:    gui.NewPadding(14, 14, 0, 14),
+		OnClick: func(ctx gui.EventCtx) {
+			cardInfo.OnClick()
+
+			internal.ToastMsg("Saved", "Sync addonlist to sqlite finished.")
+
+			ctx.Consume()
+		},
 		Content: []gui.View{
 			gui.Svg(gui.SvgCfg{
-				ID:       "card-svg-" + cardInfo.SvgFilename,
-				FileName: "assets/icons/" + cardInfo.SvgFilename,
-				Width:    30,
-				Height:   30,
+				ID:      "card-svg-" + cardInfo.SvgFilename,
+				SvgData: internal.GLOBALAPP.GetSvg(cardInfo.SvgFilename),
+				Width:   30,
+				Height:  30,
 			}),
 			gui.Column(gui.ContainerCfg{
 				ID:       "card-row-column-" + cardInfo.Title,

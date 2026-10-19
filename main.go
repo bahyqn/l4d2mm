@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"l4d2mm/internal"
 	theme "l4d2mm/internal/theme"
 	"l4d2mm/internal/ui/components"
@@ -10,11 +11,15 @@ import (
 	"github.com/go-gui-org/go-gui/gui/backend"
 )
 
+//go:embed assets/*
+var assetFiles embed.FS
+
 func main() {
+	app := internal.NewApp(assetFiles)
 	gui.SetTheme(gui.ThemeLight.WithBorders(true))
 
 	w := gui.NewWindow(gui.WindowCfg{
-		State:     internal.NewApp(),
+		State:     app,
 		Title:     "l4d2mm",
 		Width:     int(internal.GLOBALAPP.AppConfig.Width),
 		Height:    int(internal.GLOBALAPP.AppConfig.Height),

@@ -65,7 +65,12 @@ func (sql3 *Sqlite3) FetchTables() {
 		sql3.SDB.Model(&schema.AppConfig{}).Create(&config)
 	}
 
-	sql3.SDB.Model(&schema.AppConfig{}).Where("id=?", 1).Scan(&sql3.AppDi.AppConfig)
+	var config schema.AppConfig
+	if err := sql3.SDB.Model(&schema.AppConfig{}).Where("id=?", 1).Scan(&config).Error; err == nil {
+		sql3.AppDi.AppConfig.Id = config.Id
+		sql3.AppDi.AppConfig.Theme = config.Theme
+		sql3.AppDi.AppConfig.GamePath = config.GamePath
+	}
 }
 
 func (sql3 *Sqlite3) UpdateGamePath(path string) error {

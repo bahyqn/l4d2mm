@@ -12,49 +12,60 @@ import (
 
 var cardInfo = []schema.ToolCardInfo{
 	{
-		SvgFilename: "library_add.svg",
+		SvgFilename: "library_add",
 		Title:       "Add Collection",
 		Describe:    "Create a brand new collection. (UNAVAILABLE)",
+		OnClick:     func() {},
 	},
 	{
-		SvgFilename: "delete_forever.svg",
+		SvgFilename: "delete_forever",
 		Title:       "Delete Collection",
 		Describe:    "Remove an existing collection. (UNAVAILABLE)",
+		OnClick:     func() {},
 	},
 	{
-		SvgFilename: "edit_note.svg",
+		SvgFilename: "edit_note",
 		Title:       "Modify Collection",
 		Describe:    "Add or remove mods in existing ones. (UNAVAILABLE)",
+		OnClick:     func() {},
 	},
 	{
-		SvgFilename: "category.svg",
+		SvgFilename: "category",
 		Title:       "Classify Mods",
 		Describe:    "Auto-categorize & adjust mod types. (UNAVAILABLE)",
+		OnClick:     func() {},
 	},
 	{
-		SvgFilename: "warning.svg",
+		SvgFilename: "warning",
 		Title:       "Conflict Detection",
 		Describe:    "Detect conflicts by category or collection. (UNAVAILABLE)",
+		OnClick:     func() {},
 	},
 	{
-		SvgFilename: "edit_document.svg",
+		SvgFilename: "edit_document",
 		Title:       "Edit GameInfo",
 		Describe:    "Configure game search paths & mod loading. (UNAVAILABLE)",
+		OnClick:     func() {},
 	},
 	{
-		SvgFilename: "arrow_left_alt.svg",
+		SvgFilename: "arrow_left_alt",
 		Title:       "Sync DB to Addonlist",
 		Describe:    "Overwrite addonlist.txt using app database states to resolve Cloud Sync issues. (UNAVAILABLE)",
+		OnClick:     func() {},
 	},
 	{
-		SvgFilename: "arrow_right_alt.svg",
+		SvgFilename: "arrow_right_alt",
 		Title:       "Sync Addonlist to DB",
 		Describe:    "Update app database with in-game toggle states and scan for newly added VPKs.",
+		OnClick: func() {
+			internal.GLOBALAPP.DI.Vpk.SyncAddonlistToDB()
+		},
 	},
 	{
-		SvgFilename: "drive_file_move.svg",
+		SvgFilename: "drive_file_move",
 		Title:       "Move VPKs",
 		Describe:    "Batch move all VPKs from Steam Workshop folder to the app managed folder. (UNAVAILABLE)",
+		OnClick:     func() {},
 	},
 }
 
@@ -136,7 +147,7 @@ func rowCard(slice []schema.ToolCardInfo) gui.View {
 		Padding: gui.NewPadding(0, 14, 0, 14),
 		Content: comps,
 		OnClick: func(ec gui.EventCtx) {
-			internal.GLOBALAPP.DI.Vpk.SyncAddonlistToDB()
+			// internal.GLOBALAPP.DI.Vpk.SyncAddonlistToDB()
 		},
 	})
 }
