@@ -81,3 +81,8 @@ func ToastMsg(title, body string) {
 		Severity: gui.ToastSeverity(gui.ToastTopRight),
 	})
 }
+
+func AppendBreadCrumb(s string) {
+	// GLOBALAPP.ComponentStatus.PageTools.BreadCrumb = append(GLOBALAPP.ComponentStatus.PageTools.BreadCrumb, s)
+	GLOBALAPP.ComponentStatus.PageTools.BreadCrumb[1] = s
+}

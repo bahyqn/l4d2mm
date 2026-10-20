@@ -98,7 +98,6 @@ func (vpk *Vpk) SyncVPKs(path string) {
 	if err != nil {
 		panic("Failed query table mods from sqlite")
 	}
-
 	// .../steam/steamapps/common/Left 4 Dead 2/left4dead2/addons/workshop
 	// twvpks: sort by disk
 	// wmods: map{ "1111": ".../steam/steamapps/common/Left 4 Dead 2/left4dead2/addons/workshop/1111.vpk"}
@@ -107,8 +106,6 @@ func (vpk *Vpk) SyncVPKs(path string) {
 	if !ok {
 		panic("Failed to query mods from workshop")
 	}
-
-	fmt.Println("twvpks ", len(twvpks))
 
 	vpk.syncWorkshopVPKs(dbMods, twvpks, wmods, schema.LocationGame)
 

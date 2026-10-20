@@ -87,7 +87,7 @@ type AppConfig struct {
 	AsideWidth float32 `gorm:"-"`
 
 	Svg   map[string]string `gorm:"-"`
-	Theme string `gorm:"column:theme"`
+	Theme string            `gorm:"column:theme"`
 
 	// automatic get value by FetchTables(sqlite.go)
 	GamePath string `gorm:"column:game_path"`
@@ -126,7 +126,8 @@ type PageMods struct {
 }
 
 type PageTools struct {
-	BreadCrumb []string
+	BreadCrumb     [2]string
+	CollectionName string
 }
 
 type TemplateSelect struct {

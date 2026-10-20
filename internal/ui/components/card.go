@@ -34,8 +34,7 @@ func ModCard(mod schema.Mod) gui.View {
 		// Radius:       gui.SomeF(12),
 		Radius:       gui.RadiusPx(12),
 		ClipContents: true,
-		// ClipContents: true,
-		ColorBorder: theme.DefaultLightGNOME().BorderColor,
+		ColorBorder:  theme.DefaultLightGNOME().BorderColor,
 		Shadow: &gui.BoxShadow{
 			Color:      gui.RGBA(0, 0, 0, 26),
 			OffsetX:    0,

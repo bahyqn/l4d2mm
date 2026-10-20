@@ -65,6 +65,18 @@ func ButtonWithIcon(cfg *gui.ButtonCfg, bthID string, svgId string, svgData stri
 		}),
 	}
 }
+func ButtonWithText(cfg *gui.ButtonCfg, bthID string, textId string, btnName string) {
+
+	cfg.ID = bthID
+	cfg.Content = []gui.View{
+		gui.Text(gui.TextCfg{
+			ID:     textId,
+			Sizing: gui.FixedFixed,
+			Text:   btnName,
+		}),
+	}
+}
+
 func ButtonWithIconText(cfg *gui.ButtonCfg, bthID string, iconName string, text string) {
 
 	cfg.ID = bthID
@@ -264,6 +276,7 @@ func MoreHoriz(mod *schema.Mod) gui.View {
 	})
 }
 
+// Max 50 by selecting
 func SelectAllButton() gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
@@ -282,17 +295,24 @@ func SelectAllButton() gui.View {
 		}),
 	}
 	cfg.OnClick = func(ec gui.EventCtx) {
-		if len(internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx) == 0 {
+		pageMods := internal.GLOBALAPP.ComponentStatus.PageMods
+		if len(pageMods.ModsBySelectIdx) == 0 {
 			return
 		}
 
-		for _, el := range internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx {
+		start, end := internal.GLOBALAPP.CurrentModsRange()
+		if end == 0 || start == end {
+			return
+		}
+
+		for _, el := range pageMods.ModsBySelectIdx[start:end] {
 			internal.GLOBALAPP.DI.Task.AddTask(el.Id)
 		}
 	}
 	return gui.Button(cfg)
 }
 
+// Max 50 by Canceeling
 func CancelAllButton() gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
@@ -315,7 +335,12 @@ func CancelAllButton() gui.View {
 			return
 		}
 
-		for _, el := range internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx {
+		start, end := internal.GLOBALAPP.CurrentModsRange()
+		if end == 0 || start == end {
+			return
+		}
+
+		for _, el := range internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[start:end] {
 			internal.GLOBALAPP.DI.Task.RemoveTask(el.Id)
 		}
 	}
@@ -407,9 +432,6 @@ func ToolCard(cardInfo schema.ToolCardInfo) gui.View {
 		Padding:    gui.NewPadding(14, 14, 0, 14),
 		OnClick: func(ctx gui.EventCtx) {
 			cardInfo.OnClick()
-
-			internal.ToastMsg("Saved", "Sync addonlist to sqlite finished.")
-
 			ctx.Consume()
 		},
 		Content: []gui.View{
@@ -453,4 +475,24 @@ func ToolCard(cardInfo schema.ToolCardInfo) gui.View {
 			}),
 		},
 	})
+}
+
+func ButtonAddCollection() gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
+
+	if !ok {
+		panic("[Button add collection]]Invalid select theme key")
+	}
+
+	ButtonWithText(&cfg, "button-add-collection", "text-add-collection", "Add")
+
+	cfg.Width = 100
+	cfg.Colors.Base = theme.DefaultLightGNOME().ButtonActive
+	// cfg.Padding = gui.NewPadding(14, 14, 14, 14)
+
+	cfg.OnClick = func(ec gui.EventCtx) {
+		// internal.SwitchSubPage(0, 0)
+		fmt.Println(internal.GLOBALAPP.ComponentStatus.PageTools.CollectionName)
+	}
+	return gui.Button(cfg)
 }

@@ -90,3 +90,29 @@ func InputPageModDetails(text string, tidx int) gui.View {
 
 	return gui.Input(cfg)
 }
+
+func InputCollectionName() gui.View {
+	cfg, ok := DefaultInputConfig[internal.GLOBALAPP.AppConfig.Theme]
+
+	if !ok {
+		panic("[Input pageModDetails]invalid input theme key")
+	}
+
+	cfg.Placeholder = "Collection name"
+	cfg.Width = 300
+	cfg.MaxWidth = 300
+	cfg.Text = internal.GLOBALAPP.ComponentStatus.PageTools.CollectionName
+
+	cfg.OnTextChanged = func(s string, ec gui.EventCtx) {
+		// internal.GLOBALAPP.ComponentStatus.PageMods.TempModDetailsFields[tidx] = s
+		fmt.Println("changed", s)
+		fmt.Println("changed", internal.GLOBALAPP.ComponentStatus.PageTools.CollectionName)
+		fmt.Println()
+	}
+	cfg.OnTextCommit = func(s string, icr gui.InputCommitReason, ec gui.EventCtx) {
+		// internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue = s
+		// fmt.Println("commit: ", internal.GLOBALAPP.ComponentStatus.PageMods.TempModDetailsFields[tidx])
+	}
+
+	return gui.Input(cfg)
+}

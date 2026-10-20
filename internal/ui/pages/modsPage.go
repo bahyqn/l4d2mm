@@ -44,10 +44,8 @@ func ModsView() gui.View {
 				Sizing: gui.FitFill,
 				Wrap:   true,
 				// Spacing: gui.SomeF(16),
-				Spacing: gui.SpacingPx(16),
-				OnScroll: func(ec gui.EventCtx) {
-
-				},
+				Spacing:    gui.SpacingPx(16),
+				OnScroll:   func(ec gui.EventCtx) {},
 				Scrollable: true,
 				ScrollMode: gui.ScrollVerticalOnly,
 				Overflow:   false,

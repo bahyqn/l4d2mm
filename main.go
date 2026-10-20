@@ -23,7 +23,7 @@ func main() {
 		Title:     "l4d2mm",
 		Width:     int(internal.GLOBALAPP.AppConfig.Width),
 		Height:    int(internal.GLOBALAPP.AppConfig.Height),
-		FixedSize: false,
+		FixedSize: true,
 		OnInit: func(w *gui.Window) {
 
 			// vpk := internal.Vpk{}

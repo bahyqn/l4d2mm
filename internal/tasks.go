@@ -23,16 +23,16 @@ type History struct {
 }
 
 type Task struct {
-	TaskType TaskType
-	Status   TaskStatus
+	// TaskType TaskType
+	// Status   TaskStatus
 	Selected map[string]TaskStatus
 	History  []History
 }
 
 func NewTask() *Task {
 	return &Task{
-		TaskType: TaskNone,
-		Status:   TaskStatusIdle,
+		// TaskType: TaskNone,
+		// Status:   TaskStatusIdle,
 		Selected: map[string]TaskStatus{},
 	}
 }
@@ -60,13 +60,13 @@ func (task *Task) IsSelected(modId string) bool {
 	return true
 }
 
-func (task *Task) SetupMode(mode TaskType) {
-	task.TaskType = mode
-}
+// func (task *Task) SetupMode(mode TaskType) {
+// 	task.TaskType = mode
+// }
 
-func (task *Task) SwitchTaskStatus(status TaskStatus) {
-	task.Status = status
-}
+// func (task *Task) SwitchTaskStatus(status TaskStatus) {
+// 	task.Status = status
+// }
 
 func (task *Task) SwitchSelectedTaskStatus(modId string, status TaskStatus) {
 	if _, ok := task.Selected[modId]; !ok {

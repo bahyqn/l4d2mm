@@ -114,7 +114,7 @@ func NewApp(as embed.FS) *App {
 				TempModDetailsFields: [3]string{"", "", ""},
 			},
 			PageTools: schema.PageTools{
-				BreadCrumb: []string{"Tools"},
+				BreadCrumb: [2]string{"Tools"},
 			},
 		},
 		AppConfig: schema.AppConfig{
@@ -231,6 +231,23 @@ func (app *App) DynamicPageSelect() {
 		app.ComponentStatus.PageMods.PageEnd[0] == "" {
 		app.ComponentStatus.PageMods.PageEnd[0] = ""
 	}
+}
+
+// Return the start and end mod indices for the selected dropdown option.
+func (app *App) CurrentModsRange() (int, int) {
+
+	start := 0
+	end, err := strconv.Atoi(app.ComponentStatus.PageMods.PageEnd[0])
+
+	if err != nil {
+		return 0, 0
+	}
+
+	for i := 0; i < end-1; i += app.ComponentStatus.PageMods.PageAmount {
+		start = i
+	}
+
+	return start, end
 }
 
 func SwitchSubPage(idx, subPage int) {
