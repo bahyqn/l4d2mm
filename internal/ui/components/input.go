@@ -105,9 +105,7 @@ func InputCollectionName() gui.View {
 
 	cfg.OnTextChanged = func(s string, ec gui.EventCtx) {
 		// internal.GLOBALAPP.ComponentStatus.PageMods.TempModDetailsFields[tidx] = s
-		fmt.Println("changed", s)
-		fmt.Println("changed", internal.GLOBALAPP.ComponentStatus.PageTools.CollectionName)
-		fmt.Println()
+		internal.GLOBALAPP.ComponentStatus.PageTools.CollectionName = s
 	}
 	cfg.OnTextCommit = func(s string, icr gui.InputCommitReason, ec gui.EventCtx) {
 		// internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue = s

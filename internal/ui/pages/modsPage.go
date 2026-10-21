@@ -3,11 +3,12 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
 	"l4d2mm/internal/theme"
 	"l4d2mm/internal/ui/components"
-	"strconv"
 
 	"github.com/go-gui-org/go-gui/gui"
 )
@@ -61,7 +62,6 @@ func ModsView() gui.View {
 }
 
 func ModDetails() gui.View {
-
 	comps := []gui.View{
 		components.HeaderModDetails(),
 		components.VerticalGap(10, gui.FixedFixed),
@@ -123,7 +123,7 @@ func renderCards() []gui.View {
 func fakeData() {
 	for i := 0; i < 100; i++ {
 		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, schema.Mod{
-			Id: strconv.Itoa(i),
+			ID: strconv.Itoa(i),
 		})
 	}
 }
@@ -132,7 +132,7 @@ func fakeData() {
 func overview() gui.View {
 	mod := internal.GLOBALAPP.ComponentStatus.PageMods.ModDetails
 	return gui.Column(gui.ContainerCfg{
-		ID:       "profile-mod-" + mod.Id,
+		ID:       "profile-mod-" + mod.ID,
 		Width:    750,
 		MaxWidth: 750,
 		Sizing:   gui.FillFit,
@@ -143,7 +143,7 @@ func overview() gui.View {
 		Content: []gui.View{
 			// id
 			// components.VerticalGap(5, gui.FillFixed),
-			modProfileRow1("Id", mod.Id),
+			modProfileRow1("Id", mod.ID),
 			components.HDivider(1),
 			modProfileRow1("Filename", mod.Filename),
 			components.HDivider(1),
@@ -233,7 +233,6 @@ func modProfileRow2(k string, v string, tidx int) gui.View {
 func renderWindow(data map[string]any) gui.View {
 	// jsonBytes, err := json.MarshalIndent(internal.GLOBALAPP.ComponentStatus.PageMods.ModDetails.Addoninfo, "", "    ")
 	jsonBytes, err := json.MarshalIndent(data, "", "    ")
-
 	if err != nil {
 		fmt.Println("json.MarshalIndent failed:", err)
 		jsonBytes = []byte("{}")

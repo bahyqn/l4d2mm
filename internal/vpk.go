@@ -2,7 +2,6 @@ package internal
 
 import (
 	"fmt"
-	"l4d2mm/internal/schema"
 	"maps"
 	"os"
 	"path/filepath"
@@ -10,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"l4d2mm/internal/schema"
 
 	// "github.com/NublyBR/go-vpk"
 	"github.com/bahyqn/vvdf"
@@ -117,14 +118,13 @@ func (vpk *Vpk) SyncVPKs(path string) {
 	vpk.syncAddonsVPKs(dbMods, tlvpks, lmods, schema.LocationGame)
 
 	err = GLOBALAPP.DI.Sql.InsertMods(&vpk.Mods)
-
 	if err != nil {
 		panic("inserts mods to sqlite failed.")
 	}
 
+	// Get all of the vpks tha there's new vpks
 	clear(dbMods)
 	dbMods = dbMods[:0]
-	// get all vpks from sqlite
 	dbMods, err = vpk.AppDi.DI.Sql.QueryAllMods()
 	vpk.Mods = append(vpk.Mods, dbMods...)
 	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, dbMods...)
@@ -158,16 +158,18 @@ func (vpk *Vpk) syncWorkshopVPKs(dbmods []schema.Mod, twvpks []string, wmods map
 	cloneWmods := maps.Clone(wmods)
 
 	for _, el := range dbmods {
-		_, ok := cloneWmods[el.Id]
+		_, ok := cloneWmods[el.ID]
 		if ok && el.IsFromWorkshop {
-			delete(cloneWmods, el.Id)
+			delete(cloneWmods, el.ID)
 		}
-
-		newMods = append(newMods, el.Id)
 	}
 
 	if len(cloneWmods) == 0 {
 		return
+	}
+
+	for _, v := range cloneWmods {
+		newMods = append(newMods, v)
 	}
 
 	vpk.parseAndSaveNewVPKs(newMods, true, location)
@@ -184,9 +186,9 @@ func (vpk *Vpk) syncAddonsVPKs(dbmods []schema.Mod, tlmods []string, lmods map[s
 
 func (vpk *Vpk) GetModAbsPath(mod *schema.Mod) string {
 	if mod.IsFromWorkshop {
-		return filepath.Join(vpk.ppath, workshopModsPath, mod.Id+".vpk")
+		return filepath.Join(vpk.ppath, workshopModsPath, mod.ID+".vpk")
 	}
-	return filepath.Join(vpk.ppath, localModsPath, mod.Id+".vpk")
+	return filepath.Join(vpk.ppath, localModsPath, mod.ID+".vpk")
 }
 
 func (vpk *Vpk) ReadVpkInfo(path string, mod *schema.Mod) schema.VpkInfo {
@@ -219,7 +221,6 @@ func (vpk *Vpk) ReadVpkInfo(path string, mod *schema.Mod) schema.VpkInfo {
 func (vpk *Vpk) GetModsSlice(path string) ([]string, bool) {
 	pattern := filepath.Join(path, "*.vpk")
 	tvpks, err := filepath.Glob(pattern)
-
 	if err != nil {
 		return nil, false
 	}
@@ -249,7 +250,7 @@ func (vpk *Vpk) getMissingModIDs(ids []string) ([]string, error) {
 		return nil, nil
 	}
 
-	var batchSize = 500
+	batchSize := 500
 	var missingIDs []string
 	existngMap := make(map[string]bool, idsLength)
 
@@ -263,7 +264,6 @@ func (vpk *Vpk) getMissingModIDs(ids []string) ([]string, error) {
 
 		var batchExistIDs []string
 		err := vpk.AppDi.DI.Sql.SDB.Model(&schema.Mod{}).Where("id in ?", batch).Pluck("id", &batchExistIDs).Error
-
 		if err != nil {
 			return nil, err
 		}
@@ -282,7 +282,6 @@ func (vpk *Vpk) getMissingModIDs(ids []string) ([]string, error) {
 }
 
 func (vpk *Vpk) parseAndSaveNewVPKs(tvpks []string, IsFromWorkshop bool, location schema.ModLocation) {
-
 	localMods := make([]schema.Mod, len(tvpks))
 
 	var wg sync.WaitGroup
@@ -300,7 +299,7 @@ func (vpk *Vpk) parseAndSaveNewVPKs(tvpks []string, IsFromWorkshop bool, locatio
 			mod := schema.Mod{
 				Idx:            idx,
 				Filename:       strings.Split(filepath.Base(path), ".")[0],
-				Id:             strings.Split(filepath.Base(path), ".")[0],
+				ID:             strings.Split(filepath.Base(path), ".")[0],
 				IsEnable:       true,
 				Location:       loc,
 				IsFromWorkshop: IsFromWorkshop,
@@ -314,7 +313,7 @@ func (vpk *Vpk) parseAndSaveNewVPKs(tvpks []string, IsFromWorkshop bool, locatio
 			mod.Treesize = info.Treesize
 
 			if !IsFromWorkshop {
-				mod.Id = vpk.newAddonsVpkId(path, mod.Treesize)
+				mod.ID = vpk.newAddonsVpkId(path, mod.Treesize)
 			}
 
 			if v, ok := GetValue[string](info.Addoninfo, "addontitle"); ok {
@@ -349,7 +348,6 @@ func (vpk *Vpk) newAddonsVpkId(path string, treesize uint32) string {
 }
 
 func (vpk *Vpk) FecthVpks() {
-
 }
 
 func (vpk *Vpk) OpenAddonlist() {
@@ -373,7 +371,7 @@ func (vpk *Vpk) OpenAddonlist() {
 
 func (vpk *Vpk) DisableMod(mod *schema.Mod) {
 	vpk.Mods[mod.Idx].IsEnable = !vpk.Mods[mod.Idx].IsEnable
-	vvpk.UpdateModStatus(vpk.AddonlistRawStr, mod.Id, "0")
+	vvpk.UpdateModStatus(vpk.AddonlistRawStr, mod.ID, "0")
 }
 
 func (vpk *Vpk) SaveVpkInfo(mod *schema.Mod) {
@@ -392,15 +390,12 @@ func (vpk *Vpk) SaveVpkInfo(mod *schema.Mod) {
 }
 
 func (vpk *Vpk) GetLocalMods(addonsDir string) {
-
 }
 
 func (vpk *Vpk) GetWorkshopMods(WorkshopDir string) {
-
 }
 
 func (vpk *Vpk) InsertCollection() {
-
 }
 
 func (vpk *Vpk) clearAddonlistInfo() {
@@ -415,9 +410,8 @@ func (vpk *Vpk) SyncAddonlistToDB() {
 	vpk.OpenAddonlist()
 
 	for idx, el := range vpk.Mods {
-		id := el.Id
+		id := el.ID
 		if vmap, ok := vpk.AddonlistIdxMap[id]; ok {
-
 			switch vmap.Value {
 			case "0":
 				vpk.Mods[idx].IsEnable = false
@@ -431,4 +425,6 @@ func (vpk *Vpk) SyncAddonlistToDB() {
 	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[:0]
 	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[:0]
 	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, vpk.Mods...)
+
+	ToastSuccess("Synced", "Sync addonlist to sqlite successful")
 }

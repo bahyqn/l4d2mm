@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+
 	"l4d2mm/internal"
 	theme "l4d2mm/internal/theme"
 	"l4d2mm/internal/ui/components"
@@ -16,7 +17,9 @@ var assetFiles embed.FS
 
 func main() {
 	app := internal.NewApp(assetFiles)
-	gui.SetTheme(gui.ThemeLight.WithBorders(true))
+	cfg := gui.ThemeLight.WithBorders(true).Cfg
+	cfg.ToastAnchor = gui.Some(gui.ToastTopRight)
+	gui.SetTheme(gui.ThemeMaker(cfg))
 
 	w := gui.NewWindow(gui.WindowCfg{
 		State:     app,
@@ -25,7 +28,6 @@ func main() {
 		Height:    int(internal.GLOBALAPP.AppConfig.Height),
 		FixedSize: true,
 		OnInit: func(w *gui.Window) {
-
 			// vpk := internal.Vpk{}
 			// vpk.ReadAllVpk()
 			internal.GLOBALAPP.RegisterAllDependencies(w)
@@ -39,7 +41,6 @@ func main() {
 }
 
 func mainView(w *gui.Window) gui.View {
-
 	return gui.Row(gui.ContainerCfg{
 		Sizing: gui.FillFill,
 		// HAlign: gui.HAlignCenter,

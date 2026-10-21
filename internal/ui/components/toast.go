@@ -1,9 +1,10 @@
 package components
 
 import (
-	"l4d2mm/internal"
 	"sync"
 	"time"
+
+	"l4d2mm/internal"
 
 	"github.com/go-gui-org/go-gui/gui"
 )
@@ -30,7 +31,7 @@ import (
 // 	},
 // }
 
-// 2s
+// MaxAlive 2s
 var MaxAlive = 2
 
 type ToastType string
@@ -144,9 +145,7 @@ func (t *Toast) ToastFailedMsg(hint string) {
 				},
 			}),
 
-			gui.Svg(gui.SvgCfg{
-				
-			}),
+			gui.Svg(gui.SvgCfg{}),
 		},
 	})
 }

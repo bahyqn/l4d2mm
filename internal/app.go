@@ -2,11 +2,12 @@ package internal
 
 import (
 	"embed"
-	"l4d2mm/internal/schema"
-	"l4d2mm/internal/theme"
 	"path"
 	"strconv"
 	"strings"
+
+	"l4d2mm/internal/schema"
+	"l4d2mm/internal/theme"
 
 	"github.com/go-gui-org/go-gui/gui"
 )
@@ -15,7 +16,7 @@ var GLOBALAPP *App
 
 func DefaultAppConfig() schema.AppConfig {
 	return schema.AppConfig{
-		Id:       1,
+		ID:       1,
 		Theme:    "gnome",
 		GamePath: "",
 	}
@@ -114,7 +115,9 @@ func NewApp(as embed.FS) *App {
 				TempModDetailsFields: [3]string{"", "", ""},
 			},
 			PageTools: schema.PageTools{
-				BreadCrumb: [2]string{"Tools"},
+				BreadCrumb:      [2]string{"Tools"},
+				CollectionName:  "",
+				ApplyCollection: false,
 			},
 		},
 		AppConfig: schema.AppConfig{
@@ -235,10 +238,8 @@ func (app *App) DynamicPageSelect() {
 
 // Return the start and end mod indices for the selected dropdown option.
 func (app *App) CurrentModsRange() (int, int) {
-
 	start := 0
 	end, err := strconv.Atoi(app.ComponentStatus.PageMods.PageEnd[0])
-
 	if err != nil {
 		return 0, 0
 	}

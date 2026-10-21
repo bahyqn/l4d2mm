@@ -29,7 +29,7 @@ func SwitchDsiableMod(mod *schema.Mod) gui.View {
 		panic("[Switch] Invalid select theme key")
 	}
 
-	cfg.ID = "mod-switch-" + mod.Id
+	cfg.ID = "mod-switch-" + mod.ID
 	cfg.Selected = mod.IsEnable
 	cfg.OnClick = func(ec gui.EventCtx) {
 		internal.GLOBALAPP.DI.Vpk.DisableMod(mod)

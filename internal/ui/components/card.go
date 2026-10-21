@@ -1,11 +1,12 @@
 package components
 
 import (
+	"os"
+	"path/filepath"
+
 	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
 	"l4d2mm/internal/theme"
-	"os"
-	"path/filepath"
 
 	"github.com/go-gui-org/go-gui/gui"
 )
@@ -15,7 +16,7 @@ const (
 	// cardHeight float32 = 170
 	// imgHeight  float32 = 90
 	cardWidth   float32 = 250
-	cardHeight  float32 = 270
+	cardHeight  float32 = 260
 	imgHeight   float32 = 140
 	addontitle  float32 = 16
 	addonautohr float32 = 14
@@ -23,7 +24,7 @@ const (
 
 func ModCard(mod schema.Mod) gui.View {
 	return gui.Column(gui.ContainerCfg{
-		ID:        mod.Id,
+		ID:        mod.ID,
 		Width:     cardWidth,
 		MaxWidth:  cardWidth,
 		Height:    cardHeight,
@@ -81,7 +82,7 @@ func ModCard(mod schema.Mod) gui.View {
 				},
 			}),
 			gui.Image(gui.ImageCfg{
-				ID:    "img-" + mod.Id,
+				ID:    "img-" + mod.ID,
 				Src:   img(&mod),
 				Width: cardWidth,
 				// MaxWidth:  cardWidth,
@@ -90,7 +91,7 @@ func ModCard(mod schema.Mod) gui.View {
 			}),
 			HDivider(1),
 			gui.Column(gui.ContainerCfg{
-				ID:         mod.Id + "-bottom-row",
+				ID:         mod.ID + "-bottom-row",
 				Width:      cardWidth,
 				Sizing:     gui.FixedFill,
 				Padding:    gui.NoPadding,
@@ -100,7 +101,7 @@ func ModCard(mod schema.Mod) gui.View {
 				Content: []gui.View{
 					// title, description, remask
 					gui.Column(gui.ContainerCfg{
-						ID:        mod.Id + "-text-col",
+						ID:        mod.ID + "-text-col",
 						Sizing:    gui.FixedFixed,
 						Width:     cardWidth,
 						Height:    cardHeight - imgHeight - 48,
@@ -117,7 +118,7 @@ func ModCard(mod schema.Mod) gui.View {
 						// ClipContents: true,
 						Content: []gui.View{
 							gui.Text(gui.TextCfg{
-								ID:     "mod-title" + mod.Id,
+								ID:     "mod-title" + mod.ID,
 								Sizing: gui.FillFit,
 								Text:   mod.ModName,
 								Mode:   gui.TextModeWrap,
@@ -130,7 +131,7 @@ func ModCard(mod schema.Mod) gui.View {
 								},
 							}),
 							gui.Text(gui.TextCfg{
-								ID: "mod-description" + mod.Id,
+								ID: "mod-description" + mod.ID,
 								// Text: mod.Remark,
 								Sizing: gui.FixedFit,
 								Text:   "By " + mod.Author,
@@ -170,21 +171,21 @@ func ModCard(mod schema.Mod) gui.View {
 							CRCScanButton(&mod),
 
 							gui.Toggle(gui.ToggleCfg{
-								ID:         "mod-toggle-" + mod.Id,
+								ID:         "mod-toggle-" + mod.ID,
 								Label:      "",
 								Size:       gui.SomeF(26),
 								TextSelect: "✔",
 								// MinWidth: theme.DefaultTheme.ModCardToggleMinWidth,
-								Selected: internal.GLOBALAPP.DI.Task.IsSelected(mod.Id),
+								Selected: internal.GLOBALAPP.DI.Task.IsSelected(mod.ID),
 								OnClick: func(ec gui.EventCtx) {
-									selected := internal.GLOBALAPP.DI.Task.IsSelected(mod.Id)
+									selected := internal.GLOBALAPP.DI.Task.IsSelected(mod.ID)
 
 									if selected {
-										internal.GLOBALAPP.DI.Task.RemoveTask(mod.Id)
+										internal.GLOBALAPP.DI.Task.RemoveTask(mod.ID)
 										return
 									}
 
-									internal.GLOBALAPP.DI.Task.AddTask(mod.Id)
+									internal.GLOBALAPP.DI.Task.AddTask(mod.ID)
 								},
 							}),
 						},
@@ -194,6 +195,7 @@ func ModCard(mod schema.Mod) gui.View {
 		},
 	})
 }
+
 func modColor(mod *schema.Mod) gui.Color {
 	if mod.IsFromWorkshop {
 		return theme.DefaultTheme.ColorWorkshopMod
@@ -203,14 +205,13 @@ func modColor(mod *schema.Mod) gui.Color {
 
 func img(mod *schema.Mod) string {
 	if mod.IsFromWorkshop {
-		return imgStat(filepath.Join(internal.GLOBALAPP.DI.Vpk.WorkshopDir, mod.Id+".jpg"))
+		return imgStat(filepath.Join(internal.GLOBALAPP.DI.Vpk.WorkshopDir, mod.ID+".jpg"))
 	}
-	return imgStat(filepath.Join(internal.GLOBALAPP.DI.Vpk.AddonsDir, mod.Id+".jpg"))
+	return imgStat(filepath.Join(internal.GLOBALAPP.DI.Vpk.AddonsDir, mod.ID+".jpg"))
 }
 
 func imgStat(imgPath string) string {
 	_, err := os.Stat(imgPath)
-
 	if err != nil {
 		if os.IsNotExist(err) {
 			return "assets/imgs/l4d2.png"

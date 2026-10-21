@@ -72,6 +72,7 @@ var cardInfo = []schema.ToolCardInfo{
 		Describe:    "Update app database with in-game toggle states and scan for newly added VPKs.",
 		OnClick: func() {
 			// updateToolPage(8, "Sync Addonlist to DB")
+			internal.GLOBALAPP.DI.Vpk.SyncAddonlistToDB()
 		},
 	},
 	{
@@ -115,7 +116,6 @@ func ToolsPage() gui.View {
 				internal.GLOBALAPP.ComponentStatus.SubAsideIndices[internal.GLOBALAPP.ComponentStatus.AsideIdx] = 0
 				internal.GLOBALAPP.ComponentStatus.PageTools.BreadCrumb[1] = ""
 			}
-
 		},
 	}))
 
@@ -183,7 +183,7 @@ func rowCard(slice []schema.ToolCardInfo) gui.View {
 func addCollection() gui.View {
 	return gui.Column(gui.ContainerCfg{
 		ID:      "add-collection",
-		Sizing:  gui.FillFill,
+		Sizing:  gui.FillFit,
 		Padding: gui.NewPadding(14, 200, 14, 200),
 		HAlign:  gui.HAlignCenter,
 		Content: []gui.View{
@@ -195,6 +195,29 @@ func addCollection() gui.View {
 					components.TextModsAcount(),
 					components.VerticalSpacer(),
 					components.ButtonAddCollection(),
+				},
+			}),
+			gui.Row(gui.ContainerCfg{
+				ID:     "add-collection-describe-block",
+				Sizing: gui.FillFit,
+				Content: []gui.View{
+					gui.Toggle(gui.ToggleCfg{
+						ID:         "toggle-enable-collection",
+						TextSelect: "✔",
+						Selected:   internal.GLOBALAPP.ComponentStatus.PageTools.ApplyCollection,
+						Size:       gui.SomeF(30),
+						OnClick: func(ec gui.EventCtx) {
+							internal.GLOBALAPP.ComponentStatus.PageTools.ApplyCollection = !internal.GLOBALAPP.ComponentStatus.PageTools.ApplyCollection
+						},
+					}),
+					components.HorizontalGap(10, gui.FixedFill),
+					components.SettingRow(schema.SettingRowConfig{
+						ColumnID:           "column-enable-collection",
+						PrimaryTextID:      "toggle-enable-collection-title",
+						PrimaryTextLabel:   "Apply collection",
+						SecondaryTextID:    "toggle-enable-collection-description",
+						SecondaryTextLabel: "Check this collection first to apply it when added",
+					}),
 				},
 			}),
 		},

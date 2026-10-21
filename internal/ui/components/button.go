@@ -2,6 +2,7 @@ package components
 
 import (
 	"fmt"
+
 	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
 	"l4d2mm/internal/theme"
@@ -9,7 +10,7 @@ import (
 	"github.com/go-gui-org/go-gui/gui"
 )
 
-var hoverBthId string
+var hoverBthID string
 
 var DefaultButtonConfig = map[string]gui.ButtonCfg{
 	"gnome": {
@@ -52,12 +53,11 @@ func Button(bthID string, clickFunc func(w *gui.Window)) gui.View {
 	return gui.Button(cfg)
 }
 
-func ButtonWithIcon(cfg *gui.ButtonCfg, bthID string, svgId string, svgData string, svgSize [2]float32) {
-
+func ButtonWithIcon(cfg *gui.ButtonCfg, bthID string, svgID string, svgData string, svgSize [2]float32) {
 	cfg.ID = bthID
 	cfg.Content = []gui.View{
 		gui.Svg(gui.SvgCfg{
-			ID:      svgId,
+			ID:      svgID,
 			Width:   svgSize[0],
 			Height:  svgSize[1],
 			Sizing:  gui.FixedFixed,
@@ -65,12 +65,12 @@ func ButtonWithIcon(cfg *gui.ButtonCfg, bthID string, svgId string, svgData stri
 		}),
 	}
 }
-func ButtonWithText(cfg *gui.ButtonCfg, bthID string, textId string, btnName string) {
 
+func ButtonWithText(cfg *gui.ButtonCfg, bthID string, textID string, btnName string) {
 	cfg.ID = bthID
 	cfg.Content = []gui.View{
 		gui.Text(gui.TextCfg{
-			ID:     textId,
+			ID:     textID,
 			Sizing: gui.FixedFixed,
 			Text:   btnName,
 		}),
@@ -78,7 +78,6 @@ func ButtonWithText(cfg *gui.ButtonCfg, bthID string, textId string, btnName str
 }
 
 func ButtonWithIconText(cfg *gui.ButtonCfg, bthID string, iconName string, text string) {
-
 	cfg.ID = bthID
 	cfg.Content = []gui.View{
 		gui.Svg(gui.SvgCfg{
@@ -112,7 +111,6 @@ func chooseFolder(w *gui.Window) {
 			// vpk.SetupPath(folder)
 
 			err := internal.GLOBALAPP.DI.Sql.UpdateGamePath(folder)
-
 			if err != nil {
 				fmt.Println("err: ", err)
 				return
@@ -145,7 +143,7 @@ func ButtonShowModInfo(mod *schema.Mod) gui.View {
 		panic("[Button save addoninfo]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "bth-show-mod-info-"+mod.Id, "icon-file-save", "file_save.svg", theme.DefaultTheme.HeaderIconSize)
+	ButtonWithIcon(&cfg, "bth-show-mod-info-"+mod.ID, "icon-file-save", "file_save.svg", theme.DefaultTheme.HeaderIconSize)
 
 	cfg.OnClick = func(ec gui.EventCtx) {
 		ec.Event.IsHandled = true
@@ -162,7 +160,7 @@ func ButtonDisableMod(mod *schema.Mod) gui.View {
 		panic("[Button disable mod]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "bth-disable-mod-"+mod.Id, "icon-disable-mod", "block.svg", theme.DefaultTheme.ModCardIconSize)
+	ButtonWithIcon(&cfg, "bth-disable-mod-"+mod.ID, "icon-disable-mod", "block.svg", theme.DefaultTheme.ModCardIconSize)
 
 	cfg.OnClick = func(ec gui.EventCtx) {
 		ec.Event.IsHandled = true
@@ -178,7 +176,7 @@ func ButtonDeleteMod(mod *schema.Mod) gui.View {
 		panic("[Button delete Mod]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "bth-delete-mod-"+mod.Id, "icon-delete-mod", internal.GLOBALAPP.GetSvg("delete"), theme.DefaultTheme.ModCardIconSize)
+	ButtonWithIcon(&cfg, "bth-delete-mod-"+mod.ID, "icon-delete-mod", internal.GLOBALAPP.GetSvg("delete"), theme.DefaultTheme.ModCardIconSize)
 
 	cfg.OnClick = func(ec gui.EventCtx) {
 		ec.Event.IsHandled = true
@@ -193,12 +191,12 @@ func ScanButton(mod *schema.Mod) gui.View {
 		panic("[Button delete Mod]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "more_horiz-"+mod.Id, "icon-more", internal.GLOBALAPP.GetSvg("more_horiz"), theme.DefaultTheme.ModCardIconSize)
+	ButtonWithIcon(&cfg, "more_horiz-"+mod.ID, "icon-more", internal.GLOBALAPP.GetSvg("more_horiz"), theme.DefaultTheme.ModCardIconSize)
 
 	cfg.OnClick = func(ec gui.EventCtx) {}
 
 	cfg.OnHover = func(ec gui.EventCtx) {
-		fmt.Println("hovering --->", mod.Id)
+		fmt.Println("hovering --->", mod.ID)
 	}
 
 	return gui.Button(cfg)
@@ -211,7 +209,7 @@ func DisplayModProfileButton(mod *schema.Mod) gui.View {
 		panic("[Button length scan]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "view-overview-"+mod.Id, "icon-overview", internal.GLOBALAPP.GetSvg("find_in_page"), theme.DefaultTheme.ModCardIconSize)
+	ButtonWithIcon(&cfg, "view-overview-"+mod.ID, "icon-overview", internal.GLOBALAPP.GetSvg("find_in_page"), theme.DefaultTheme.ModCardIconSize)
 	// cfg.ID = "view-profile-" + mod.Id
 
 	// cfg.Content = []gui.View{
@@ -239,7 +237,7 @@ func CRCScanButton(mod *schema.Mod) gui.View {
 		panic("[Button CRC]]Invalid select theme key")
 	}
 
-	ButtonWithIcon(&cfg, "CRC-scan-"+mod.Id, "icon-crc-scan", internal.GLOBALAPP.GetSvg("fingerprint"), theme.DefaultTheme.ModCardIconSize)
+	ButtonWithIcon(&cfg, "CRC-scan-"+mod.ID, "icon-crc-scan", internal.GLOBALAPP.GetSvg("fingerprint"), theme.DefaultTheme.ModCardIconSize)
 	// cfg.ID = "CRC-scan" + mod.Id
 
 	// cfg.Content = []gui.View{
@@ -251,7 +249,7 @@ func CRCScanButton(mod *schema.Mod) gui.View {
 	// 	}),
 	// }
 	cfg.OnClick = func(ec gui.EventCtx) {
-		fmt.Printf("CRC --- > %s was clicked.", mod.Id)
+		fmt.Printf("CRC --- > %s was clicked.", mod.ID)
 	}
 
 	return gui.Button(cfg)
@@ -271,7 +269,7 @@ func MoreHoriz(mod *schema.Mod) gui.View {
 			CRCScanButton(mod),
 		},
 		OnHover: func(ec gui.EventCtx) {
-			hoverBthId = mod.Id
+			hoverBthID = mod.ID
 		},
 	})
 }
@@ -306,7 +304,7 @@ func SelectAllButton() gui.View {
 		}
 
 		for _, el := range pageMods.ModsBySelectIdx[start:end] {
-			internal.GLOBALAPP.DI.Task.AddTask(el.Id)
+			internal.GLOBALAPP.DI.Task.AddTask(el.ID)
 		}
 	}
 	return gui.Button(cfg)
@@ -341,7 +339,7 @@ func CancelAllButton() gui.View {
 		}
 
 		for _, el := range internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[start:end] {
-			internal.GLOBALAPP.DI.Task.RemoveTask(el.Id)
+			internal.GLOBALAPP.DI.Task.RemoveTask(el.ID)
 		}
 	}
 	return gui.Button(cfg)
@@ -492,6 +490,16 @@ func ButtonAddCollection() gui.View {
 
 	cfg.OnClick = func(ec gui.EventCtx) {
 		// internal.SwitchSubPage(0, 0)
+		if internal.GLOBALAPP.ComponentStatus.PageTools.CollectionName == "" {
+			internal.ToastWarning("", "Collection name is null")
+			return
+		}
+
+		if len(internal.GLOBALAPP.DI.Task.Selected) == 0 {
+			internal.ToastWarning("", "You do not pick any mods")
+			return
+		}
+
 		fmt.Println(internal.GLOBALAPP.ComponentStatus.PageTools.CollectionName)
 	}
 	return gui.Button(cfg)

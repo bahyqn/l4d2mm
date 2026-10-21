@@ -3,9 +3,10 @@ package internal
 import (
 	"database/sql"
 	"fmt"
-	"l4d2mm/internal/schema"
 	"os"
 	"path/filepath"
+
+	"l4d2mm/internal/schema"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -37,7 +38,6 @@ func (sql3 *Sqlite3) Connect() {
 	sql3.SDB, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Error),
 	})
-
 	if err != nil {
 		fmt.Println("err: ", err)
 	}
@@ -60,14 +60,14 @@ func (sql3 *Sqlite3) FetchTables() {
 	var tcfg schema.AppConfig
 	err := sql3.SDB.Model(&schema.AppConfig{}).Where("id=?", 1).Scan(&tcfg).Error
 
-	if err == nil && tcfg.Id == 0 {
+	if err == nil && tcfg.ID == 0 {
 		config := DefaultAppConfig()
 		sql3.SDB.Model(&schema.AppConfig{}).Create(&config)
 	}
 
 	var config schema.AppConfig
 	if err := sql3.SDB.Model(&schema.AppConfig{}).Where("id=?", 1).Scan(&config).Error; err == nil {
-		sql3.AppDi.AppConfig.Id = config.Id
+		sql3.AppDi.AppConfig.ID = config.ID
 		sql3.AppDi.AppConfig.Theme = config.Theme
 		sql3.AppDi.AppConfig.GamePath = config.GamePath
 	}
@@ -90,7 +90,6 @@ func (sql3 *Sqlite3) InsertMods(batch *[]schema.Mod) error {
 	err := sql3.SDB.Transaction(func(tx *gorm.DB) error {
 		return tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(batch, 1000).Error
 	})
-
 	if err != nil {
 		return err
 	}
@@ -101,7 +100,6 @@ func (sql3 *Sqlite3) QueryAllMods() ([]schema.Mod, error) {
 	var mods []schema.Mod
 
 	err := sql3.SDB.Model(&schema.Mod{}).Find(&mods).Error
-
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +111,6 @@ func (sql3 *Sqlite3) DiffMods(batch []string) ([]string, error) {
 	var batchExistIDs []string
 
 	err := sql3.SDB.Model(&schema.Mod{}).Where("id in ?", batch).Pluck("id", &batchExistIDs).Error
-
 	if err != nil {
 		return nil, err
 	}

@@ -13,13 +13,13 @@ const (
 
 type Mod struct {
 	Idx            int              `gorm:"-"`
-	Id             string           `gorm:"primaryKey;column:id"`
+	ID             string           `gorm:"primaryKey;column:id"`
 	Filename       string           `gorm:"column:filename"`
 	ModName        string           `gorm:"column:mod_name"`
 	Author         string           `gorm:"column:author"`
 	Category       string           `gorm:"column:category"`
 	SubType        string           `gorm:"column:sub_type"`
-	Url            string           `gorm:"column:url"`
+	URL            string           `gorm:"column:url"`
 	Remark         string           `gorm:"column:remark"`
 	Location       ModLocation      `gorm:"column:location"`
 	IsEnable       bool             `gorm:"column:is_enable"`
@@ -37,9 +37,9 @@ func (mod *Mod) TableName() string {
 }
 
 type Collection struct {
-	Id             string   `gorm:"column:id"`
+	ID             string   `gorm:"column:id"`
 	Name           string   `gorm:"column:name"`
-	Url            string   `gorm:"column:url"`
+	URL            string   `gorm:"column:url"`
 	Mods           []string `gorm:"column:mods;serializer:json"`
 	Remark         string   `gorm:"column:remark"`
 	IsEnable       bool     `gorm:"column:is_enable"`
@@ -81,7 +81,7 @@ type Svg struct {
 }
 
 type AppConfig struct {
-	Id         int     `gorm:"column:id"`
+	ID         int     `gorm:"column:id"`
 	Width      float32 `gorm:"-"`
 	Height     float32 `gorm:"-"`
 	AsideWidth float32 `gorm:"-"`
@@ -128,6 +128,8 @@ type PageMods struct {
 type PageTools struct {
 	BreadCrumb     [2]string
 	CollectionName string
+	// Using in page add collection
+	ApplyCollection bool
 }
 
 type TemplateSelect struct {
@@ -152,4 +154,12 @@ type ToolCardInfo struct {
 	Title       string
 	Describe    string
 	OnClick     func()
+}
+
+type SettingRowConfig struct {
+	ColumnID           string
+	PrimaryTextID      string
+	PrimaryTextLabel   string
+	SecondaryTextID    string
+	SecondaryTextLabel string
 }
