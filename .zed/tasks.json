@@ -1,0 +1,20 @@
+[
+    {
+        "label": "go: run current project",
+        "command": "go",
+        "args": ["run", "."],
+        "reveal": "always",
+    },
+    {
+        "label": "go: tidy mods",
+        "command": "go",
+        "args": ["mod", "tidy"],
+        "reveal": "always",
+    },
+    {
+        "label": "go: test all",
+        "command": "go",
+        "args": ["test", "./..."],
+        "reveal": "always",
+    },
+]
