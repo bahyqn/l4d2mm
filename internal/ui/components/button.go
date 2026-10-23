@@ -500,7 +500,30 @@ func ButtonAddCollection() gui.View {
 			return
 		}
 
-		fmt.Println(internal.GLOBALAPP.ComponentStatus.PageTools.CollectionName)
+		msg, ok := internal.GLOBALAPP.DI.Sql.AddCollection()
+
+		if ok && msg == "" {
+			internal.ToastSuccess("", msg)
+		}
+		internal.ToastFailed("", msg)
+	}
+	return gui.Button(cfg)
+}
+
+func ButtonDeleteCollections() gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
+
+	if !ok {
+		panic("[Button add collection]]Invalid select theme key")
+	}
+
+	ButtonWithText(&cfg, "button-delete-collections", "text-dedlete-collections", "Delete")
+
+	cfg.Width = 100
+	cfg.Colors.Base = theme.DefaultLightGNOME().ButtonActive
+	// cfg.Padding = gui.NewPadding(14, 14, 14, 14)
+
+	cfg.OnClick = func(ec gui.EventCtx) {
 	}
 	return gui.Button(cfg)
 }

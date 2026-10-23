@@ -37,14 +37,14 @@ func (mod *Mod) TableName() string {
 }
 
 type Collection struct {
-	ID             string   `gorm:"column:id"`
-	Name           string   `gorm:"column:name"`
-	URL            string   `gorm:"column:url"`
-	Mods           []string `gorm:"column:mods;serializer:json"`
-	Remark         string   `gorm:"column:remark"`
-	IsEnable       bool     `gorm:"column:is_enable"`
-	IsRemoved      bool     `gorm:"column:is_removed"`
-	IsFromWorkshop bool     `gorm:"column:is_from_workshop"`
+	ID     string   `gorm:"column:id"`
+	Name   string   `gorm:"column:name"`
+	URL    string   `gorm:"column:url"`
+	Mods   []string `gorm:"column:mods;serializer:json"`
+	Remark string   `gorm:"column:remark"`
+	// IsEnable       bool     `gorm:"column:is_enable"`
+	IsRemoved      bool `gorm:"column:is_removed"`
+	IsFromWorkshop bool `gorm:"column:is_from_workshop"`
 }
 
 func (collection *Collection) TableName() string {
@@ -81,7 +81,7 @@ type Svg struct {
 }
 
 type AppConfig struct {
-	ID         int     `gorm:"column:id"`
+	ID         int     `gorm:"column:id;primaryKey;check:id=1"`
 	Width      float32 `gorm:"-"`
 	Height     float32 `gorm:"-"`
 	AsideWidth float32 `gorm:"-"`
@@ -90,7 +90,8 @@ type AppConfig struct {
 	Theme string            `gorm:"column:theme"`
 
 	// automatic get value by FetchTables(sqlite.go)
-	GamePath string `gorm:"column:game_path"`
+	GamePath           string `gorm:"column:game_path"`
+	ActiveCollectionID string `gorm:"column:active_collection_id"`
 }
 
 func (cf *AppConfig) TableName() string {
@@ -126,10 +127,15 @@ type PageMods struct {
 }
 
 type PageTools struct {
-	BreadCrumb     [2]string
+	BreadCrumb [2]string
+
+	// add collection
 	CollectionName string
 	// Using in page add collection
 	ApplyCollection bool
+
+	// delete collections
+	DeleteCollection []string
 }
 
 type TemplateSelect struct {

@@ -86,3 +86,28 @@ func AppendBreadCrumb(s string) {
 	// GLOBALAPP.ComponentStatus.PageTools.BreadCrumb = append(GLOBALAPP.ComponentStatus.PageTools.BreadCrumb, s)
 	GLOBALAPP.ComponentStatus.PageTools.BreadCrumb[1] = s
 }
+
+func AreSlicesEqualUnordered[T comparable](a, b []T) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	counts := make(map[T]int, len(a))
+	for _, v := range a {
+		counts[v]++
+	}
+
+	for _, v := range b {
+		count, exists := counts[v]
+		if !exists || count == 0 {
+			return false
+		}
+		counts[v]--
+	}
+	return true
+}
+
+func BackPageTools() {
+	GLOBALAPP.ComponentStatus.SubAsideIndices[GLOBALAPP.ComponentStatus.AsideIdx] = 0
+	GLOBALAPP.ComponentStatus.PageTools.BreadCrumb[1] = ""
+}

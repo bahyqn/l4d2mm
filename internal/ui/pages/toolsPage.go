@@ -12,7 +12,7 @@ import (
 var cardInfo = []schema.ToolCardInfo{
 	{
 		SvgFilename: "library_add",
-		Title:       "Add Collection",
+		Title:       "Add a Collection",
 		Describe:    "Create a brand new collection.",
 		OnClick: func() {
 			updateToolPage(1, "Add Collection")
@@ -21,14 +21,14 @@ var cardInfo = []schema.ToolCardInfo{
 	{
 		SvgFilename: "delete_forever",
 		Title:       "Delete Collections",
-		Describe:    "Remove an existing collection. (UNAVAILABLE)",
+		Describe:    "Remove an existing collection.",
 		OnClick: func() {
 			updateToolPage(2, "Delete Collections")
 		},
 	},
 	{
 		SvgFilename: "edit_note",
-		Title:       "Modify Collection",
+		Title:       "Modify Collections",
 		Describe:    "Add or remove mods in existing ones. (UNAVAILABLE)",
 		OnClick: func() {
 			updateToolPage(3, "Modify Collection")
@@ -113,8 +113,7 @@ func ToolsPage() gui.View {
 		Selected: s,
 		OnSelect: func(s string, ec gui.EventCtx) {
 			if s == "Tools" {
-				internal.GLOBALAPP.ComponentStatus.SubAsideIndices[internal.GLOBALAPP.ComponentStatus.AsideIdx] = 0
-				internal.GLOBALAPP.ComponentStatus.PageTools.BreadCrumb[1] = ""
+				internal.BackPageTools()
 			}
 		},
 	}))
@@ -133,6 +132,8 @@ func ToolsPage() gui.View {
 		comps = append(comps, rowCard(cardInfo[6:]))
 	case 1:
 		comps = append(comps, addCollection())
+	case 2:
+		comps = append(comps, deleteCollections())
 	}
 
 	return gui.Column(gui.ContainerCfg{
@@ -218,6 +219,26 @@ func addCollection() gui.View {
 						SecondaryTextID:    "toggle-enable-collection-description",
 						SecondaryTextLabel: "Check this collection first to apply it when added",
 					}),
+				},
+			}),
+		},
+	})
+}
+
+// AsideIdx:        3,
+// SubAsideIndices: [6]int{0, 0, 0, 1, 0, 0},
+func deleteCollections() gui.View {
+	return gui.Column(gui.ContainerCfg{
+		ID:      "delete-collections-column",
+		Sizing:  gui.FillFill,
+		Padding: gui.NewPadding(14, 100, 14, 100),
+		Content: []gui.View{
+			gui.Row(gui.ContainerCfg{
+				ID:     "",
+				Sizing: gui.FillFit,
+				Content: []gui.View{
+					components.HorizontalSpacer(),
+					components.ButtonDeleteCollections(),
 				},
 			}),
 		},

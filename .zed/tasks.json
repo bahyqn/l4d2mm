@@ -14,7 +14,13 @@
     {
         "label": "go: test all",
         "command": "go",
-        "args": ["test", "./..."],
+        "args": ["test", "-count=1", "./.."],
+        "reveal": "always",
+    },
+    {
+        "label": "go: test internal",
+        "command": "go",
+        "args": ["test", "-v", "-count=1", "./internal/..."],
         "reveal": "always",
     },
 ]

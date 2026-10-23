@@ -121,7 +121,6 @@ func AsideView() gui.View {
 }
 
 func MainView() gui.View {
-
 	var tmp gui.View
 
 	switch internal.GLOBALAPP.ComponentStatus.AsideIdx {

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
+	"time"
 
 	"l4d2mm/internal/schema"
 
@@ -58,19 +60,21 @@ func (sql3 *Sqlite3) FetchTables() {
 	sql3.SDB.AutoMigrate(&schema.Collection{})
 
 	var tcfg schema.AppConfig
-	err := sql3.SDB.Model(&schema.AppConfig{}).Where("id=?", 1).Scan(&tcfg).Error
+	// err := sql3.SDB.Model(&schema.AppConfig{}).Where("id=?", 1).Scan(&tcfg).Error
+	err := sql3.SDB.FirstOrCreate(&tcfg, schema.AppConfig{
+		ID:    1,
+		Theme: "gnome",
+	}).Error
 
 	if err == nil && tcfg.ID == 0 {
 		config := DefaultAppConfig()
 		sql3.SDB.Model(&schema.AppConfig{}).Create(&config)
 	}
 
-	var config schema.AppConfig
-	if err := sql3.SDB.Model(&schema.AppConfig{}).Where("id=?", 1).Scan(&config).Error; err == nil {
-		sql3.AppDi.AppConfig.ID = config.ID
-		sql3.AppDi.AppConfig.Theme = config.Theme
-		sql3.AppDi.AppConfig.GamePath = config.GamePath
-	}
+	sql3.AppDi.AppConfig.ID = tcfg.ID
+	sql3.AppDi.AppConfig.Theme = tcfg.Theme
+	sql3.AppDi.AppConfig.GamePath = tcfg.GamePath
+	sql3.AppDi.AppConfig.ActiveCollectionID = tcfg.ActiveCollectionID
 }
 
 func (sql3 *Sqlite3) UpdateGamePath(path string) error {
@@ -115,4 +119,91 @@ func (sql3 *Sqlite3) DiffMods(batch []string) ([]string, error) {
 		return nil, err
 	}
 	return nil, nil
+}
+
+func (sql3 *Sqlite3) QueryCollections() ([]schema.Collection, error) {
+	colls := []schema.Collection{}
+
+	err := sql3.SDB.Model(&schema.Collection{}).Scan(&colls).Error
+	if err != nil {
+		fmt.Println("line 129")
+		return nil, err
+	}
+
+	return colls, nil
+}
+
+func (sql3 *Sqlite3) AddCollection() (string, bool) {
+	colls, err := sql3.QueryCollections()
+	if err != nil {
+		return "", false
+	}
+
+	isSame := false
+	for _, coll := range colls {
+		if len(coll.Mods) != len(GLOBALAPP.DI.Task.Selected) {
+			continue
+		}
+
+		for idx, el := range coll.Mods {
+			_, exists := GLOBALAPP.DI.Task.Selected[el]
+			if !exists {
+				break
+			}
+
+			if idx+1 == len(coll.Mods) {
+				isSame = true
+			}
+		}
+
+		if isSame {
+			break
+		}
+	}
+
+	if isSame {
+		return "Mods you picked has the same in the other collections.", false
+	}
+
+	selectedSlice := []string{}
+
+	for k := range GLOBALAPP.DI.Task.Selected {
+		selectedSlice = append(selectedSlice, k)
+	}
+
+	collectionID := strconv.FormatInt(time.Now().UnixMilli(), 10)
+
+	err = sql3.SDB.Transaction(func(tx *gorm.DB) error {
+		if err = tx.Model(&schema.Collection{}).Create(&schema.Collection{
+			ID:   collectionID,
+			Name: GLOBALAPP.ComponentStatus.PageTools.CollectionName,
+			Mods: selectedSlice,
+		}).Error; err != nil {
+			return err
+		}
+
+		if GLOBALAPP.ComponentStatus.PageTools.ApplyCollection {
+			if err = tx.Model(&schema.AppConfig{}).
+				Where("id = ?", 1).
+				Update("active_collection_id", collectionID).Error; err != nil {
+				return err
+			}
+
+			GLOBALAPP.AppConfig.ActiveCollectionID = collectionID
+		}
+
+		return nil
+	})
+	if err != nil {
+		ToastFailed("", "Create collection failed.")
+		return "", false
+	}
+
+	GLOBALAPP.ComponentStatus.PageTools.ApplyCollection = false
+	GLOBALAPP.ComponentStatus.PageTools.CollectionName = ""
+	clear(GLOBALAPP.DI.Task.Selected)
+	return "Create collection Successful.", true
+}
+
+func (sql3 *Sqlite3) DeleteCollections() {
 }
