@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"fmt"
+	"l4d2mm/internal/schema"
 	"os"
 	"path/filepath"
 
@@ -110,4 +112,17 @@ func AreSlicesEqualUnordered[T comparable](a, b []T) bool {
 func BackPageTools() {
 	GLOBALAPP.ComponentStatus.SubAsideIndices[GLOBALAPP.ComponentStatus.AsideIdx] = 0
 	GLOBALAPP.ComponentStatus.PageTools.BreadCrumb[1] = ""
+}
+
+// nil: Only len(Header) == len(RowData[i])
+func ValidateDimensions(tablleConfig *schema.TableConfig) error {
+	headerLen := len(tablleConfig.Header)
+
+	for _, el := range tablleConfig.RowData {
+		if len(el) != headerLen {
+			return fmt.Errorf("PLease check the raw data.")
+		}
+	}
+
+	return nil
 }

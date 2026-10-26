@@ -40,7 +40,7 @@ type Vpk struct {
 	// steam/steamapps/common/Left 4 Dead 2/left4dead2/addons/workshop
 	WorkshopDir string
 	Mods        []schema.Mod
-	Collections []string
+	Collections []schema.Collection
 
 	// addonlist.txt
 	AddonlistRawStr []string
@@ -427,4 +427,55 @@ func (vpk *Vpk) SyncAddonlistToDB() {
 	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, vpk.Mods...)
 
 	ToastSuccess("Synced", "Sync addonlist to sqlite successful")
+}
+
+func (vpk *Vpk) FetchCollection() {
+	dc := &GLOBALAPP.ComponentStatus.PageTools.DeleteCollection
+
+	if dc.Toggled {
+		return
+	}
+
+	colls, err := vpk.AppDi.DI.Sql.QueryCollections()
+	if err != nil {
+		return
+	}
+
+	vpk.Collections = append(vpk.Collections, colls...)
+
+	dc.Header = append(dc.Header, schema.TableField{
+		Text:     "",
+		MinWidth: 100,
+	})
+	dc.Header = append(dc.Header, schema.TableField{
+		Text:     "id",
+		MinWidth: 200,
+	})
+	dc.Header = append(dc.Header, schema.TableField{
+		Text:     "mod-name",
+		MinWidth: 300,
+	})
+	dc.Header = append(dc.Header, schema.TableField{
+		Text: "mods-amount",
+	})
+
+	for _, el := range vpk.Collections {
+		tf := []schema.TableField{}
+
+		tf = append(tf, schema.TableField{
+			Text:     el.ID,
+			MinWidth: 200,
+		})
+		tf = append(tf, schema.TableField{
+			Text:     el.Name,
+			MinWidth: 300,
+		})
+		tf = append(tf, schema.TableField{
+			Text:     strconv.Itoa(len(el.Mods)),
+			MinWidth: 200,
+		})
+
+		dc.RowData = append(dc.RowData, tf)
+		dc.Selected = append(dc.Selected, false)
+	}
 }

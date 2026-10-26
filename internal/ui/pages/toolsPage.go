@@ -241,6 +241,9 @@ func deleteCollections() gui.View {
 					components.ButtonDeleteCollections(),
 				},
 			}),
+			components.HDivider(2),
+			components.Table(&internal.GLOBALAPP.ComponentStatus.PageTools.DeleteCollection),
 		},
 	})
 }
+// bug： 在点击add collection后，重新获取最新的 deleteCollection里面的数据会乱

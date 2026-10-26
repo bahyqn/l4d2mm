@@ -502,10 +502,19 @@ func ButtonAddCollection() gui.View {
 
 		msg, ok := internal.GLOBALAPP.DI.Sql.AddCollection()
 
-		if ok && msg == "" {
+		if ok {
 			internal.ToastSuccess("", msg)
+
+			internal.GLOBALAPP.FetchDeleteCollection()
+
+			// clear(internal.GLOBALAPP.DI.Vpk.Collections)
+			// internal.GLOBALAPP.DI.Vpk.Collections = internal.GLOBALAPP.DI.Vpk.Collections[:0]
+
+			// internal.GLOBALAPP.DI.Vpk.FetchCollection()
+
+		} else {
+			internal.ToastFailed("", msg)
 		}
-		internal.ToastFailed("", msg)
 	}
 	return gui.Button(cfg)
 }
@@ -524,6 +533,16 @@ func ButtonDeleteCollections() gui.View {
 	// cfg.Padding = gui.NewPadding(14, 14, 14, 14)
 
 	cfg.OnClick = func(ec gui.EventCtx) {
+		ok, err := internal.GLOBALAPP.DI.Sql.DeleteCollections()
+
+		if ok && err == nil {
+			internal.ToastSuccess("", "Delete collections successful")
+		}
+
+		if !ok || err != nil {
+			internal.ToastFailed("", err.Error())
+		}
+		internal.GLOBALAPP.FetchDeleteCollection()
 	}
 	return gui.Button(cfg)
 }

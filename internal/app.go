@@ -118,6 +118,11 @@ func NewApp(as embed.FS) *App {
 				BreadCrumb:      [2]string{"Tools"},
 				CollectionName:  "",
 				ApplyCollection: false,
+				DeleteCollection: schema.TableConfig{
+					Header:  []schema.TableField{},
+					RowData: [][]schema.TableField{},
+					Toggled: false,
+				},
 			},
 		},
 		AppConfig: schema.AppConfig{
@@ -156,6 +161,9 @@ func (app *App) Prepare() {
 	// chosed the path, query all mods from .db by local & workshop .vpk files
 	if app.AppConfig.GamePath != "" {
 		app.DI.Vpk.SyncVPKs(app.AppConfig.GamePath)
+		if !app.ComponentStatus.PageTools.DeleteCollection.Toggled {
+			app.DI.Vpk.FetchCollection()
+		}
 	}
 }
 
@@ -249,6 +257,25 @@ func (app *App) CurrentModsRange() (int, int) {
 	}
 
 	return start, end
+}
+
+func (app *App) FetchDeleteCollection() {
+	dc := &app.ComponentStatus.PageTools.DeleteCollection
+
+	dc.Header = dc.Header[:0]
+
+	clear(dc.RowData)
+	dc.RowData = dc.RowData[:0]
+
+	clear(dc.Selected)
+	dc.Selected = dc.Selected[:0]
+
+	dc.Toggled = false
+
+	clear(app.DI.Vpk.Collections)
+	app.DI.Vpk.Collections = app.DI.Vpk.Collections[:0]
+
+	app.DI.Vpk.FetchCollection()
 }
 
 func SwitchSubPage(idx, subPage int) {

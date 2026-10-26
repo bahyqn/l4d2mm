@@ -135,7 +135,8 @@ type PageTools struct {
 	ApplyCollection bool
 
 	// delete collections
-	DeleteCollection []string
+	// DeleteCollection []bool
+	DeleteCollection TableConfig
 }
 
 type TemplateSelect struct {
@@ -168,4 +169,17 @@ type SettingRowConfig struct {
 	PrimaryTextLabel   string
 	SecondaryTextID    string
 	SecondaryTextLabel string
+}
+
+type TableConfig struct {
+	Header   []TableField
+	RowData  [][]TableField
+	Selected []bool
+	// Don't set false when you clicked toggle
+	Toggled  bool
+}
+
+type TableField struct {
+	MinWidth float32
+	Text     string
 }

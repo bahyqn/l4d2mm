@@ -2,6 +2,7 @@ package internal
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -205,5 +206,55 @@ func (sql3 *Sqlite3) AddCollection() (string, bool) {
 	return "Create collection Successful.", true
 }
 
-func (sql3 *Sqlite3) DeleteCollections() {
+func (sql3 *Sqlite3) DeleteCollections() (bool, error) {
+	dc := sql3.AppDi.ComponentStatus.PageTools.DeleteCollection
+
+	IDs := []string{}
+
+	for idx, el := range dc.Selected {
+		if el {
+			IDs = append(IDs, sql3.AppDi.DI.Vpk.Collections[idx].ID)
+		}
+	}
+
+	if len(IDs) == 0 {
+		return false, fmt.Errorf("You do not pick anyone")
+	}
+
+	var clearedActive bool
+
+	err := sql3.SDB.Transaction(func(tx *gorm.DB) error {
+		var appCfg schema.AppConfig
+		if err := tx.First(&appCfg).Error; err == nil {
+			shouldClear := false
+			for _, id := range IDs {
+				if appCfg.ActiveCollectionID == id {
+					shouldClear = true
+					break
+				}
+			}
+
+			if shouldClear {
+				appCfg.ActiveCollectionID = ""
+				if err := tx.Save(&appCfg).Error; err != nil {
+					return err
+				}
+				clearedActive = true
+			}
+		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+
+		return tx.Where("id IN ?", IDs).Delete(&schema.Collection{}).Error
+	})
+
+	if err != nil {
+		return false, err
+	}
+
+	if clearedActive {
+		GLOBALAPP.AppConfig.ActiveCollectionID = ""
+	}
+
+	return true, nil
 }

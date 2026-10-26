@@ -6,6 +6,12 @@
         "reveal": "always",
     },
     {
+        "label": "go: build",
+        "command": "go",
+        "args": ["build", "."],
+        "reveal": "always",
+    },
+    {
         "label": "go: tidy mods",
         "command": "go",
         "args": ["mod", "tidy"],
