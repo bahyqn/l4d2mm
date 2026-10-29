@@ -15,6 +15,7 @@ import (
 	// "github.com/NublyBR/go-vpk"
 	"github.com/bahyqn/vvdf"
 	"github.com/bahyqn/vvpk"
+	"github.com/go-gui-org/go-gui/gui"
 )
 
 const (
@@ -94,8 +95,8 @@ func (vpk *Vpk) SyncVPKs(path string) {
 	}
 
 	vpk.SetupPath(path)
-	// sqlite3 := vpk.AppDi.DI.Sql
-	dbMods, err := vpk.AppDi.DI.Sql.QueryAllMods()
+	// sqlite3 := vpk.AppDi.DI.SQL
+	dbMods, err := vpk.AppDi.DI.SQL.QueryAllMods()
 	if err != nil {
 		panic("Failed query table mods from sqlite")
 	}
@@ -117,7 +118,7 @@ func (vpk *Vpk) SyncVPKs(path string) {
 	}
 	vpk.syncAddonsVPKs(dbMods, tlvpks, lmods, schema.LocationGame)
 
-	err = GLOBALAPP.DI.Sql.InsertMods(&vpk.Mods)
+	err = GLOBALAPP.DI.SQL.InsertMods(&vpk.Mods)
 	if err != nil {
 		panic("inserts mods to sqlite failed.")
 	}
@@ -125,7 +126,7 @@ func (vpk *Vpk) SyncVPKs(path string) {
 	// Get all of the vpks tha there's new vpks
 	clear(dbMods)
 	dbMods = dbMods[:0]
-	dbMods, err = vpk.AppDi.DI.Sql.QueryAllMods()
+	dbMods, err = vpk.AppDi.DI.SQL.QueryAllMods()
 	vpk.Mods = append(vpk.Mods, dbMods...)
 	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, dbMods...)
 	GLOBALAPP.DynamicPageSelect()
@@ -263,7 +264,7 @@ func (vpk *Vpk) getMissingModIDs(ids []string) ([]string, error) {
 		batch := ids[i:end]
 
 		var batchExistIDs []string
-		err := vpk.AppDi.DI.Sql.SDB.Model(&schema.Mod{}).Where("id in ?", batch).Pluck("id", &batchExistIDs).Error
+		err := vpk.AppDi.DI.SQL.SDB.Model(&schema.Mod{}).Where("id in ?", batch).Pluck("id", &batchExistIDs).Error
 		if err != nil {
 			return nil, err
 		}
@@ -331,7 +332,7 @@ func (vpk *Vpk) parseAndSaveNewVPKs(tvpks []string, IsFromWorkshop bool, locatio
 	wg.Wait()
 	close(ch)
 
-	if err := GLOBALAPP.DI.Sql.InsertMods(&localMods); err != nil {
+	if err := GLOBALAPP.DI.SQL.InsertMods(&localMods); err != nil {
 		fmt.Println("insert vpks to sqlite failed.")
 	}
 	// vpk.Mods = append(vpk.Mods, localMods...)
@@ -436,7 +437,7 @@ func (vpk *Vpk) FetchCollection() {
 		return
 	}
 
-	colls, err := vpk.AppDi.DI.Sql.QueryCollections()
+	colls, err := vpk.AppDi.DI.SQL.QueryCollections()
 	if err != nil {
 		return
 	}
@@ -459,6 +460,8 @@ func (vpk *Vpk) FetchCollection() {
 		Text: "mods-amount",
 	})
 
+	tempSelectOption := []gui.SelectOption{}
+
 	for _, el := range vpk.Collections {
 		tf := []schema.TableField{}
 
@@ -477,5 +480,12 @@ func (vpk *Vpk) FetchCollection() {
 
 		dc.RowData = append(dc.RowData, tf)
 		dc.Selected = append(dc.Selected, false)
+
+		tempSelectOption = append(tempSelectOption, gui.SelectOption{
+			Label: el.Name,
+			Value: el.Name,
+		})
 	}
+
+	GenerateSelectOptions("Collections", tempSelectOption)
 }

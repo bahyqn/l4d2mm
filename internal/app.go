@@ -24,7 +24,7 @@ func DefaultAppConfig() schema.AppConfig {
 
 type DIContainer struct {
 	Window *gui.Window
-	Sql    *Sqlite3
+	SQL    *Sqlite3
 	Vpk    *Vpk
 	Task   *Task
 }
@@ -43,68 +43,11 @@ func NewApp(as embed.FS) *App {
 			AsideIdx:        0,
 			SubAsideIndices: [6]int{0, 0, 0, 0, 0, 0},
 			PageMods: schema.PageMods{
-				ModsSearchValue: "",
-				Categories: []gui.SelectOption{
-					{
-						Label: "All",
-						Value: "All",
-					},
-					{
-						Label: "Collections",
-						Value: "Collections",
-					},
-					{
-						Label: "Maps",
-						Value: "Maps",
-					},
-					{
-						Label: "Rifles",
-						Value: "Rifles",
-					},
-					{
-						Label: "Shotguns",
-						Value: "Shotguns",
-					},
-					{
-						Label: "Snipers",
-						Value: "Snipers",
-					},
-					{
-						Label: "SMG",
-						Value: "SMG",
-					},
-					{
-						Label: "Pistols",
-						Value: "Pistols",
-					},
-					{
-						Label: "GL",
-						Value: "GL",
-					},
-					{
-						Label: "Melee",
-						Value: "Melee",
-					},
-					{
-						Label: "Items",
-						Value: "Items",
-					},
-					{
-						Label: "Scripts",
-						Value: "Scripts",
-					},
-					{
-						Label: "Sounds",
-						Value: "Sounds",
-					},
-					{
-						Label: "Effects",
-						Value: "Effects",
-					},
-				},
+				ModsSearchValue:      "",
+				Categories:           ModsCategoris,
 				SelectedategoryLabel: []string{"All"},
 				SubLabels:            []gui.SelectOption{},
-				SelectedSubLabel:     []string{},
+				SelectedSubLabel:     []string{""},
 
 				PageAmount:      50,
 				ModsBySelectIdx: []schema.Mod{},
@@ -138,7 +81,7 @@ func NewApp(as embed.FS) *App {
 			GamePath: "",
 		},
 		DI: DIContainer{
-			Sql:    nil,
+			SQL:    nil,
 			Vpk:    nil,
 			Task:   nil,
 			Window: nil,
@@ -152,7 +95,7 @@ func NewApp(as embed.FS) *App {
 
 func (app *App) RegisterAllDependencies(w *gui.Window) {
 	app.DI.Window = w
-	app.DI.Sql = NewSqlite3(app)
+	app.DI.SQL = NewSqlite3(app)
 	app.DI.Vpk = NewVpk(app)
 	app.DI.Task = NewTask()
 }
@@ -278,6 +221,34 @@ func (app *App) FetchDeleteCollection() {
 	app.DI.Vpk.FetchCollection()
 }
 
+// GetSelectedCollectionsID return []string that picked in delete collection
+func (app *App) GetSelectedCollectionsID() []string {
+	dc := app.ComponentStatus.PageTools.DeleteCollection
+
+	IDs := []string{}
+
+	for idx, el := range dc.Selected {
+		if el {
+			IDs = append(IDs, app.DI.Vpk.Collections[idx].ID)
+		}
+	}
+	return IDs
+}
+
+// GetSelectedCollections return []schema.Collection that picked in delete collection page
+func (app *App) GetSelectedCollections() []schema.Collection {
+	dc := app.ComponentStatus.PageTools.DeleteCollection
+
+	colls := []schema.Collection{}
+
+	for idx, el := range dc.Selected {
+		if el {
+			colls = append(colls, app.DI.Vpk.Collections[idx])
+		}
+	}
+	return colls
+}
+
 func SwitchSubPage(idx, subPage int) {
 	if idx > len(GLOBALAPP.ComponentStatus.SubAsideIndices) {
 		return
@@ -285,42 +256,6 @@ func SwitchSubPage(idx, subPage int) {
 
 	GLOBALAPP.ComponentStatus.SubAsideIndices[idx] = subPage
 }
-
-// func (app *App) DynamicMods() {
-// 	vpkCount := len(app.DI.Vpk.Mods)
-// 	// fmt.Println("vpkCount: ", vpkCount)
-
-// 	if vpkCount == 0 {
-// 		return
-// 	}
-
-// 	if GLOBALAPP.ComponentStatus.PageMods.PageEnd[0] == "" {
-// 		if len(app.DI.Vpk.Mods) > app.ComponentStatus.PageMods.PageAmount {
-// 			GLOBALAPP.ComponentStatus.PageMods.PageEnd[0] = strconv.Itoa(app.ComponentStatus.PageMods.PageAmount)
-// 		} else if vpkCount < app.ComponentStatus.PageMods.PageAmount {
-// 			GLOBALAPP.ComponentStatus.PageMods.PageEnd[0] = strconv.Itoa(vpkCount)
-// 		}
-// 	}
-
-// 	idx, err := strconv.Atoi(GLOBALAPP.ComponentStatus.PageMods.PageEnd[0])
-// 	// fmt.Println("idx: ", idx)
-
-// 	if err != nil {
-// 		panic("DyamicMods xxxxxxxxxxxxx")
-// 	}
-
-// 	startIdx := idx % app.ComponentStatus.PageMods.PageAmount
-// 	// fmt.Println("startIdx: ", startIdx)
-
-// 	if startIdx == 0 {
-// 		GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-app.ComponentStatus.PageMods.PageAmount : idx]
-// 	} else {
-// 		GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.DI.Vpk.Mods[idx-startIdx : idx]
-// 	}
-
-// 	// fmt.Printf("%+v\n", GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[0])
-// 	// fmt.Printf("%+v\n\n", GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[1])
-// }
 
 func GetValue[T any](m map[string]any, key string) (T, bool) {
 	v, ok := m[key].(T)

@@ -110,7 +110,7 @@ func chooseFolder(w *gui.Window) {
 
 			// vpk.SetupPath(folder)
 
-			err := internal.GLOBALAPP.DI.Sql.UpdateGamePath(folder)
+			err := internal.GLOBALAPP.DI.SQL.UpdateGamePath(folder)
 			if err != nil {
 				fmt.Println("err: ", err)
 				return
@@ -500,7 +500,7 @@ func ButtonAddCollection() gui.View {
 			return
 		}
 
-		msg, ok := internal.GLOBALAPP.DI.Sql.AddCollection()
+		msg, ok := internal.GLOBALAPP.DI.SQL.AddCollection()
 
 		if ok {
 			internal.ToastSuccess("", msg)
@@ -519,6 +519,31 @@ func ButtonAddCollection() gui.View {
 	return gui.Button(cfg)
 }
 
+// ButtonAppendToCollections add some new vpks to some collections
+func ButtonAppendToCollections() gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
+	if !ok {
+		panic("[Button append collections]Invalid select theme key")
+	}
+
+	ButtonWithText(&cfg, "button-append-collections", "text-append-collection", "Append")
+	cfg.Width = 100
+	cfg.Colors.Base = theme.DefaultLightGNOME().ButtonActive
+	cfg.OnClick = func(ec gui.EventCtx) {
+		ok, err := internal.GLOBALAPP.DI.SQL.AppendCollections()
+		if ok && err == nil {
+			internal.ToastSuccess("", "Append collections successful")
+		}
+
+		if !ok || err != nil {
+			internal.ToastFailed("", err.Error())
+		}
+		internal.GLOBALAPP.FetchDeleteCollection()
+	}
+
+	return gui.Button(cfg)
+}
+
 func ButtonDeleteCollections() gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
@@ -533,7 +558,7 @@ func ButtonDeleteCollections() gui.View {
 	// cfg.Padding = gui.NewPadding(14, 14, 14, 14)
 
 	cfg.OnClick = func(ec gui.EventCtx) {
-		ok, err := internal.GLOBALAPP.DI.Sql.DeleteCollections()
+		ok, err := internal.GLOBALAPP.DI.SQL.DeleteCollections()
 
 		if ok && err == nil {
 			internal.ToastSuccess("", "Delete collections successful")

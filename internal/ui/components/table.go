@@ -1,8 +1,9 @@
 package components
 
 import (
-	"l4d2mm/internal/schema"
 	"strconv"
+
+	"l4d2mm/internal/schema"
 
 	"github.com/go-gui-org/go-gui/gui"
 )
@@ -69,7 +70,7 @@ func tableRow(row []schema.TableField, tcfg *schema.TableConfig, idx int) gui.Vi
 			ID:       strIdx + v.Text,
 			Text:     v.Text,
 			MinWidth: v.MinWidth,
-			Mode:     gui.TextModeWrap,
+			// Mode:     gui.TextModeWrap,
 		}))
 	}
 

@@ -2,9 +2,10 @@ package internal
 
 import (
 	"fmt"
-	"l4d2mm/internal/schema"
 	"os"
 	"path/filepath"
+
+	"l4d2mm/internal/schema"
 
 	"github.com/go-gui-org/go-gui/gui"
 )
@@ -29,14 +30,29 @@ func StatPath(path string) bool {
 	}
 }
 
+// GetSubCategories Get subLabels based on option string
 func GetSubCategories(option string) {
-	GLOBALAPP.ComponentStatus.PageMods.SubLabels = ModLables[option]
-
-	if len(GLOBALAPP.ComponentStatus.PageMods.SubLabels) == 0 {
-		GLOBALAPP.ComponentStatus.PageMods.SelectedSubLabel = []string{}
+	sub, ok := ModLables[option]
+	if !ok {
 		return
 	}
-	GLOBALAPP.ComponentStatus.PageMods.SelectedSubLabel = []string{option}
+
+	if len(sub) == 0 {
+		clear(GLOBALAPP.ComponentStatus.PageMods.SubLabels)
+		GLOBALAPP.ComponentStatus.PageMods.SubLabels = GLOBALAPP.ComponentStatus.PageMods.SubLabels[:0]
+		GLOBALAPP.ComponentStatus.PageMods.SelectedSubLabel[0] = ""
+		return
+	}
+
+	pageMods := &GLOBALAPP.ComponentStatus.PageMods
+	pageMods.SubLabels = ModLables[option]
+
+	switch len(pageMods.SelectedSubLabel) {
+	case 0:
+		pageMods.SelectedSubLabel = append(pageMods.SelectedSubLabel, sub[0].Label)
+	case 1:
+		pageMods.SelectedSubLabel[0] = sub[0].Label
+	}
 }
 
 func GetFileSize(filePath string) (uint64, error) {
@@ -125,4 +141,14 @@ func ValidateDimensions(tablleConfig *schema.TableConfig) error {
 	}
 
 	return nil
+}
+
+// GenerateSelectOptions Just for ModCategoris & ModLables
+func GenerateSelectOptions(key string, appendData []gui.SelectOption) {
+	_, ok := ModLables[key]
+	if !ok {
+		return
+	}
+
+	ModLables[key] = append(ModLables[key], appendData...)
 }

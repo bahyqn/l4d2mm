@@ -20,8 +20,8 @@ var cardInfo = []schema.ToolCardInfo{
 	},
 	{
 		SvgFilename: "delete_forever",
-		Title:       "Delete Collections",
-		Describe:    "Remove an existing collection.",
+		Title:       "Modify Collections",
+		Describe:    "Add mods in existing ones. Remove an existing collection.",
 		OnClick: func() {
 			updateToolPage(2, "Delete Collections")
 		},
@@ -237,7 +237,9 @@ func deleteCollections() gui.View {
 				ID:     "",
 				Sizing: gui.FillFit,
 				Content: []gui.View{
+					components.TextModsAcount(),
 					components.HorizontalSpacer(),
+					components.ButtonAppendToCollections(),
 					components.ButtonDeleteCollections(),
 				},
 			}),
@@ -246,4 +248,3 @@ func deleteCollections() gui.View {
 		},
 	})
 }
-// bug： 在点击add collection后，重新获取最新的 deleteCollection里面的数据会乱

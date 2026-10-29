@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"time"
 
@@ -207,18 +208,10 @@ func (sql3 *Sqlite3) AddCollection() (string, bool) {
 }
 
 func (sql3 *Sqlite3) DeleteCollections() (bool, error) {
-	dc := sql3.AppDi.ComponentStatus.PageTools.DeleteCollection
-
-	IDs := []string{}
-
-	for idx, el := range dc.Selected {
-		if el {
-			IDs = append(IDs, sql3.AppDi.DI.Vpk.Collections[idx].ID)
-		}
-	}
+	IDs := sql3.AppDi.GetSelectedCollectionsID()
 
 	if len(IDs) == 0 {
-		return false, fmt.Errorf("You do not pick anyone")
+		return false, fmt.Errorf("you do not pick anyone")
 	}
 
 	var clearedActive bool
@@ -226,17 +219,11 @@ func (sql3 *Sqlite3) DeleteCollections() (bool, error) {
 	err := sql3.SDB.Transaction(func(tx *gorm.DB) error {
 		var appCfg schema.AppConfig
 		if err := tx.First(&appCfg).Error; err == nil {
-			shouldClear := false
-			for _, id := range IDs {
-				if appCfg.ActiveCollectionID == id {
-					shouldClear = true
-					break
-				}
-			}
+			shouldClear := slices.Contains(IDs, appCfg.ActiveCollectionID)
 
 			if shouldClear {
 				appCfg.ActiveCollectionID = ""
-				if err := tx.Save(&appCfg).Error; err != nil {
+				if err = tx.Save(&appCfg).Error; err != nil {
 					return err
 				}
 				clearedActive = true
@@ -247,7 +234,6 @@ func (sql3 *Sqlite3) DeleteCollections() (bool, error) {
 
 		return tx.Where("id IN ?", IDs).Delete(&schema.Collection{}).Error
 	})
-
 	if err != nil {
 		return false, err
 	}
@@ -257,4 +243,45 @@ func (sql3 *Sqlite3) DeleteCollections() (bool, error) {
 	}
 
 	return true, nil
+}
+
+// picked vpks in the Mods
+func (sql3 *Sqlite3) AppendCollections() (bool, error) {
+	// you pciked in the delete collection page, just collection
+	colls := sql3.AppDi.GetSelectedCollections()
+
+	if len(colls) == 0 {
+		return false, fmt.Errorf("you do not pick anyone")
+	}
+
+	// vpks that picked in the mods page
+	selectedVPKs := []string{}
+	for k := range GLOBALAPP.DI.Task.Selected {
+		selectedVPKs = append(selectedVPKs, k)
+	}
+
+	for idx := range colls {
+		colls[idx].Mods = append(colls[idx].Mods, selectedVPKs...)
+	}
+
+	for idx := range colls {
+		slices.Sort(colls[idx].Mods)
+		colls[idx].Mods = slices.Compact(colls[idx].Mods)
+	}
+
+	err := sql3.SDB.Transaction(func(tx *gorm.DB) error {
+		for _, item := range colls {
+			err := tx.Model(&schema.Collection{}).
+				Where("id = ?", item.ID).
+				Updates(schema.Collection{Mods: item.Mods}).Error
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return false, fmt.Errorf("append some vpk failed ")
+	}
+	return true, err
 }

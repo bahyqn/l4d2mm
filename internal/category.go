@@ -2,6 +2,65 @@ package internal
 
 import "github.com/go-gui-org/go-gui/gui"
 
+var ModsCategoris = []gui.SelectOption{
+	{
+		Label: "All",
+		Value: "All",
+	},
+	{
+		Label: "Collections",
+		Value: "Collections",
+	},
+	{
+		Label: "Maps",
+		Value: "Maps",
+	},
+	{
+		Label: "Rifles",
+		Value: "Rifles",
+	},
+	{
+		Label: "Shotguns",
+		Value: "Shotguns",
+	},
+	{
+		Label: "Snipers",
+		Value: "Snipers",
+	},
+	{
+		Label: "SMG",
+		Value: "SMG",
+	},
+	{
+		Label: "Pistols",
+		Value: "Pistols",
+	},
+	{
+		Label: "GL",
+		Value: "GL",
+	},
+	{
+		Label: "Melee",
+		Value: "Melee",
+	},
+	{
+		Label: "Items",
+		Value: "Items",
+	},
+	{
+		Label: "Scripts",
+		Value: "Scripts",
+	},
+	{
+		Label: "Sounds",
+		Value: "Sounds",
+	},
+	{
+		Label: "Effects",
+		Value: "Effects",
+	},
+}
+
 var ModLables = map[string][]gui.SelectOption{
 	"All":         {},
 	"Maps":        {},
