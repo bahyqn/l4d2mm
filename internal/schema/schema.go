@@ -11,6 +11,21 @@ const (
 	LocationApp  ModLocation = "app"
 )
 
+type VPKLabel struct {
+	Label    string
+	SubLabel []VPKSubLabel
+}
+
+type VPKSubLabel struct {
+	Label string
+	Key   string
+}
+
+type VPKCategory struct {
+	Category string
+	SubLabel string
+}
+
 type Mod struct {
 	Idx            int              `gorm:"-"`
 	ID             string           `gorm:"primaryKey;column:id"`
@@ -176,7 +191,7 @@ type TableConfig struct {
 	RowData  [][]TableField
 	Selected []bool
 	// Don't set false when you clicked toggle
-	Toggled  bool
+	Toggled bool
 }
 
 type TableField struct {

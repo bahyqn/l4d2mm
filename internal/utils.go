@@ -32,27 +32,23 @@ func StatPath(path string) bool {
 
 // GetSubCategories Get subLabels based on option string
 func GetSubCategories(option string) {
+	pageMods := &GLOBALAPP.ComponentStatus.PageMods
+	// clear(pageMods.SubLabels)
+	// pageMods.SubLabels = pageMods.SubLabels[:0]
+	pageMods.SelectedSubLabel[0] = ""
+
+	// fmt.Println("")
 	sub, ok := ModLables[option]
 	if !ok {
 		return
 	}
 
 	if len(sub) == 0 {
-		clear(GLOBALAPP.ComponentStatus.PageMods.SubLabels)
-		GLOBALAPP.ComponentStatus.PageMods.SubLabels = GLOBALAPP.ComponentStatus.PageMods.SubLabels[:0]
-		GLOBALAPP.ComponentStatus.PageMods.SelectedSubLabel[0] = ""
 		return
 	}
 
-	pageMods := &GLOBALAPP.ComponentStatus.PageMods
 	pageMods.SubLabels = ModLables[option]
-
-	switch len(pageMods.SelectedSubLabel) {
-	case 0:
-		pageMods.SelectedSubLabel = append(pageMods.SelectedSubLabel, sub[0].Label)
-	case 1:
-		pageMods.SelectedSubLabel[0] = sub[0].Label
-	}
+	pageMods.SelectedSubLabel[0] = sub[0].Label
 }
 
 func GetFileSize(filePath string) (uint64, error) {

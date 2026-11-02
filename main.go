@@ -16,10 +16,14 @@ import (
 var assetFiles embed.FS
 
 func main() {
+	internal.PrepareLabels()
+
+
 	app := internal.NewApp(assetFiles)
 	cfg := gui.ThemeLight.WithBorders(true).Cfg
 	cfg.ToastAnchor = gui.Some(gui.ToastTopRight)
 	gui.SetTheme(gui.ThemeMaker(cfg))
+
 
 	w := gui.NewWindow(gui.WindowCfg{
 		State:     app,
@@ -28,8 +32,6 @@ func main() {
 		Height:    int(internal.GLOBALAPP.AppConfig.Height),
 		FixedSize: true,
 		OnInit: func(w *gui.Window) {
-			// vpk := internal.Vpk{}
-			// vpk.ReadAllVpk()
 			internal.GLOBALAPP.RegisterAllDependencies(w)
 			internal.GLOBALAPP.Prepare()
 

@@ -143,11 +143,11 @@ func overview() gui.View {
 		Content: []gui.View{
 			// id
 			// components.VerticalGap(5, gui.FillFixed),
-			modProfileRow1("Id", mod.ID),
+			modProfileRow2("Id", mod.ID, 0),
 			components.HDivider(1),
-			modProfileRow1("Filename", mod.Filename),
+			modProfileRow2("Filename", mod.Filename, 0),
 			components.HDivider(1),
-			modProfileRow1("Location", internal.GLOBALAPP.DI.Vpk.ModPath(mod)),
+			modProfileRow2("Location", internal.GLOBALAPP.DI.Vpk.ModPath(mod), 0),
 			components.HDivider(1),
 			modProfileRow2("AddonTitle", internal.GetValueFromMap(mod.Addoninfo, "addontitle", "No title"), 0),
 			components.HDivider(1),

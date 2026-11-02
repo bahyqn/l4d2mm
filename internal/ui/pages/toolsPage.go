@@ -26,14 +26,14 @@ var cardInfo = []schema.ToolCardInfo{
 			updateToolPage(2, "Delete Collections")
 		},
 	},
-	{
-		SvgFilename: "edit_note",
-		Title:       "Modify Collections",
-		Describe:    "Add or remove mods in existing ones. (UNAVAILABLE)",
-		OnClick: func() {
-			updateToolPage(3, "Modify Collection")
-		},
-	},
+	// {
+	// 	SvgFilename: "edit_note",
+	// 	Title:       "Modify Collections",
+	// 	Describe:    "Add or remove mods in existing ones. (UNAVAILABLE)",
+	// 	OnClick: func() {
+	// 		updateToolPage(3, "Modify Collection")
+	// 	},
+	// },
 	{
 		SvgFilename: "category",
 		Title:       "Classify Mods",
@@ -125,11 +125,11 @@ func ToolsPage() gui.View {
 	switch app.SubAsideIndices[3] {
 	case 0:
 		comps = append(comps, sectionHeader("COLLECTION MANAGEMENT"))
-		comps = append(comps, rowCard(cardInfo[:3]))
+		comps = append(comps, rowCard(cardInfo[:2]))
 		comps = append(comps, sectionHeader("UTILITIES & DIAGNOSTICS"))
-		comps = append(comps, rowCard(cardInfo[3:6]))
+		comps = append(comps, rowCard(cardInfo[2:5]))
 		comps = append(comps, sectionHeader("MOD & CONFIG SYNCHRONIZATION"))
-		comps = append(comps, rowCard(cardInfo[6:]))
+		comps = append(comps, rowCard(cardInfo[5:]))
 	case 1:
 		comps = append(comps, addCollection())
 	case 2:
