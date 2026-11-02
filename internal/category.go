@@ -392,7 +392,7 @@ var LABELS = []schema.VPKLabel{
 		},
 	},
 	{
-		Label: "Scripts",
+		Label: "Survivors",
 		SubLabel: []schema.VPKSubLabel{
 			{
 				Label: "Coach",
@@ -510,6 +510,10 @@ var LABELS = []schema.VPKLabel{
 		},
 	},
 	{
+		Label:    "Scripts",
+		SubLabel: []schema.VPKSubLabel{},
+	},
+	{
 		Label:    "Sounds",
 		SubLabel: []schema.VPKSubLabel{},
 	},
@@ -548,6 +552,59 @@ func PrepareLabels() {
 			ModLables[item.Label] = []gui.SelectOption{}
 		}
 	}
+}
+
+type SourceMode string
+
+const (
+	SourceDefault       SourceMode = "Default"
+	SourceWorkshopFirst SourceMode = "Workshop First"
+	SourceLocalFirst    SourceMode = "Local First"
+	SourceEnableFirst   SourceMode = "Enable First"
+	SourceDisableFirst  SourceMode = "Disable First"
+	SourceWorkshopOnly  SourceMode = "Workshop Only"
+	SourceLocalOnly     SourceMode = "Local Only"
+	SourceEnableOnly    SourceMode = "Enable Only"
+	SourceDisableOnly   SourceMode = "Disable Only"
+)
+
+var AllSourceModes = []gui.SelectOption{
+	{
+		Label: string(SourceDefault),
+		Value: string(SourceDefault),
+	},
+	{
+		Label: string(SourceWorkshopFirst),
+		Value: string(SourceWorkshopFirst),
+	},
+	{
+		Label: string(SourceLocalFirst),
+		Value: string(SourceLocalFirst),
+	},
+	{
+		Label: string(SourceEnableFirst),
+		Value: string(SourceEnableFirst),
+	},
+	{
+		Label: string(SourceDisableFirst),
+		Value: string(SourceDisableFirst),
+	},
+	{
+		Label: string(SourceWorkshopOnly),
+		Value: string(SourceWorkshopOnly),
+	},
+	{
+		Label: string(SourceLocalOnly),
+		Value: string(SourceLocalOnly),
+	},
+	{
+		Label: string(SourceEnableOnly),
+		Value: string(SourceEnableOnly),
+	},
+	{
+		Label: string(SourceDisableOnly),
+		Value: string(SourceDisableOnly),
+	},
 }
 
 // var ModsCategoris = []gui.SelectOption{
@@ -872,59 +929,6 @@ func PrepareLabels() {
 // 	"Sounds":  {},
 // 	"Effects": {},
 // }
-
-type SourceMode string
-
-const (
-	SourceDefault       SourceMode = "Default"
-	SourceWorkshopFirst SourceMode = "Workshop First"
-	SourceLocalFirst    SourceMode = "Local First"
-	SourceEnableFirst   SourceMode = "Enable First"
-	SourceDisableFirst  SourceMode = "Disable First"
-	SourceWorkshopOnly  SourceMode = "Workshop Only"
-	SourceLocalOnly     SourceMode = "Local Only"
-	SourceEnableOnly    SourceMode = "Enable Only"
-	SourceDisableOnly   SourceMode = "Disable Only"
-)
-
-var AllSourceModes = []gui.SelectOption{
-	{
-		Label: string(SourceDefault),
-		Value: string(SourceDefault),
-	},
-	{
-		Label: string(SourceWorkshopFirst),
-		Value: string(SourceWorkshopFirst),
-	},
-	{
-		Label: string(SourceLocalFirst),
-		Value: string(SourceLocalFirst),
-	},
-	{
-		Label: string(SourceEnableFirst),
-		Value: string(SourceEnableFirst),
-	},
-	{
-		Label: string(SourceDisableFirst),
-		Value: string(SourceDisableFirst),
-	},
-	{
-		Label: string(SourceWorkshopOnly),
-		Value: string(SourceWorkshopOnly),
-	},
-	{
-		Label: string(SourceLocalOnly),
-		Value: string(SourceLocalOnly),
-	},
-	{
-		Label: string(SourceEnableOnly),
-		Value: string(SourceEnableOnly),
-	},
-	{
-		Label: string(SourceDisableOnly),
-		Value: string(SourceDisableOnly),
-	},
-}
 
 // var MDL = map[string]schema.VPKCategory{
 // 	// rifles

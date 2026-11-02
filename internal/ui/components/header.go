@@ -28,7 +28,7 @@ func ModsHeader() gui.View {
 	if len(pageMods.SelectedSubLabel) == 1 && pageMods.SelectedSubLabel[0] != "" {
 		components = append(components, Select(schema.TemplateSelect{
 			ID:       "select-sub-categories",
-			MaxWidth: 140,
+			MaxWidth: 160,
 			Selected: internal.GLOBALAPP.ComponentStatus.PageMods.SelectedSubLabel,
 			Options:  internal.GLOBALAPP.ComponentStatus.PageMods.SubLabels,
 			OnSelectFunc: func(s []string, ec gui.EventCtx) {
