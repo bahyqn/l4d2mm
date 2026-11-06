@@ -645,7 +645,6 @@ func (vpk *Vpk) Classify() {
 	// var survivingSlice []SliceItem
 	var isScript bool
 
-	fmt.Println("slice2 -- > ", len(slice2))
 	// 4. maybe is script, hud, sound, effect, other
 	for _, item := range slice2 {
 		clear(exCounts)
@@ -670,7 +669,6 @@ func (vpk *Vpk) Classify() {
 		}
 
 		if !isScript {
-			fmt.Printf("%d ---> %s \n", item.Idx, item.ModName)
 			switch getDominantExtension(exCounts, len(filesMap[item.Idx])) {
 			case "wav":
 				vpk.Mods[item.Idx].Category = "Sounds"
@@ -694,9 +692,9 @@ func (vpk *Vpk) Classify() {
 		}
 	}
 
-	for i, item := range vpk.Mods {
-		fmt.Printf("%d %s --> %s - %s \n", i, item.ModName, vpk.Mods[i].Category, vpk.Mods[i].SubType)
-	}
+	// for i, item := range vpk.Mods {
+	// 	fmt.Printf("%d %s --> %s - %s \n", i, item.ModName, vpk.Mods[i].Category, vpk.Mods[i].SubType)
+	// }
 
 	clear(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx)
 	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[:0]
@@ -715,9 +713,6 @@ func getDominantExtension(exCounts map[string]int, metadataLength int) string {
 			ex = k
 		}
 
-		fmt.Printf("extension: %s, amount: %d \n", k, v)
 	}
-	fmt.Println(ex)
-	fmt.Println()
 	return ex
 }

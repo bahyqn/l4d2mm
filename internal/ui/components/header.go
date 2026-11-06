@@ -1,6 +1,7 @@
 package components
 
 import (
+	"fmt"
 	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
 
@@ -21,6 +22,39 @@ func ModsHeader() gui.View {
 			OnSelectFunc: func(s []string, ec gui.EventCtx) {
 				pageMods.SelectedategoryLabel = s
 				internal.GetSubCategories(s[0])
+
+				if s[0] == "All" {
+					pageMods.SelectedSubLabel[0] = ""
+					clear(pageMods.ModsBySelectIdx)
+					pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
+					pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, internal.GLOBALAPP.DI.Vpk.Mods...)
+					internal.GLOBALAPP.DynamicPageSelect()
+					return
+				}
+
+				if subLabel, ok := internal.ModLables[s[0]]; ok {
+					clear(pageMods.ModsBySelectIdx)
+					pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
+					if len(subLabel) == 0 {
+						for _, item := range internal.GLOBALAPP.DI.Vpk.Mods {
+							if item.Category == s[0] {
+								pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, item)
+							}
+						}
+					} else {
+						pageMods.SubLabels[0] = subLabel[0]
+
+						// clear(pageMods.ModsBySelectIdx)
+						// pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
+
+						for _, item := range internal.GLOBALAPP.DI.Vpk.Mods {
+							if item.Category == s[0] && item.SubType == subLabel[0].Value {
+								pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, item)
+							}
+						}
+					}
+				}
+				internal.GLOBALAPP.DynamicPageSelect()
 			},
 		}),
 	}
@@ -32,7 +66,18 @@ func ModsHeader() gui.View {
 			Selected: internal.GLOBALAPP.ComponentStatus.PageMods.SelectedSubLabel,
 			Options:  internal.GLOBALAPP.ComponentStatus.PageMods.SubLabels,
 			OnSelectFunc: func(s []string, ec gui.EventCtx) {
-				internal.GLOBALAPP.ComponentStatus.PageMods.SelectedSubLabel = s
+				pageMods.SelectedSubLabel[0] = s[0]
+
+				fmt.Printf("category: %s, sublabel: %s \n\n", pageMods.SelectedategoryLabel[0], pageMods.SelectedSubLabel[0])
+
+				clear(pageMods.ModsBySelectIdx)
+				pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
+				for _, item := range internal.GLOBALAPP.DI.Vpk.Mods {
+					if item.Category == pageMods.SelectedategoryLabel[0] && item.SubType == pageMods.SelectedSubLabel[0] {
+						pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, item)
+					}
+				}
+				internal.GLOBALAPP.DynamicPageSelect()
 			},
 		}))
 	}
