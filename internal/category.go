@@ -518,8 +518,17 @@ var LABELS = []schema.VPKLabel{
 		SubLabel: []schema.VPKSubLabel{},
 	},
 	{
-		Label:    "Effects",
-		SubLabel: []schema.VPKSubLabel{},
+		Label: "Misc",
+		SubLabel: []schema.VPKSubLabel{
+			{
+				Label: "Materials",
+				Key:   "Materials",
+			},
+			{
+				Label: "Others",
+				Key:   "Others",
+			},
+		},
 	},
 }
 

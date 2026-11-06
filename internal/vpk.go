@@ -24,7 +24,10 @@ const (
 	workshopModsPath = "addons/workshop"
 )
 
-var maxWrokers = runtime.NumCPU() * 2
+var (
+	maxWrokers = runtime.NumCPU() * 2
+	isClassify = false
+)
 
 type TempVpk struct {
 	ModName string
@@ -127,7 +130,10 @@ func (vpk *Vpk) SyncVPKs(path string) {
 	clear(dbMods)
 	dbMods = dbMods[:0]
 	dbMods, err = vpk.AppDi.DI.SQL.QueryAllMods()
-	vpk.Mods = append(vpk.Mods, dbMods...)
+	for i := range dbMods {
+		dbMods[i].Idx = i
+		vpk.Mods = append(vpk.Mods, dbMods[i])
+	}
 	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, dbMods...)
 	GLOBALAPP.DynamicPageSelect()
 }
@@ -488,4 +494,230 @@ func (vpk *Vpk) FetchCollection() {
 	}
 
 	GenerateSelectOptions("Collections", tempSelectOption)
+}
+
+func (vpk *Vpk) ListAllFiles(mod *schema.Mod) {
+	if arch, err := vvpk.OpenVpkDev(vpk.GetModAbsPath(mod)); err == nil {
+		for i, item := range arch.Entries {
+			fmt.Printf("%d - %s -> %s -> %s\n", i, item.Extension, item.Path, item.Filename)
+		}
+	}
+}
+
+func (vpk *Vpk) Classify() {
+	// filtering vpks that no category
+	unCategoried := []*schema.Mod{}
+
+	for i := range vpk.Mods {
+		if vpk.Mods[i].Category == "" {
+			unCategoried = append(unCategoried, &vpk.Mods[i])
+		}
+	}
+
+	if len(unCategoried) == 0 {
+		return
+	}
+	// 1.
+	// double bucket
+	// bucket one: confirmed maps
+	// bucket two: unknown
+	confirmedBucket := map[string][]*schema.Mod{}
+	unknownBucket := map[string][]*schema.Mod{}
+
+	tname := ""
+
+	for i := range unCategoried {
+		if unCategoried[i].ModName == "" {
+			tname = "xxxxxxxxxxxxxxxxxxxxx"
+			// continue
+		}
+
+		tempName := strings.Split(unCategoried[i].ModName, " ")
+		if len(tempName) == 1 {
+			if len(tempName[0])-3 > 0 {
+				tname = tempName[0][:len(tempName[0])-3]
+			}
+		} else if len(tempName) > 1 {
+			tname = tempName[0]
+		}
+
+		if len(unCategoried[i].Missions) > 0 {
+			unCategoried[i].Category = "Maps"
+			confirmedBucket[tname] = append(confirmedBucket[tname], unCategoried[i])
+		} else {
+			// if tname == "" {
+			// 	tname = "xxxxxxxxxxxxxxxxxxxxx"
+			// }
+			unknownBucket[tname] = append(unknownBucket[tname], unCategoried[i])
+		}
+	}
+	tname = ""
+
+	// 2.
+	// map1: storage similar vpks
+	// slice2: maybe its all the scripts, hud
+	// to get maps vpks from unknownBucket that existed inside the confirmedBucket
+	slice2 := []*schema.Mod{}
+	//  storage length similar vpks, if v length > 1,maybe that's the maps
+	sameMap := map[int][]*schema.Mod{}
+	for key, value := range confirmedBucket {
+		vpks, ok := unknownBucket[key]
+		if !ok {
+			continue
+		}
+
+		// clean cache
+		clear(sameMap)
+		clear(slice2)
+		slice2 = slice2[:0]
+
+		for i := range vpks {
+			match := IsRelatedPart(value[0].ModName, vpks[i].ModName)
+
+			// fmt.Printf("%t %d %s \n", match, vpks[i].Idx, vpks[i].ModName)
+			if match {
+				vpk.Mods[vpks[i].Idx].Category = "Maps"
+				delete(unknownBucket, key)
+				continue
+			}
+
+			tlen := len(vpks[i].ModName) / 4
+			sameMap[tlen] = append(sameMap[tlen], vpks[i])
+		}
+
+		// last check if there'are mpas
+		if len(sameMap) > 0 {
+			for _, v := range sameMap {
+				// there's a problem
+				if len(v) > 1 {
+					for i := range v {
+						vpk.Mods[v[i].Idx].Category = "Maps"
+					}
+					continue
+				}
+				// not map
+				slice2 = append(slice2, v...)
+			}
+		}
+
+		if len(slice2) == 0 {
+			delete(unknownBucket, key)
+		}
+
+		// put back not map vpks
+		if len(slice2) > 0 {
+			clear(unknownBucket[key])
+			unknownBucket[key] = unknownBucket[key][:0]
+			unknownBucket[key] = append(unknownBucket[key], slice2...)
+		}
+	}
+
+	clear(slice2)
+	// cache not recgnized vpks
+	slice2 = slice2[:0]
+	// cache opened vpk's file
+	filesMap := map[int][]vvpk.Metadata{}
+	matched := false
+	// 3. recognize the model
+	for _, v := range unknownBucket {
+		for _, item := range v {
+			if arch, err := vvpk.OpenVpkDev(vpk.GetModAbsPath(item)); err == nil {
+				matched = false
+				for _, file := range arch.Entries {
+					if category, ok := MDL[file.Filename]; ok {
+						matched = true
+						vpk.Mods[item.Idx].Category = category.Category
+						vpk.Mods[item.Idx].SubType = category.SubLabel
+						break
+					}
+				}
+
+				if !matched {
+					slice2 = append(slice2, item)
+					// filesMap[item.Idx] = append(filesMap[item.Idx], arch.Entries...)
+					filesMap[item.Idx] = arch.Entries
+				}
+			}
+		}
+	}
+
+	exCounts := make(map[string]int)
+	// var survivingSlice []SliceItem
+	var isScript bool
+
+	fmt.Println("slice2 -- > ", len(slice2))
+	// 4. maybe is script, hud, sound, effect, other
+	for _, item := range slice2 {
+		clear(exCounts)
+		isScript = false
+		for _, row := range filesMap[item.Idx] {
+			// extension	path	filename
+			// xxx          scripts xxxxxxxxx
+			if row.Path == "scripts" {
+				isScript = true
+				vpk.Mods[item.Idx].Category = "Scripts"
+				break
+			}
+
+			// exclus: addoninfo.txt missions/*.txt
+			if row.Extension == "txt" && (row.Path == "" && strings.ToLower(row.Path) == "missions") {
+				continue
+			}
+			exCounts[row.Extension] += 1
+			// extension	path			filename
+			// xxx          scripts/xxxx	xxxxxxxxx
+			// maybe extension is better
+		}
+
+		if !isScript {
+			fmt.Printf("%d ---> %s \n", item.Idx, item.ModName)
+			switch getDominantExtension(exCounts, len(filesMap[item.Idx])) {
+			case "wav":
+				vpk.Mods[item.Idx].Category = "Sounds"
+			case "vmt":
+				vpk.Mods[item.Idx].Category = "Misc"
+				vpk.Mods[item.Idx].SubType = "Materials"
+			case "vtf":
+				vpk.Mods[item.Idx].Category = "Misc"
+				vpk.Mods[item.Idx].SubType = "Materials"
+			case "nut":
+				vpk.Mods[item.Idx].Category = "Script"
+			case "txt":
+				vpk.Mods[item.Idx].Category = "Script"
+			case "pcf":
+				vpk.Mods[item.Idx].Category = "Misc"
+				vpk.Mods[item.Idx].SubType = "Particles"
+			default:
+				vpk.Mods[item.Idx].Category = "Misc"
+				vpk.Mods[item.Idx].SubType = "Other"
+			}
+		}
+	}
+
+	for i, item := range vpk.Mods {
+		fmt.Printf("%d %s --> %s - %s \n", i, item.ModName, vpk.Mods[i].Category, vpk.Mods[i].SubType)
+	}
+
+	clear(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx)
+	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[:0]
+	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, vpk.Mods...)
+}
+
+func getDominantExtension(exCounts map[string]int, metadataLength int) string {
+	ex := ""
+	exf := 0.0
+	for k, v := range exCounts {
+		// if k == "txt" {
+		// 	continue
+		// }
+		if float64(v)/float64(metadataLength) > exf {
+			exf = float64(v) / float64(metadataLength)
+			ex = k
+		}
+
+		fmt.Printf("extension: %s, amount: %d \n", k, v)
+	}
+	fmt.Println(ex)
+	fmt.Println()
+	return ex
 }

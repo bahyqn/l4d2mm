@@ -148,3 +148,37 @@ func GenerateSelectOptions(key string, appendData []gui.SelectOption) {
 
 	ModLables[key] = append(ModLables[key], appendData...)
 }
+
+func IsRelatedPart(str1, str2 string) bool {
+	len1 := len(str1)
+	len2 := len(str2)
+
+	diff := len1 - len2
+	if diff < 0 {
+		diff = -diff
+	}
+
+	if diff > 2 {
+		return false
+	}
+
+	minLength := len1
+	if len2 < minLength {
+		minLength = len2
+	}
+
+	matchCount := 0
+	for i := 0; i < minLength; i++ {
+		if str1[i] == str2[i] {
+			matchCount++
+		}
+	}
+
+	if float64(matchCount)/float64(minLength) >= 0.8 {
+		return true
+	}
+
+	return false
+}
+
+// func 

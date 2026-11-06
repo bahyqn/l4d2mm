@@ -75,6 +75,8 @@ func ModDetails() gui.View {
 	case 2:
 		// internal.GLOBALAPP.DI.Window.SetView(renderWindow)
 		comps = append(comps, renderWindow(internal.GLOBALAPP.ComponentStatus.PageMods.ModDetails.Addoninfo))
+	case 3:
+		internal.GLOBALAPP.DI.Vpk.ListAllFiles(internal.GLOBALAPP.ComponentStatus.PageMods.ModDetails)
 	case 4:
 		// internal.GLOBALAPP.DI.Window.SetView(renderWindow)
 		comps = append(comps, renderWindow(internal.GLOBALAPP.ComponentStatus.PageMods.ModDetails.Missions[0]))
@@ -146,6 +148,12 @@ func overview() gui.View {
 			modProfileRow2("Id", mod.ID, 0),
 			components.HDivider(1),
 			modProfileRow2("Filename", mod.Filename, 0),
+
+			modProfileRow2("Category", mod.Category, 0),
+			components.HDivider(1),
+			modProfileRow2("Sublabel", mod.SubType, 0),
+			components.HDivider(1),
+
 			components.HDivider(1),
 			modProfileRow2("Location", internal.GLOBALAPP.DI.Vpk.ModPath(mod), 0),
 			components.HDivider(1),

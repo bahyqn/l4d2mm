@@ -133,7 +133,10 @@ func ToolsPage() gui.View {
 	case 1:
 		comps = append(comps, addCollection())
 	case 2:
-		comps = append(comps, deleteCollections())
+		comps = append(comps, modifyCollections())
+	case 4:
+		comps = append(comps, vpkClassify())
+
 	}
 
 	return gui.Column(gui.ContainerCfg{
@@ -226,8 +229,8 @@ func addCollection() gui.View {
 }
 
 // AsideIdx:        3,
-// SubAsideIndices: [6]int{0, 0, 0, 1, 0, 0},
-func deleteCollections() gui.View {
+// SubAsideIndices: [6]int{0, 0, 0, 2, 0, 0},
+func modifyCollections() gui.View {
 	return gui.Column(gui.ContainerCfg{
 		ID:      "delete-collections-column",
 		Sizing:  gui.FillFill,
@@ -245,6 +248,31 @@ func deleteCollections() gui.View {
 			}),
 			components.HDivider(2),
 			components.Table(&internal.GLOBALAPP.ComponentStatus.PageTools.DeleteCollection),
+		},
+	})
+}
+
+// AsideIdx:        4,
+// SubAsideIndices: [6]int{0, 0, 0, 4, 0, 0},
+func vpkClassify() gui.View {
+
+	return gui.Column(gui.ContainerCfg{
+		ID:     "vpk-classify-container",
+		Sizing: gui.FillFill,
+		Content: []gui.View{
+
+			gui.Button(gui.ButtonCfg{
+				ID: "bth-classify",
+				Content: []gui.View{
+					gui.Text(gui.TextCfg{
+						ID:   "bth-name",
+						Text: "classify",
+					}),
+				},
+				OnClick: func(ec gui.EventCtx) {
+					internal.GLOBALAPP.DI.Vpk.Classify()
+				},
+			}),
 		},
 	})
 }
