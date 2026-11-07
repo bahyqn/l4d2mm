@@ -14,6 +14,7 @@ func ModsHeader() gui.View {
 	components := []gui.View{
 		ButtonChooseFolder(),
 		Input(pageMods.ModsSearchValue),
+		// categories
 		Select(schema.TemplateSelect{
 			ID:       "select-category",
 			MaxWidth: 140,
@@ -24,57 +25,69 @@ func ModsHeader() gui.View {
 				internal.GetSubCategories(s[0])
 
 				if s[0] == "All" {
-					pageMods.SelectedSubLabel[0] = ""
 					clear(pageMods.ModsBySelectIdx)
 					pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
-					pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, internal.GLOBALAPP.DI.Vpk.Mods...)
+
+					pageMods.SelectedSubLabel[0] = ""
+
+					mods := internal.GLOBALAPP.DI.Vpk.Mods
+					for i := range internal.GLOBALAPP.DI.Vpk.Mods {
+						pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &mods[i])
+					}
+
 					internal.GLOBALAPP.DynamicPageSelect()
 					return
 				}
 
-				if subLabel, ok := internal.ModLables[s[0]]; ok {
-					clear(pageMods.ModsBySelectIdx)
-					pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
-					if len(subLabel) == 0 {
-						for _, item := range internal.GLOBALAPP.DI.Vpk.Mods {
-							if item.Category == s[0] {
-								pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, item)
-							}
-						}
-					} else {
-						pageMods.SubLabels[0] = subLabel[0]
+				if s[0] == "Collections" {
+					mslice := []string{}
 
-						// clear(pageMods.ModsBySelectIdx)
-						// pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
-
-						for _, item := range internal.GLOBALAPP.DI.Vpk.Mods {
-							if item.Category == s[0] && item.SubType == subLabel[0].Value {
-								pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, item)
-							}
+					for _, item := range internal.GLOBALAPP.DI.Vpk.Collections {
+						if item.Name == pageMods.SelectedSubLabel[0] {
+							mslice = append(mslice, item.Mods...)
+							break
 						}
 					}
+
+					if len(mslice) > 0 {
+						clear(pageMods.ModsBySelectIdx)
+						pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
+
+						for _, id := range mslice {
+							for _, mod := range internal.GLOBALAPP.DI.Vpk.Mods {
+								if id == mod.ID {
+									pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &mod)
+									continue
+								}
+							}
+						}
+						internal.GLOBALAPP.DynamicPageSelect()
+						fmt.Println(len(pageMods.ModsBySelectIdx))
+					}
+					return
 				}
-				internal.GLOBALAPP.DynamicPageSelect()
+				internal.QueryVPKs()
 			},
 		}),
 	}
 
+	// sublabel
 	if len(pageMods.SelectedSubLabel) == 1 && pageMods.SelectedSubLabel[0] != "" {
 		components = append(components, Select(schema.TemplateSelect{
 			ID:       "select-sub-categories",
 			MaxWidth: 160,
-			Selected: internal.GLOBALAPP.ComponentStatus.PageMods.SelectedSubLabel,
-			Options:  internal.GLOBALAPP.ComponentStatus.PageMods.SubLabels,
+			Selected: pageMods.SelectedSubLabel,
+			Options:  pageMods.SubLabels,
 			OnSelectFunc: func(s []string, ec gui.EventCtx) {
 				pageMods.SelectedSubLabel[0] = s[0]
 
-				fmt.Printf("category: %s, sublabel: %s \n\n", pageMods.SelectedategoryLabel[0], pageMods.SelectedSubLabel[0])
+				// fmt.Printf("category: %s, sublabel: %s \n\n", pageMods.SelectedategoryLabel[0], pageMods.SelectedSubLabel[0])
 
 				clear(pageMods.ModsBySelectIdx)
 				pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
 				for _, item := range internal.GLOBALAPP.DI.Vpk.Mods {
 					if item.Category == pageMods.SelectedategoryLabel[0] && item.SubType == pageMods.SelectedSubLabel[0] {
-						pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, item)
+						pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &item)
 					}
 				}
 				internal.GLOBALAPP.DynamicPageSelect()

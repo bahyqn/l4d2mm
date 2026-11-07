@@ -132,7 +132,7 @@ type PageMods struct {
 	DynamicPageSelect    []gui.SelectOption
 
 	PageAmount      int
-	ModsBySelectIdx []Mod
+	ModsBySelectIdx []*Mod
 	PageEnd         []string
 	SourceMode      string
 

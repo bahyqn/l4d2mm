@@ -134,7 +134,14 @@ func (vpk *Vpk) SyncVPKs(path string) {
 		dbMods[i].Idx = i
 		vpk.Mods = append(vpk.Mods, dbMods[i])
 	}
-	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, dbMods...)
+
+	pageMods := &GLOBALAPP.ComponentStatus.PageMods
+	// clear(pageMods.ModsBySelectIdx)
+	// pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
+	for _, item := range dbMods {
+		pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &item)
+	}
+	// GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, dbMods...)
 	GLOBALAPP.DynamicPageSelect()
 }
 
@@ -428,10 +435,12 @@ func (vpk *Vpk) SyncAddonlistToDB() {
 		}
 	}
 
-	clear(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx)
-	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[:0]
-	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[:0]
-	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, vpk.Mods...)
+	pageMods := &GLOBALAPP.ComponentStatus.PageMods
+	clear(pageMods.ModsBySelectIdx)
+	pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
+	for _, item := range vpk.Mods {
+		pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &item)
+	}
 
 	ToastSuccess("Synced", "Sync addonlist to sqlite successful")
 }
@@ -696,9 +705,12 @@ func (vpk *Vpk) Classify() {
 	// 	fmt.Printf("%d %s --> %s - %s \n", i, item.ModName, vpk.Mods[i].Category, vpk.Mods[i].SubType)
 	// }
 
-	clear(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx)
-	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[:0]
-	GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, vpk.Mods...)
+	pageMods := &GLOBALAPP.ComponentStatus.PageMods
+	clear(pageMods.ModsBySelectIdx)
+	pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
+	for _, item := range vpk.Mods {
+		pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &item)
+	}
 }
 
 func getDominantExtension(exCounts map[string]int, metadataLength int) string {

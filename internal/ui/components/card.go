@@ -22,7 +22,7 @@ const (
 	addonautohr float32 = 14
 )
 
-func ModCard(mod schema.Mod) gui.View {
+func ModCard(mod *schema.Mod) gui.View {
 	return gui.Column(gui.ContainerCfg{
 		ID:        mod.ID,
 		Width:     cardWidth,
@@ -57,7 +57,7 @@ func ModCard(mod schema.Mod) gui.View {
 						return gui.RGBA(0, 120, 212, 230)
 					}
 					return gui.RGBA(51, 65, 85, 230)
-				}(&mod),
+				}(mod),
 				Content: []gui.View{
 					// VerticalSpacer(),
 					gui.Text(gui.TextCfg{
@@ -67,7 +67,7 @@ func ModCard(mod schema.Mod) gui.View {
 								return "W"
 							}
 							return "L"
-						}(&mod),
+						}(mod),
 						TextStyle: gui.TextStyle{
 							Size:  16,
 							Color: gui.RGBA(255, 255, 255, 255),
@@ -83,7 +83,7 @@ func ModCard(mod schema.Mod) gui.View {
 			}),
 			gui.Image(gui.ImageCfg{
 				ID:    "img-" + mod.ID,
-				Src:   img(&mod),
+				Src:   img(mod),
 				Width: cardWidth,
 				// MaxWidth:  cardWidth,
 				Height:    imgHeight,
@@ -160,15 +160,15 @@ func ModCard(mod schema.Mod) gui.View {
 						// Button()
 						// Color: gui.RGBA(0, 0, 0, 30),
 						Content: []gui.View{
-							SwitchDsiableMod(&mod),
+							SwitchDsiableMod(mod),
 							// ButtonShowModInfo(&mod),
 							// ButtonDisableMod(&mod),
-							ButtonDeleteMod(&mod),
+							ButtonDeleteMod(mod),
 							// VerticalSpacer(),
 							// MoreHoriz(&mod),
 
-							DisplayModProfileButton(&mod),
-							CRCScanButton(&mod),
+							DisplayModProfileButton(mod),
+							CRCScanButton(mod),
 
 							gui.Toggle(gui.ToggleCfg{
 								ID:         "mod-toggle-" + mod.ID,

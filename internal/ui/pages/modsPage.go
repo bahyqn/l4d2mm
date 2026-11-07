@@ -96,6 +96,7 @@ func renderCards() []gui.View {
 	// fakeData()
 
 	t := []gui.View{}
+	pageMods := &internal.GLOBALAPP.ComponentStatus.PageMods
 
 	endIdx, err := strconv.Atoi(internal.GLOBALAPP.ComponentStatus.PageMods.PageEnd[0])
 	if err != nil {
@@ -106,10 +107,10 @@ func renderCards() []gui.View {
 		return t
 	}
 
-	startIdx := (endIdx - 1) / internal.GLOBALAPP.ComponentStatus.PageMods.PageAmount * internal.GLOBALAPP.ComponentStatus.PageMods.PageAmount
+	startIdx := (endIdx - 1) / pageMods.PageAmount * pageMods.PageAmount
 
-	if len(internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx) > 0 {
-		for _, item := range internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx[startIdx:endIdx] {
+	if len(pageMods.ModsBySelectIdx) > 0 {
+		for _, item := range pageMods.ModsBySelectIdx[startIdx:endIdx] {
 			// Control the number of elements rendered on the page
 			// if idx >= 50 {
 			// 	break
@@ -123,8 +124,9 @@ func renderCards() []gui.View {
 }
 
 func fakeData() {
+	pageMods := &internal.GLOBALAPP.ComponentStatus.PageMods
 	for i := 0; i < 100; i++ {
-		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = append(internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx, schema.Mod{
+		pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &schema.Mod{
 			ID: strconv.Itoa(i),
 		})
 	}

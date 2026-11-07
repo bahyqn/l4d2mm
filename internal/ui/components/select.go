@@ -1,10 +1,11 @@
 package components
 
 import (
+	"sort"
+
 	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
 	"l4d2mm/internal/theme"
-	"sort"
 
 	"github.com/go-gui-org/go-gui/gui"
 )
@@ -62,14 +63,16 @@ func Select(selectConfig schema.TemplateSelect) gui.View {
 }
 
 func SelectSourceMode() {
+	// src := internal.GLOBALAPP.DI.Vpk.Mods
+	internal.QueryVPKs()
 
-	src := internal.GLOBALAPP.DI.Vpk.Mods
-	tmp := make([]schema.Mod, len(src))
-	copy(tmp, src)
+	pageMods := &internal.GLOBALAPP.ComponentStatus.PageMods
+	tmp := make([]*schema.Mod, len(pageMods.ModsBySelectIdx))
+	copy(tmp, pageMods.ModsBySelectIdx)
 
-	switch internal.GLOBALAPP.ComponentStatus.PageMods.SourceMode {
+	switch pageMods.SourceMode {
 	case internal.AllSourceModes[0].Value:
-		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = tmp
+		pageMods.ModsBySelectIdx = tmp
 
 	case internal.AllSourceModes[1].Value: // Workshop First
 		sort.SliceStable(tmp, func(i, j int) bool {
@@ -78,7 +81,8 @@ func SelectSourceMode() {
 			}
 			return tmp[i].Idx < tmp[j].Idx
 		})
-		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = tmp
+
+		pageMods.ModsBySelectIdx = tmp
 
 	case internal.AllSourceModes[2].Value: // Local First
 		sort.SliceStable(tmp, func(i, j int) bool {
@@ -87,7 +91,8 @@ func SelectSourceMode() {
 			}
 			return tmp[i].Idx < tmp[j].Idx
 		})
-		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = tmp
+
+		pageMods.ModsBySelectIdx = tmp
 
 	case internal.AllSourceModes[3].Value: // Enable First
 		sort.SliceStable(tmp, func(i, j int) bool {
@@ -96,7 +101,8 @@ func SelectSourceMode() {
 			}
 			return tmp[i].Idx < tmp[j].Idx
 		})
-		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = tmp
+
+		pageMods.ModsBySelectIdx = tmp
 
 	case internal.AllSourceModes[4].Value: // Disaable First
 		sort.SliceStable(tmp, func(i, j int) bool {
@@ -105,49 +111,56 @@ func SelectSourceMode() {
 			}
 			return tmp[i].Idx < tmp[j].Idx
 		})
-		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = tmp
+
+		pageMods.ModsBySelectIdx = tmp
 
 	case internal.AllSourceModes[5].Value: // Workshop only
-		ttmap := []schema.Mod{}
+		ttmap := []*schema.Mod{}
 
-		for _, el := range src {
+		for _, el := range pageMods.ModsBySelectIdx {
 			if el.IsFromWorkshop {
 				ttmap = append(ttmap, el)
 			}
 		}
-		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = ttmap
-	case internal.AllSourceModes[6].Value: // Local only
-		ttmap := []schema.Mod{}
 
-		for _, el := range src {
+		pageMods.ModsBySelectIdx = ttmap
+
+	case internal.AllSourceModes[6].Value: // Local only
+		ttmap := []*schema.Mod{}
+
+		for _, el := range pageMods.ModsBySelectIdx {
 			if !el.IsFromWorkshop {
 				ttmap = append(ttmap, el)
 			}
 		}
 
-		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = ttmap
+		pageMods.ModsBySelectIdx = ttmap
 
 	case internal.AllSourceModes[7].Value: // Enable only
-		ttmap := []schema.Mod{}
+		ttmap := []*schema.Mod{}
 
-		for _, el := range src {
+		// fmt.Printf("%+v\n", pageMods.ModsBySelectIdx)
+
+		for _, el := range pageMods.ModsBySelectIdx {
 			if el.IsEnable {
 				ttmap = append(ttmap, el)
 			}
 		}
 
-		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = ttmap
+		// fmt.Printf("category: %s, sublabel: %s, mode: %s\n", pageMods.SelectedategoryLabel[0], pageMods.SelectedategoryLabel[0], pageMods.SourceMode)
+		// fmt.Printf("%+v\n", pageMods.ModsBySelectIdx)
+		pageMods.ModsBySelectIdx = ttmap
 
 	case internal.AllSourceModes[8].Value: // Disable only
-		ttmap := []schema.Mod{}
+		ttmap := []*schema.Mod{}
 
-		for _, el := range src {
+		for _, el := range pageMods.ModsBySelectIdx {
 			if !el.IsEnable {
 				ttmap = append(ttmap, el)
 			}
 		}
 
-		internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx = ttmap
+		pageMods.ModsBySelectIdx = ttmap
 	}
 	internal.GLOBALAPP.DynamicPageSelect()
 }

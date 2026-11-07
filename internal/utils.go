@@ -181,4 +181,30 @@ func IsRelatedPart(str1, str2 string) bool {
 	return false
 }
 
-// func 
+// QueryVPKs query vpks based on category & sublabel
+func QueryVPKs() {
+	pageMods := &GLOBALAPP.ComponentStatus.PageMods
+
+	if subLabel, ok := ModLables[pageMods.SelectedategoryLabel[0]]; ok {
+
+		clear(pageMods.ModsBySelectIdx)
+		pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
+
+		if len(subLabel) == 0 {
+			for _, item := range GLOBALAPP.DI.Vpk.Mods {
+				if item.Category == pageMods.SelectedategoryLabel[0] {
+					pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &item)
+				}
+			}
+		} else {
+			pageMods.SubLabels[0] = subLabel[0]
+
+			for _, item := range GLOBALAPP.DI.Vpk.Mods {
+				if item.Category == pageMods.SelectedategoryLabel[0] && item.SubType == subLabel[0].Value {
+					pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &item)
+				}
+			}
+		}
+	}
+	GLOBALAPP.DynamicPageSelect()
+}

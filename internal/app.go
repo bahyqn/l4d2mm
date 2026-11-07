@@ -50,7 +50,7 @@ func NewApp(as embed.FS) *App {
 				SelectedSubLabel:     []string{""},
 
 				PageAmount:      50,
-				ModsBySelectIdx: []schema.Mod{},
+				ModsBySelectIdx: []*schema.Mod{},
 				PageEnd:         []string{""},
 				SourceMode:      AllSourceModes[0].Value,
 
