@@ -42,12 +42,13 @@ func NewApp(as embed.FS) *App {
 		ComponentStatus: schema.ComponentStatus{
 			AsideIdx:        0,
 			SubAsideIndices: [6]int{0, 0, 0, 0, 0, 0},
+
 			PageMods: schema.PageMods{
 				ModsSearchValue:      "",
 				Categories:           ModsCategoris,
 				SelectedategoryLabel: []string{"All"},
-				SubLabels:            []gui.SelectOption{},
-				SelectedSubLabel:     []string{""},
+				SubTypes:             []gui.SelectOption{},
+				SelectedSubType:      []string{""},
 
 				PageAmount:      50,
 				ModsBySelectIdx: []*schema.Mod{},

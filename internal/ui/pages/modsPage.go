@@ -76,7 +76,7 @@ func ModDetails() gui.View {
 		// internal.GLOBALAPP.DI.Window.SetView(renderWindow)
 		comps = append(comps, renderWindow(internal.GLOBALAPP.ComponentStatus.PageMods.ModDetails.Addoninfo))
 	case 3:
-		internal.GLOBALAPP.DI.Vpk.ListAllFiles(internal.GLOBALAPP.ComponentStatus.PageMods.ModDetails)
+		// internal.GLOBALAPP.DI.Vpk.ListAllFiles(internal.GLOBALAPP.ComponentStatus.PageMods.ModDetails)
 	case 4:
 		// internal.GLOBALAPP.DI.Window.SetView(renderWindow)
 		comps = append(comps, renderWindow(internal.GLOBALAPP.ComponentStatus.PageMods.ModDetails.Missions[0]))
@@ -116,7 +116,7 @@ func renderCards() []gui.View {
 			// 	break
 			// }
 			// fmt.Printf("%+v\n", item)
-			t = append(t, components.ModCard(item))
+			t = append(t, components.ModCard(&internal.GLOBALAPP.DI.Vpk.Mods[item.Idx]))
 		}
 	}
 

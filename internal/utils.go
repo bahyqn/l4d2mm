@@ -35,7 +35,7 @@ func GetSubCategories(option string) {
 	pageMods := &GLOBALAPP.ComponentStatus.PageMods
 	// clear(pageMods.SubLabels)
 	// pageMods.SubLabels = pageMods.SubLabels[:0]
-	pageMods.SelectedSubLabel[0] = ""
+	pageMods.SelectedSubType[0] = ""
 
 	// fmt.Println("")
 	sub, ok := ModLables[option]
@@ -47,8 +47,8 @@ func GetSubCategories(option string) {
 		return
 	}
 
-	pageMods.SubLabels = ModLables[option]
-	pageMods.SelectedSubLabel[0] = sub[0].Label
+	pageMods.SubTypes = ModLables[option]
+	pageMods.SelectedSubType[0] = sub[0].Label
 }
 
 func GetFileSize(filePath string) (uint64, error) {
@@ -185,26 +185,92 @@ func IsRelatedPart(str1, str2 string) bool {
 func QueryVPKs() {
 	pageMods := &GLOBALAPP.ComponentStatus.PageMods
 
-	if subLabel, ok := ModLables[pageMods.SelectedategoryLabel[0]]; ok {
+	clear(pageMods.ModsBySelectIdx)
+	pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
 
-		clear(pageMods.ModsBySelectIdx)
-		pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
+	if pageMods.SelectedategoryLabel[0] == "All" {
+		mods := GLOBALAPP.DI.Vpk.Mods
+		for i := range GLOBALAPP.DI.Vpk.Mods {
+			pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &mods[i])
+		}
 
-		if len(subLabel) == 0 {
+		GLOBALAPP.DynamicPageSelect()
+		return
+	}
+
+	if pageMods.SelectedategoryLabel[0] == "Collections" {
+		if pageMods.SelectedSubType[0] == "" {
+			return
+		}
+
+		mslice := []string{}
+		for _, item := range GLOBALAPP.DI.Vpk.Collections {
+			if item.Name == pageMods.SelectedSubType[0] {
+				mslice = append(mslice, item.Mods...)
+				break
+			}
+		}
+
+		if len(mslice) > 0 {
+			for _, id := range mslice {
+				for _, mod := range GLOBALAPP.DI.Vpk.Mods {
+					if id == mod.ID {
+						pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &mod)
+						continue
+					}
+				}
+			}
+			GLOBALAPP.DynamicPageSelect()
+		}
+		return
+	}
+
+	if subType, ok := ModLables[pageMods.SelectedategoryLabel[0]]; ok {
+
+		if len(subType) == 0 {
 			for _, item := range GLOBALAPP.DI.Vpk.Mods {
 				if item.Category == pageMods.SelectedategoryLabel[0] {
 					pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &item)
 				}
 			}
 		} else {
-			pageMods.SubLabels[0] = subLabel[0]
+			pageMods.SubTypes[0] = subType[0]
 
 			for _, item := range GLOBALAPP.DI.Vpk.Mods {
-				if item.Category == pageMods.SelectedategoryLabel[0] && item.SubType == subLabel[0].Value {
+				if item.Category == pageMods.SelectedategoryLabel[0] && item.SubType == subType[0].Value {
 					pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &item)
 				}
 			}
 		}
 	}
 	GLOBALAPP.DynamicPageSelect()
+}
+
+func GenerateDynamicCategorySelect() {
+	tm := map[string][]string{}
+
+	for _, item := range GLOBALAPP.DI.Vpk.Mods {
+		if item.SubType == "" {
+			tm[item.Category] = nil
+		} else {
+			tm[item.Category] = append(tm[item.Category], item.SubType)
+		}
+	}
+
+	for k, v := range tm {
+		if v == nil {
+			ModsCategoris = append(ModsCategoris, gui.SelectOption{
+				Label: k,
+				Value: k,
+			})
+			continue
+		}
+
+		for _, el := range v {
+			ModLables[k] = append(ModLables[k], gui.SelectOption{
+				Label: el,
+				Value: el,
+			})
+		}
+	}
 }

@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"fmt"
 	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
 	"l4d2mm/internal/theme"
@@ -37,7 +38,7 @@ var cardInfo = []schema.ToolCardInfo{
 	{
 		SvgFilename: "category",
 		Title:       "Classify Mods",
-		Describe:    "Auto-categorize & adjust mod types. (UNAVAILABLE)",
+		Describe:    "Auto-categorize & adjust mod types.",
 		OnClick: func() {
 			updateToolPage(4, "Classify Mods")
 		},
@@ -271,6 +272,11 @@ func vpkClassify() gui.View {
 				},
 				OnClick: func(ec gui.EventCtx) {
 					internal.GLOBALAPP.DI.Vpk.Classify()
+					if err := internal.GLOBALAPP.DI.SQL.UpdateVPKsCategory(); err != nil {
+						internal.ToastFailed("Classification", fmt.Sprintf("Failed to sync category to sqlite: %v", err))
+						return
+					}
+					internal.ToastSuccess("Classification", "VPK classification completed")
 				},
 			}),
 		},

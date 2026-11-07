@@ -84,7 +84,7 @@ func (sql3 *Sqlite3) UpdateGamePath(path string) error {
 		Where("id = ?", 1).
 		Update("game_path", path).Error
 	if err != nil {
-		fmt.Println("Failed to update game path: ", err)
+		fmt.Printf("Failed to update game path %q in sqlite: %v\n", path, err)
 		return err
 	}
 
@@ -284,4 +284,48 @@ func (sql3 *Sqlite3) AppendCollections() (bool, error) {
 		return false, fmt.Errorf("append some vpk failed ")
 	}
 	return true, err
+}
+
+func (sql *Sqlite3) SwitchVPKStatus(id string, enabled bool) error {
+	err := sql.SDB.Transaction(func(tx *gorm.DB) error {
+		err := tx.Model(&schema.Mod{}).Where("id=?", id).Update("is_enable", enabled).Error
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
+}
+
+func (sql *Sqlite3) UpdateVPKsCategory() error {
+	if sql == nil || sql.SDB == nil || sql.AppDi == nil || sql.AppDi.DI.Vpk == nil {
+		return errors.New("sqlite or vpk instance is not initialized")
+	}
+
+	mods := sql.AppDi.DI.Vpk.Mods
+	if len(mods) == 0 {
+		return nil
+	}
+
+	return sql.SDB.Transaction(func(tx *gorm.DB) error {
+		for i := range mods {
+			if mods[i].ID == "" {
+				continue
+			}
+
+			if err := tx.Model(&schema.Mod{}).
+				Where("id = ?", mods[i].ID).
+				Updates(map[string]any{
+					"category": mods[i].Category,
+					"sub_type": mods[i].SubType,
+				}).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+func (sql *Sqlite3) RemoveVPK() error {
+	return nil
 }

@@ -16,6 +16,7 @@ import (
 	"github.com/bahyqn/vvdf"
 	"github.com/bahyqn/vvpk"
 	"github.com/go-gui-org/go-gui/gui"
+	"gorm.io/gorm"
 )
 
 const (
@@ -384,8 +385,28 @@ func (vpk *Vpk) OpenAddonlist() {
 }
 
 func (vpk *Vpk) DisableMod(mod *schema.Mod) {
+	err := vpk.AppDi.DI.SQL.SwitchVPKStatus(mod.ID, !mod.IsEnable)
+	if err != nil {
+		ToastFailed("", fmt.Sprintf("Failed to update sqlite status for mod %s: %v", mod.ID, err))
+		return
+	}
+
+	if mod.IsEnable {
+		err = vvpk.UpdateModStatus(vpk.AddonlistRawStr, mod.ID, "0")
+	} else {
+		err = vvpk.UpdateModStatus(vpk.AddonlistRawStr, mod.ID, "1")
+	}
+	if err != nil {
+		ToastFailed("", fmt.Sprintf("Failed to update addonlist status for mod %s: %v", mod.ID, err))
+		return
+	}
+
+	err = vvpk.SaveAddonlist(filepath.Join(vpk.ppath, addonlist), vpk.AddonlistRawStr)
+	if err != nil {
+		ToastFailed("", fmt.Sprintf("Failed to save addonlist to disk for mod %s: %v", mod.ID, err))
+		return
+	}
 	vpk.Mods[mod.Idx].IsEnable = !vpk.Mods[mod.Idx].IsEnable
-	vvpk.UpdateModStatus(vpk.AddonlistRawStr, mod.ID, "0")
 }
 
 func (vpk *Vpk) SaveVpkInfo(mod *schema.Mod) {
@@ -420,26 +441,45 @@ func (vpk *Vpk) clearAddonlistInfo() {
 
 func (vpk *Vpk) SyncAddonlistToDB() {
 	vpk.clearAddonlistInfo()
-
 	vpk.OpenAddonlist()
 
-	for idx, el := range vpk.Mods {
+	updated := make([]schema.Mod, len(vpk.Mods))
+	copy(updated, vpk.Mods)
+
+	for idx, el := range updated {
 		id := el.ID
 		if vmap, ok := vpk.AddonlistIdxMap[id]; ok {
 			switch vmap.Value {
 			case "0":
-				vpk.Mods[idx].IsEnable = false
+				updated[idx].IsEnable = false
 			case "1":
-				vpk.Mods[idx].IsEnable = true
+				updated[idx].IsEnable = true
 			}
 		}
 	}
 
+	err := vpk.AppDi.DI.SQL.SDB.Transaction(func(tx *gorm.DB) error {
+		for i := range updated {
+			if err := tx.Model(&schema.Mod{}).
+				Where("id = ?", updated[i].ID).
+				Update("is_enable", updated[i].IsEnable).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		ToastFailed("", fmt.Sprintf("Failed to sync addonlist status to sqlite: %v", err))
+		return
+	}
+
+	vpk.Mods = updated
+
 	pageMods := &GLOBALAPP.ComponentStatus.PageMods
 	clear(pageMods.ModsBySelectIdx)
 	pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
-	for _, item := range vpk.Mods {
-		pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &item)
+	for i := range vpk.Mods {
+		pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &vpk.Mods[i])
 	}
 
 	ToastSuccess("Synced", "Sync addonlist to sqlite successful")
@@ -636,7 +676,7 @@ func (vpk *Vpk) Classify() {
 					if category, ok := MDL[file.Filename]; ok {
 						matched = true
 						vpk.Mods[item.Idx].Category = category.Category
-						vpk.Mods[item.Idx].SubType = category.SubLabel
+						vpk.Mods[item.Idx].SubType = category.SubType
 						break
 					}
 				}
@@ -711,6 +751,8 @@ func (vpk *Vpk) Classify() {
 	for _, item := range vpk.Mods {
 		pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &item)
 	}
+
+	// GenerateDynamicCategorySelect()
 }
 
 func getDominantExtension(exCounts map[string]int, metadataLength int) string {

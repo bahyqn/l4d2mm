@@ -71,7 +71,7 @@ func SelectSourceMode() {
 	copy(tmp, pageMods.ModsBySelectIdx)
 
 	switch pageMods.SourceMode {
-	case internal.AllSourceModes[0].Value:
+	case internal.AllSourceModes[0].Value:	// default
 		pageMods.ModsBySelectIdx = tmp
 
 	case internal.AllSourceModes[1].Value: // Workshop First

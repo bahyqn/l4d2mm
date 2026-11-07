@@ -12,8 +12,8 @@ const (
 )
 
 type VPKLabel struct {
-	Label    string
-	SubLabel []VPKSubLabel
+	Label   string
+	SubType []VPKSubLabel
 }
 
 type VPKSubLabel struct {
@@ -23,7 +23,7 @@ type VPKSubLabel struct {
 
 type VPKCategory struct {
 	Category string
-	SubLabel string
+	SubType  string
 }
 
 type Mod struct {
@@ -116,6 +116,9 @@ func (cf *AppConfig) TableName() string {
 // no gorm
 
 type ComponentStatus struct {
+	SelectCategories []gui.SelectOption
+	SelectedSubLabel []gui.SelectOption
+
 	AsideIdx        int
 	SubAsideIndices [6]int // 0: mods, 1: workshop, 2: tasks, 3: tools,  4: servers, 5: settings
 	PageMods        PageMods
@@ -127,8 +130,8 @@ type PageMods struct {
 	ModsSearchValue      string
 	Categories           []gui.SelectOption // Labels under the `Mods` by dynamic generrate accoding to all of your installed mods
 	SelectedategoryLabel []string           // Such as: map, weapon, ..., you  can pick one
-	SubLabels            []gui.SelectOption // Dynamic generate. Such as: fireaxe, katana, ...
-	SelectedSubLabel     []string           // Such as: you pick the melee first, labels will disaplay: fireaxe, katana, ... (you just can pick one)
+	SubTypes             []gui.SelectOption // Dynamic generate. Such as: fireaxe, katana, ...
+	SelectedSubType      []string           // Such as: you pick the melee first, labels will disaplay: fireaxe, katana, ... (you just can pick one)
 	DynamicPageSelect    []gui.SelectOption
 
 	PageAmount      int
