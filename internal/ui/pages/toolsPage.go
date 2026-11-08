@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+
 	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
 	"l4d2mm/internal/theme"
@@ -60,28 +61,29 @@ var cardInfo = []schema.ToolCardInfo{
 		},
 	},
 	{
-		SvgFilename: "arrow_left_alt",
-		Title:       "Sync DB to Addonlist",
-		Describe:    "Overwrite addonlist.txt using app database states to resolve Cloud Sync issues. (UNAVAILABLE)",
+		// SvgFilename: "arrow_left_alt",
+		SvgFilename: "sync_alt",
+		Title:       "Addon Sync",
+		Describe:    "Bidirectional sync between addlist.txt and SQLite. Update either side using the other as the source of truth.",
 		OnClick: func() {
-			// updateToolPage(7, "Sync DB to Addonlist")
+			updateToolPage(7, "Addon Sync")
 		},
 	},
-	{
-		SvgFilename: "arrow_right_alt",
-		Title:       "Sync Addonlist to DB",
-		Describe:    "Update app database with in-game toggle states and scan for newly added VPKs.",
-		OnClick: func() {
-			// updateToolPage(8, "Sync Addonlist to DB")
-			internal.GLOBALAPP.DI.Vpk.SyncAddonlistToDB()
-		},
-	},
+	// {
+	// 	SvgFilename: "arrow_right_alt",
+	// 	Title:       "Sync Addonlist to DB",
+	// 	Describe:    "Update app database with in-game toggle states and scan for newly added VPKs.",
+	// 	OnClick: func() {
+	// 		// updateToolPage(8, "Sync Addonlist to DB")
+	// 		internal.GLOBALAPP.DI.Vpk.SyncAddonlistToDB()
+	// 	},
+	// },
 	{
 		SvgFilename: "drive_file_move",
 		Title:       "Move VPKs",
 		Describe:    "Batch move all VPKs from Steam Workshop folder to the app managed folder. (UNAVAILABLE)",
 		OnClick: func() {
-			updateToolPage(9, "Move VPKs")
+			updateToolPage(8, "Move VPKs")
 		},
 	},
 }
@@ -137,6 +139,8 @@ func ToolsPage() gui.View {
 		comps = append(comps, modifyCollections())
 	case 4:
 		comps = append(comps, vpkClassify())
+	case 7:
+		comps = append(comps, addonSync())
 
 	}
 
@@ -238,7 +242,7 @@ func modifyCollections() gui.View {
 		Padding: gui.NewPadding(14, 100, 14, 100),
 		Content: []gui.View{
 			gui.Row(gui.ContainerCfg{
-				ID:     "",
+				ID:     "delete-collection-header",
 				Sizing: gui.FillFit,
 				Content: []gui.View{
 					components.TextModsAcount(),
@@ -256,12 +260,10 @@ func modifyCollections() gui.View {
 // AsideIdx:        4,
 // SubAsideIndices: [6]int{0, 0, 0, 4, 0, 0},
 func vpkClassify() gui.View {
-
 	return gui.Column(gui.ContainerCfg{
 		ID:     "vpk-classify-container",
 		Sizing: gui.FillFill,
 		Content: []gui.View{
-
 			gui.Button(gui.ButtonCfg{
 				ID: "bth-classify",
 				Content: []gui.View{
@@ -276,9 +278,56 @@ func vpkClassify() gui.View {
 						internal.ToastFailed("Classification", fmt.Sprintf("Failed to sync category to sqlite: %v", err))
 						return
 					}
+
+					internal.GenerateDynamicCategorySelect()
 					internal.ToastSuccess("Classification", "VPK classification completed")
 				},
 			}),
+		},
+	})
+}
+
+func addonSync() gui.View {
+	addonlistEnabled := 0
+	addonlistDisabled := 0
+	dbEnabled := 0
+	dbDisabled := 0
+
+	for _, el := range internal.GLOBALAPP.DI.Vpk.AddonlistIdxMap {
+		if el.Value == "0" {
+			addonlistDisabled += 1
+			continue
+		}
+		if el.Value == "1" {
+			addonlistEnabled += 1
+			continue
+		}
+	}
+	for _, el := range internal.GLOBALAPP.DI.Vpk.Mods {
+		if el.IsEnable {
+			dbEnabled += 1
+			continue
+		}
+		dbDisabled += 1
+	}
+
+	return gui.Column(gui.ContainerCfg{
+		ID:     "addon-sync-container",
+		Sizing: gui.FillFill,
+		Content: []gui.View{
+			gui.Row(gui.ContainerCfg{
+				ID:     "addon-sync-header",
+				Sizing: gui.FillFit,
+				Content: []gui.View{
+					components.ButtonReloadAddonlist(),
+					components.HorizontalSpacer(),
+					components.ButtonSyncAddonToAddonlist(),
+					components.ButtonSyncAddonToDB(),
+				},
+			}),
+			components.HDivider(2),
+			components.TextVPKBoard("Addonlist", addonlistEnabled, addonlistDisabled),
+			components.TextVPKBoard("Sqlite", dbEnabled, dbDisabled),
 		},
 	})
 }

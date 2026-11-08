@@ -35,10 +35,10 @@ func GetSubCategories(option string) {
 	pageMods := &GLOBALAPP.ComponentStatus.PageMods
 	// clear(pageMods.SubLabels)
 	// pageMods.SubLabels = pageMods.SubLabels[:0]
-	pageMods.SelectedSubType[0] = ""
+	pageMods.SelectedSubCategory[0] = ""
 
 	// fmt.Println("")
-	sub, ok := ModLables[option]
+	sub, ok := DynamicSubCategories[option]
 	if !ok {
 		return
 	}
@@ -47,8 +47,8 @@ func GetSubCategories(option string) {
 		return
 	}
 
-	pageMods.SubTypes = ModLables[option]
-	pageMods.SelectedSubType[0] = sub[0].Label
+	pageMods.SubCategories = DynamicSubCategories[option]
+	pageMods.SelectedSubCategory[0] = sub[0].Label
 }
 
 func GetFileSize(filePath string) (uint64, error) {
@@ -139,14 +139,14 @@ func ValidateDimensions(tablleConfig *schema.TableConfig) error {
 	return nil
 }
 
-// GenerateSelectOptions Just for ModCategoris & ModLables
+// GenerateSelectOptions Just for ModCategoris & DynamicSubCategories
 func GenerateSelectOptions(key string, appendData []gui.SelectOption) {
-	_, ok := ModLables[key]
+	_, ok := DynamicSubCategories[key]
 	if !ok {
 		return
 	}
 
-	ModLables[key] = append(ModLables[key], appendData...)
+	DynamicSubCategories[key] = append(DynamicSubCategories[key], appendData...)
 }
 
 func IsRelatedPart(str1, str2 string) bool {
@@ -188,7 +188,7 @@ func QueryVPKs() {
 	clear(pageMods.ModsBySelectIdx)
 	pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
 
-	if pageMods.SelectedategoryLabel[0] == "All" {
+	if pageMods.SelectedCategory[0] == "All" {
 		mods := GLOBALAPP.DI.Vpk.Mods
 		for i := range GLOBALAPP.DI.Vpk.Mods {
 			pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &mods[i])
@@ -198,14 +198,14 @@ func QueryVPKs() {
 		return
 	}
 
-	if pageMods.SelectedategoryLabel[0] == "Collections" {
-		if pageMods.SelectedSubType[0] == "" {
+	if pageMods.SelectedCategory[0] == "Collections" {
+		if pageMods.SelectedSubCategory[0] == "" {
 			return
 		}
 
 		mslice := []string{}
 		for _, item := range GLOBALAPP.DI.Vpk.Collections {
-			if item.Name == pageMods.SelectedSubType[0] {
+			if item.Name == pageMods.SelectedSubCategory[0] {
 				mslice = append(mslice, item.Mods...)
 				break
 			}
@@ -225,19 +225,19 @@ func QueryVPKs() {
 		return
 	}
 
-	if subType, ok := ModLables[pageMods.SelectedategoryLabel[0]]; ok {
+	if subType, ok := DynamicSubCategories[pageMods.SelectedCategory[0]]; ok {
 
 		if len(subType) == 0 {
 			for _, item := range GLOBALAPP.DI.Vpk.Mods {
-				if item.Category == pageMods.SelectedategoryLabel[0] {
+				if item.Category == pageMods.SelectedCategory[0] {
 					pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &item)
 				}
 			}
 		} else {
-			pageMods.SubTypes[0] = subType[0]
+			// pageMods.SubTypes[0] = subType[0]
 
 			for _, item := range GLOBALAPP.DI.Vpk.Mods {
-				if item.Category == pageMods.SelectedategoryLabel[0] && item.SubType == subType[0].Value {
+				if item.Category == pageMods.SelectedCategory[0] && item.SubCategory == pageMods.SelectedSubCategory[0] {
 					pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &item)
 				}
 			}
@@ -247,30 +247,55 @@ func QueryVPKs() {
 }
 
 func GenerateDynamicCategorySelect() {
-	tm := map[string][]string{}
+	tm := map[string]map[string]interface{}{}
 
 	for _, item := range GLOBALAPP.DI.Vpk.Mods {
-		if item.SubType == "" {
-			tm[item.Category] = nil
-		} else {
-			tm[item.Category] = append(tm[item.Category], item.SubType)
+		if item.Category != "" {
+			if _, ok := tm[item.Category]; !ok {
+				tm[item.Category] = map[string]interface{}{}
+			}
+
+			if item.SubCategory == "" {
+				continue
+			}
+			tm[item.Category][item.SubCategory] = map[string]interface{}{}
 		}
+	}
+
+	if len(tm) == 0 {
+		return
 	}
 
 	for k, v := range tm {
-		if v == nil {
-			ModsCategoris = append(ModsCategoris, gui.SelectOption{
+		if found := findSelectOptionValue(DynamicCategories, k); !found {
+			DynamicCategories = append(DynamicCategories, gui.SelectOption{
 				Label: k,
 				Value: k,
 			})
-			continue
 		}
 
-		for _, el := range v {
-			ModLables[k] = append(ModLables[k], gui.SelectOption{
-				Label: el,
-				Value: el,
-			})
+		if len(v) > 0 {
+			for vk, _ := range v {
+				if found := findSelectOptionValue(DynamicSubCategories[k], vk); !found {
+					DynamicSubCategories[k] = append(DynamicSubCategories[k], gui.SelectOption{
+						Label: vk,
+						Value: vk,
+					})
+				}
+			}
 		}
 	}
+
+	clear(GLOBALAPP.ComponentStatus.PageMods.Categories)
+	GLOBALAPP.ComponentStatus.PageMods.Categories = GLOBALAPP.ComponentStatus.PageMods.Categories[:0]
+	GLOBALAPP.ComponentStatus.PageMods.Categories = append(GLOBALAPP.ComponentStatus.PageMods.Categories, DynamicCategories...)
+}
+
+func findSelectOptionValue(slice []gui.SelectOption, str string) bool {
+	for _, el := range slice {
+		if el.Value == str {
+			return true
+		}
+	}
+	return false
 }

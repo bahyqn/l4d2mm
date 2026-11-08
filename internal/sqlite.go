@@ -316,8 +316,8 @@ func (sql *Sqlite3) UpdateVPKsCategory() error {
 			if err := tx.Model(&schema.Mod{}).
 				Where("id = ?", mods[i].ID).
 				Updates(map[string]any{
-					"category": mods[i].Category,
-					"sub_type": mods[i].SubType,
+					"category":     mods[i].Category,
+					"sub_category": mods[i].SubCategory,
 				}).Error; err != nil {
 				return err
 			}

@@ -51,3 +51,27 @@ func SettingRow(settingRow schema.SettingRowConfig) gui.View {
 		},
 	})
 }
+
+func TextVPKBoard(id string, enabled int, disabled int) gui.View {
+	return gui.Column(gui.ContainerCfg{
+		ID:     "",
+		Sizing: gui.FillFit,
+		Content: []gui.View{
+			gui.Text(gui.TextCfg{
+				ID:   "title-" + id,
+				Text: id,
+				TextStyle: gui.TextStyle{
+					Size:  20,
+					Color: theme.DefaultTheme.TextPrimary,
+				},
+			}),
+			gui.Text(gui.TextCfg{
+				ID:   id + "-enabled",
+				Text: "Enabled: " + strconv.Itoa(enabled),
+			}), gui.Text(gui.TextCfg{
+				ID:   id + "-enabled",
+				Text: "Disabled: " + strconv.Itoa(disabled),
+			}),
+		},
+	})
+}

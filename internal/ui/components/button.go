@@ -136,23 +136,6 @@ func ButtonChooseFolder() gui.View {
 	return gui.Button(cfg)
 }
 
-func ButtonShowModInfo(mod *schema.Mod) gui.View {
-	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
-
-	if !ok {
-		panic("[Button save addoninfo]Invalid select theme key")
-	}
-
-	ButtonWithIcon(&cfg, "bth-show-mod-info-"+mod.ID, "icon-file-save", "file_save.svg", theme.DefaultTheme.HeaderIconSize)
-
-	cfg.OnClick = func(ec gui.EventCtx) {
-		ec.Event.IsHandled = true
-		// internal.GLOBALAPP.DI.Vpk.ReadVpkInfo(mod)
-		internal.GLOBALAPP.DI.Vpk.SaveVpkInfo(mod)
-	}
-	return gui.Button(cfg)
-}
-
 func ButtonDisableMod(mod *schema.Mod) gui.View {
 	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
 
@@ -569,5 +552,54 @@ func ButtonDeleteCollections() gui.View {
 		}
 		internal.GLOBALAPP.FetchDeleteCollection()
 	}
+	return gui.Button(cfg)
+}
+
+func ButtonReloadAddonlist() gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
+	if !ok {
+		panic("[Button append collections]Invalid select theme key")
+	}
+
+	ButtonWithText(&cfg, "bth-relaod-addonlist", "text-reload-addonlist", "Reload Addonlist")
+	cfg.Width = 150
+	cfg.Colors.Base = theme.DefaultLightGNOME().ButtonActive
+	cfg.OnClick = func(ec gui.EventCtx) {
+	}
+
+	return gui.Button(cfg)
+}
+
+// ButtonAddonSyncToDB adddonlist.txt -> db
+func ButtonSyncAddonToDB() gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
+	if !ok {
+		panic("[Button append collections]Invalid select theme key")
+	}
+
+	ButtonWithText(&cfg, "addon-sync-to-db", "text-sync-to-db", "Sync to DB")
+	cfg.Width = 150
+	cfg.Colors.Base = theme.DefaultLightGNOME().ButtonActive
+	cfg.OnClick = func(ec gui.EventCtx) {
+		internal.GLOBALAPP.DI.Vpk.SyncAddonlistToDB()
+	}
+
+	return gui.Button(cfg)
+}
+
+// ButtonAddonSyncToAddonlist db -> addonlist.txt
+func ButtonSyncAddonToAddonlist() gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
+	if !ok {
+		panic("[Button append collections]Invalid select theme key")
+	}
+
+	ButtonWithText(&cfg, "addon-sync-to-addonlist", "text-sync-to-addonlist", "Sync to Addonlist")
+	cfg.Width = 180
+	cfg.Colors.Base = theme.DefaultLightGNOME().ButtonActive
+	cfg.OnClick = func(ec gui.EventCtx) {
+		internal.GLOBALAPP.DI.Vpk.SyncDBToAddonlist()
+	}
+
 	return gui.Button(cfg)
 }

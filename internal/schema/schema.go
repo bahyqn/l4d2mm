@@ -29,11 +29,12 @@ type VPKCategory struct {
 type Mod struct {
 	Idx            int              `gorm:"-"`
 	ID             string           `gorm:"primaryKey;column:id"`
+	Branch         int              `goprm:"column:branch"`
 	Filename       string           `gorm:"column:filename"`
 	ModName        string           `gorm:"column:mod_name"`
 	Author         string           `gorm:"column:author"`
 	Category       string           `gorm:"column:category"`
-	SubType        string           `gorm:"column:sub_type"`
+	SubCategory    string           `gorm:"column:sub_category"`
 	URL            string           `gorm:"column:url"`
 	Remark         string           `gorm:"column:remark"`
 	Location       ModLocation      `gorm:"column:location"`
@@ -53,6 +54,7 @@ func (mod *Mod) TableName() string {
 
 type Collection struct {
 	ID     string   `gorm:"column:id"`
+	Branch int      `gorm:"column:branch"`
 	Name   string   `gorm:"column:name"`
 	URL    string   `gorm:"column:url"`
 	Mods   []string `gorm:"column:mods;serializer:json"`
@@ -108,6 +110,11 @@ type AppConfig struct {
 	// automatic get value by FetchTables(sqlite.go)
 	GamePath           string `gorm:"column:game_path"`
 	ActiveCollectionID string `gorm:"column:active_collection_id"`
+
+	// 0: l4d2
+	// 1: l4d2 64bit
+	GameName []string `gorm:"-"`
+	Branch   int      `gorm:"column:branch"`
 }
 
 func (cf *AppConfig) TableName() string {
@@ -127,13 +134,13 @@ type ComponentStatus struct {
 }
 
 type PageMods struct {
-	AsideModExpand       bool
-	ModsSearchValue      string
-	Categories           []gui.SelectOption // Labels under the `Mods` by dynamic generrate accoding to all of your installed mods
-	SelectedategoryLabel []string           // Such as: map, weapon, ..., you  can pick one
-	SubTypes             []gui.SelectOption // Dynamic generate. Such as: fireaxe, katana, ...
-	SelectedSubType      []string           // Such as: you pick the melee first, labels will disaplay: fireaxe, katana, ... (you just can pick one)
-	DynamicPageSelect    []gui.SelectOption
+	AsideModExpand      bool
+	ModsSearchValue     string
+	Categories          []gui.SelectOption // Labels under the `Mods` by dynamic generrate accoding to all of your installed mods
+	SubCategories       []gui.SelectOption // Dynamic generate. Such as: fireaxe, katana, ...
+	SelectedCategory    []string           // Such as: map, weapon, ..., you  can pick one
+	SelectedSubCategory []string           // Such as: you pick the melee first, labels will disaplay: fireaxe, katana, ... (you just can pick one)
+	DynamicPageSelect   []gui.SelectOption
 
 	PageAmount      int
 	ModsBySelectIdx []*Mod
@@ -156,6 +163,9 @@ type PageTools struct {
 	// delete collections
 	// DeleteCollection []bool
 	DeleteCollection TableConfig
+
+	AddonEnabledAmount  int
+	AddonDisabledAmount int
 }
 
 type TemplateSelect struct {

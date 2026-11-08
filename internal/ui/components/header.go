@@ -17,54 +17,12 @@ func ModsHeader() gui.View {
 		Select(schema.TemplateSelect{
 			ID:       "select-category",
 			MaxWidth: 140,
-			Selected: pageMods.SelectedategoryLabel,
+			Selected: pageMods.SelectedCategory,
 			Options:  pageMods.Categories,
 			OnSelectFunc: func(s []string, ec gui.EventCtx) {
-				pageMods.SelectedategoryLabel = s
+				pageMods.SelectedCategory = s
 				internal.GetSubCategories(s[0])
 
-				// if s[0] == "All" {
-				// 	clear(pageMods.ModsBySelectIdx)
-				// 	pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
-
-				// 	pageMods.SelectedSubType[0] = ""
-
-				// 	mods := internal.GLOBALAPP.DI.Vpk.Mods
-				// 	for i := range internal.GLOBALAPP.DI.Vpk.Mods {
-				// 		pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &mods[i])
-				// 	}
-
-				// 	internal.GLOBALAPP.DynamicPageSelect()
-				// 	return
-				// }
-
-				// if s[0] == "Collections" {
-				// 	mslice := []string{}
-
-				// 	for _, item := range internal.GLOBALAPP.DI.Vpk.Collections {
-				// 		if item.Name == pageMods.SelectedSubType[0] {
-				// 			mslice = append(mslice, item.Mods...)
-				// 			break
-				// 		}
-				// 	}
-
-				// 	if len(mslice) > 0 {
-				// 		clear(pageMods.ModsBySelectIdx)
-				// 		pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
-
-				// 		for _, id := range mslice {
-				// 			for _, mod := range internal.GLOBALAPP.DI.Vpk.Mods {
-				// 				if id == mod.ID {
-				// 					pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &mod)
-				// 					continue
-				// 				}
-				// 			}
-				// 		}
-				// 		internal.GLOBALAPP.DynamicPageSelect()
-				// 		fmt.Println(len(pageMods.ModsBySelectIdx))
-				// 	}
-				// 	return
-				// }
 				internal.QueryVPKs()
 				SelectSourceMode()
 			},
@@ -72,24 +30,15 @@ func ModsHeader() gui.View {
 	}
 
 	// sublabel
-	if len(pageMods.SelectedSubType) == 1 && pageMods.SelectedSubType[0] != "" {
+	if len(pageMods.SelectedSubCategory) == 1 && pageMods.SelectedSubCategory[0] != "" {
 		components = append(components, Select(schema.TemplateSelect{
 			ID:       "select-sub-categories",
 			MaxWidth: 160,
-			Selected: pageMods.SelectedSubType,
-			Options:  pageMods.SubTypes,
+			Selected: pageMods.SelectedSubCategory,
+			Options:  pageMods.SubCategories,
 			OnSelectFunc: func(s []string, ec gui.EventCtx) {
-				pageMods.SelectedSubType[0] = s[0]
+				pageMods.SelectedSubCategory[0] = s[0]
 
-				// fmt.Printf("category: %s, sublabel: %s \n\n", pageMods.SelectedategoryLabel[0], pageMods.SelectedSubType[0])
-
-				// clear(pageMods.ModsBySelectIdx)
-				// pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
-				// for _, item := range internal.GLOBALAPP.DI.Vpk.Mods {
-				// 	if item.Category == pageMods.SelectedategoryLabel[0] && item.SubType == pageMods.SelectedSubType[0] {
-				// 		pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &item)
-				// 	}
-				// }
 				internal.QueryVPKs()
 				SelectSourceMode()
 			},

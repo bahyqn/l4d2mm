@@ -23,7 +23,6 @@ func main() {
 	cfg.ToastAnchor = gui.Some(gui.ToastTopRight)
 	gui.SetTheme(gui.ThemeMaker(cfg))
 
-
 	w := gui.NewWindow(gui.WindowCfg{
 		State:     app,
 		Title:     "l4d2mm",

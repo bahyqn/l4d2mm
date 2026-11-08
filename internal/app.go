@@ -2,6 +2,7 @@ package internal
 
 import (
 	"embed"
+	"log"
 	"path"
 	"strconv"
 	"strings"
@@ -44,11 +45,11 @@ func NewApp(as embed.FS) *App {
 			SubAsideIndices: [6]int{0, 0, 0, 0, 0, 0},
 
 			PageMods: schema.PageMods{
-				ModsSearchValue:      "",
-				Categories:           ModsCategoris,
-				SelectedategoryLabel: []string{"All"},
-				SubTypes:             []gui.SelectOption{},
-				SelectedSubType:      []string{""},
+				ModsSearchValue:     "",
+				Categories:          DynamicCategories,
+				SubCategories:       []gui.SelectOption{},
+				SelectedCategory:    []string{"All"},
+				SelectedSubCategory: []string{""},
 
 				PageAmount:      50,
 				ModsBySelectIdx: []*schema.Mod{},
@@ -67,6 +68,8 @@ func NewApp(as embed.FS) *App {
 					RowData: [][]schema.TableField{},
 					Toggled: false,
 				},
+				AddonEnabledAmount:  0,
+				AddonDisabledAmount: 0,
 			},
 		},
 		AppConfig: schema.AppConfig{
@@ -80,6 +83,7 @@ func NewApp(as embed.FS) *App {
 
 			Theme:    "gnome",
 			GamePath: "",
+			GameName: []string{""},
 		},
 		DI: DIContainer{
 			SQL:    nil,
@@ -91,7 +95,7 @@ func NewApp(as embed.FS) *App {
 
 	GLOBALAPP.setupSvg()
 	// GLOBALAPP.setDefaultVPKPng()
-	GetSubCategories(GLOBALAPP.ComponentStatus.PageMods.SelectedategoryLabel[0])
+	GetSubCategories(GLOBALAPP.ComponentStatus.PageMods.SelectedCategory[0])
 	return GLOBALAPP
 }
 
@@ -106,9 +110,10 @@ func (app *App) Prepare() {
 	// chosed the path, query all mods from .db by local & workshop .vpk files
 	if app.AppConfig.GamePath != "" {
 		app.DI.Vpk.SyncVPKs(app.AppConfig.GamePath)
-		if !app.ComponentStatus.PageTools.DeleteCollection.Toggled {
-			app.DI.Vpk.FetchCollection()
-		}
+		GenerateDynamicCategorySelect()
+		// if !app.ComponentStatus.PageTools.DeleteCollection.Toggled {
+		// 	app.DI.Vpk.FetchCollection()
+		// }
 	}
 }
 
@@ -116,19 +121,15 @@ func (app *App) SetTheme(theme gui.Theme) {
 	gui.SetTheme(theme)
 }
 
-// func (app *App) setupDefaultVPKPng() {
-// 	logoBytes, err := app.assetfile.ReadDir("assets/imgs/l4d2.png")
-// 	if err != nil {
-// 		log.Fatalf("failed to read embedded logo: %v", err)
-// 		return
-// 	}
+func (app *App) setupDefaultVPKPng() {
+	logoBytes, err := app.assetfile.ReadFile("assets/imgs/l4d2.png")
+	if err != nil {
+		log.Fatalf("failed to read embedded logo: %v", err)
+		return
+	}
 
-// 	logoSrc, err := gui.UseEncodedImage("myapp/logo", logoBytes)
-// 	if err != nil {
-// 		log.Fatalf("failed to encode logo: %v", err)
-// 	}
-// 	app.AppConfig.DefaultVPKPng = logoSrc
-// }
+	app.AppConfig.DefaultVPKPng = string(logoBytes)
+}
 
 func (app *App) setupSvg() {
 	entries, err := app.assetfile.ReadDir("assets/icons")

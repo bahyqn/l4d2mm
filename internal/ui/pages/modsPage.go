@@ -153,7 +153,7 @@ func overview() gui.View {
 
 			modProfileRow2("Category", mod.Category, 0),
 			components.HDivider(1),
-			modProfileRow2("Sublabel", mod.SubType, 0),
+			modProfileRow2("Sublabel", mod.SubCategory, 0),
 			components.HDivider(1),
 
 			components.HDivider(1),

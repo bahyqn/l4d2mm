@@ -13,6 +13,7 @@ import (
 	"l4d2mm/internal/schema"
 
 	// "github.com/NublyBR/go-vpk"
+
 	"github.com/bahyqn/vvdf"
 	"github.com/bahyqn/vvpk"
 	"github.com/go-gui-org/go-gui/gui"
@@ -139,6 +140,7 @@ func (vpk *Vpk) SyncVPKs(path string) {
 	pageMods := &GLOBALAPP.ComponentStatus.PageMods
 	// clear(pageMods.ModsBySelectIdx)
 	// pageMods.ModsBySelectIdx = pageMods.ModsBySelectIdx[:0]
+
 	for _, item := range dbMods {
 		pageMods.ModsBySelectIdx = append(pageMods.ModsBySelectIdx, &item)
 	}
@@ -313,6 +315,7 @@ func (vpk *Vpk) parseAndSaveNewVPKs(tvpks []string, IsFromWorkshop bool, locatio
 			// vpk.ReadVpkInfo()
 			mod := schema.Mod{
 				Idx:            idx,
+				Branch:         GLOBALAPP.AppConfig.Branch,
 				Filename:       strings.Split(filepath.Base(path), ".")[0],
 				ID:             strings.Split(filepath.Base(path), ".")[0],
 				IsEnable:       true,
@@ -385,6 +388,12 @@ func (vpk *Vpk) OpenAddonlist() {
 }
 
 func (vpk *Vpk) DisableMod(mod *schema.Mod) {
+	idxMap, ok := vpk.AddonlistIdxMap[mod.ID]
+	if !ok {
+		ToastWarning("", fmt.Sprintf("Mod %s was not found in addonlist.txt", mod.ID))
+		return
+	}
+
 	err := vpk.AppDi.DI.SQL.SwitchVPKStatus(mod.ID, !mod.IsEnable)
 	if err != nil {
 		ToastFailed("", fmt.Sprintf("Failed to update sqlite status for mod %s: %v", mod.ID, err))
@@ -392,9 +401,9 @@ func (vpk *Vpk) DisableMod(mod *schema.Mod) {
 	}
 
 	if mod.IsEnable {
-		err = vvpk.UpdateModStatus(vpk.AddonlistRawStr, mod.ID, "0")
+		err = vvpk.UpdateModStatus(vpk.AddonlistRawStr, idxMap.Idx, vpk.AddonlistIdxMap, mod.Filename, "0")
 	} else {
-		err = vvpk.UpdateModStatus(vpk.AddonlistRawStr, mod.ID, "1")
+		err = vvpk.UpdateModStatus(vpk.AddonlistRawStr, idxMap.Idx, vpk.AddonlistIdxMap, mod.Filename, "1")
 	}
 	if err != nil {
 		ToastFailed("", fmt.Sprintf("Failed to update addonlist status for mod %s: %v", mod.ID, err))
@@ -403,34 +412,10 @@ func (vpk *Vpk) DisableMod(mod *schema.Mod) {
 
 	err = vvpk.SaveAddonlist(filepath.Join(vpk.ppath, addonlist), vpk.AddonlistRawStr)
 	if err != nil {
-		ToastFailed("", fmt.Sprintf("Failed to save addonlist to disk for mod %s: %v", mod.ID, err))
+		ToastFailed("", fmt.Sprintf("Failed to save addonlist.txt: %v", err))
 		return
 	}
 	vpk.Mods[mod.Idx].IsEnable = !vpk.Mods[mod.Idx].IsEnable
-}
-
-func (vpk *Vpk) SaveVpkInfo(mod *schema.Mod) {
-	// archive, err := vvpk.OpenVpkDev(vpk.GetModAbsPath(mod))
-
-	fmt.Printf("%+v\n\n", mod.Addoninfo)
-
-	// if err != nil {
-	// 	fmt.Println("Error: OpenVpkDev")
-	// 	return
-	// }
-
-	// for idx, el := range archive.Entries {
-	// 	fmt.Printf("%d:  %s ---> %s ---> %s\n", idx, el.Extension, el.Path, el.Filename)
-	// }
-}
-
-func (vpk *Vpk) GetLocalMods(addonsDir string) {
-}
-
-func (vpk *Vpk) GetWorkshopMods(WorkshopDir string) {
-}
-
-func (vpk *Vpk) InsertCollection() {
 }
 
 func (vpk *Vpk) clearAddonlistInfo() {
@@ -483,6 +468,47 @@ func (vpk *Vpk) SyncAddonlistToDB() {
 	}
 
 	ToastSuccess("Synced", "Sync addonlist to sqlite successful")
+}
+
+func (vpk *Vpk) SyncDBToAddonlist() {
+	var err error
+	vpk.AddonlistRawStr, vpk.AddonlistIdxMap, err = vvpk.OpenAddonlist(filepath.Join(vpk.ppath, addonlist))
+	if err != nil {
+		ToastFailed("", fmt.Sprintf("Failed to open addonlist.txt: %v", err))
+		return
+	}
+
+	if len(vpk.AddonlistRawStr) <= 0 || len(vpk.AddonlistIdxMap) <= 0 {
+		ToastWarning("", "Read addonlist.txt failed")
+		return
+	}
+
+	for _, el := range vpk.Mods {
+		if idxMap, ok := vpk.AddonlistIdxMap[el.Filename]; ok {
+			if el.IsEnable {
+				err = vvpk.UpdateModStatus(vpk.AddonlistRawStr, idxMap.Idx, vpk.AddonlistIdxMap, el.Filename, "1")
+			} else {
+				err = vvpk.UpdateModStatus(vpk.AddonlistRawStr, idxMap.Idx, vpk.AddonlistIdxMap, el.Filename, "0")
+			}
+
+			if err != nil {
+				break
+			}
+		}
+	}
+
+	if err != nil {
+		ToastFailed("", fmt.Sprintf("Failed to update addonlist.txt status: %v", err))
+		return
+	}
+
+	err = vvpk.SaveAddonlist(filepath.Join(vpk.ppath, addonlist), vpk.AddonlistRawStr)
+	if err != nil {
+		ToastFailed("", fmt.Sprintf("Failed to save addonlist.txt: %v", err))
+		return
+	}
+
+	ToastSuccess("Synced", "Sync database mod status to addonlist.txt successful")
 }
 
 func (vpk *Vpk) FetchCollection() {
@@ -676,7 +702,7 @@ func (vpk *Vpk) Classify() {
 					if category, ok := MDL[file.Filename]; ok {
 						matched = true
 						vpk.Mods[item.Idx].Category = category.Category
-						vpk.Mods[item.Idx].SubType = category.SubType
+						vpk.Mods[item.Idx].SubCategory = category.SubType
 						break
 					}
 				}
@@ -723,20 +749,20 @@ func (vpk *Vpk) Classify() {
 				vpk.Mods[item.Idx].Category = "Sounds"
 			case "vmt":
 				vpk.Mods[item.Idx].Category = "Misc"
-				vpk.Mods[item.Idx].SubType = "Materials"
+				vpk.Mods[item.Idx].SubCategory = "Materials"
 			case "vtf":
 				vpk.Mods[item.Idx].Category = "Misc"
-				vpk.Mods[item.Idx].SubType = "Materials"
+				vpk.Mods[item.Idx].SubCategory = "Materials"
 			case "nut":
-				vpk.Mods[item.Idx].Category = "Script"
+				vpk.Mods[item.Idx].Category = "Scripts"
 			case "txt":
-				vpk.Mods[item.Idx].Category = "Script"
+				vpk.Mods[item.Idx].Category = "Scripts"
 			case "pcf":
 				vpk.Mods[item.Idx].Category = "Misc"
-				vpk.Mods[item.Idx].SubType = "Particles"
+				vpk.Mods[item.Idx].SubCategory = "Particles"
 			default:
 				vpk.Mods[item.Idx].Category = "Misc"
-				vpk.Mods[item.Idx].SubType = "Other"
+				vpk.Mods[item.Idx].SubCategory = "Other"
 			}
 		}
 	}
@@ -766,7 +792,6 @@ func getDominantExtension(exCounts map[string]int, metadataLength int) string {
 			exf = float64(v) / float64(metadataLength)
 			ex = k
 		}
-
 	}
 	return ex
 }

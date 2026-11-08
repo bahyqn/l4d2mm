@@ -7,11 +7,11 @@ import (
 )
 
 // used to select categories that vpks you have
-var ModsCategoris = []gui.SelectOption{}
+// var DynamicCategories = []gui.SelectOption{}
 
 // used to quick find
-var Categoris = []gui.SelectOption{}
-var ModLables = map[string][]gui.SelectOption{}
+var DynamicCategories = []gui.SelectOption{}
+var DynamicSubCategories = map[string][]gui.SelectOption{}
 var MDL = map[string]schema.VPKCategory{}
 
 var LABELS = []schema.VPKLabel{
@@ -538,27 +538,27 @@ var LABELS = []schema.VPKLabel{
 
 func PrepareLabels() {
 
-	key := ""
+	// key := ""
 
-	// ModsCategoris = append(ModsCategoris, gui.SelectOption{
-	// 	Label: "All",
-	// 	Value: "All",
-	// })
+	DynamicCategories = append(DynamicCategories, gui.SelectOption{
+		Label: "All",
+		Value: "All",
+	})
 	for _, item := range LABELS {
-		ModsCategoris = append(ModsCategoris, gui.SelectOption{
-			Label: item.Label,
-			Value: item.Label,
-		})
+		// DynamicCategories = append(DynamicCategories, gui.SelectOption{
+		// 	Label: item.Label,
+		// 	Value: item.Label,
+		// })
 
 		if len(item.SubType) > 0 {
 			for _, sub := range item.SubType {
-				if key != sub.Label {
-					ModLables[item.Label] = append(ModLables[item.Label], gui.SelectOption{
-						Label: sub.Label,
-						Value: sub.Label,
-					})
-				}
-				key = sub.Label
+				// if key != sub.Label {
+				// 	DynamicSubCategories[item.Label] = append(DynamicSubCategories[item.Label], gui.SelectOption{
+				// 		Label: sub.Label,
+				// 		Value: sub.Label,
+				// 	})
+				// }
+				// key = sub.Label
 
 				MDL[sub.Key] = schema.VPKCategory{
 					Category: item.Label,
@@ -566,7 +566,7 @@ func PrepareLabels() {
 				}
 			}
 		} else {
-			ModLables[item.Label] = []gui.SelectOption{}
+			DynamicSubCategories[item.Label] = []gui.SelectOption{}
 		}
 	}
 }
@@ -624,7 +624,7 @@ var AllSourceModes = []gui.SelectOption{
 	},
 }
 
-// var ModsCategoris = []gui.SelectOption{
+// var DynamicCategories = []gui.SelectOption{
 // 	{
 // 		Label: "All",
 // 		Value: "All",
@@ -683,7 +683,7 @@ var AllSourceModes = []gui.SelectOption{
 // 	},
 // }
 
-// var ModLables = map[string][]gui.SelectOption{
+// var DynamicSubCategories = map[string][]gui.SelectOption{
 // 	"All":         {},
 // 	"Maps":        {},
 // 	"Collections": {},

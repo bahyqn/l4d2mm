@@ -54,6 +54,7 @@ func Input(text string) gui.View {
 		panic("invalid input theme key")
 	}
 
+	cfg.Placeholder = "UNAVAILABLE"
 	cfg.Text = text
 	cfg.OnTextChanged = func(s string, ec gui.EventCtx) {
 		internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue = s
