@@ -18,7 +18,6 @@ var assetFiles embed.FS
 func main() {
 	internal.PrepareLabels()
 
-
 	app := internal.NewApp(assetFiles)
 	cfg := gui.ThemeLight.WithBorders(true).Cfg
 	cfg.ToastAnchor = gui.Some(gui.ToastTopRight)

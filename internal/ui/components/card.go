@@ -219,3 +219,42 @@ func imgStat(imgPath string) string {
 	}
 	return imgPath
 }
+
+// func img(mod *schema.Mod) gui.View {
+// 	// if mod.IsFromWorkshop {
+// 	// 	return imgStat(filepath.Join(internal.GLOBALAPP.DI.Vpk.WorkshopDir, mod.ID+".jpg"))
+// 	// }
+// 	// return imgStat(filepath.Join(internal.GLOBALAPP.DI.Vpk.AddonsDir, mod.ID+".jpg"))
+
+// 	imgPath := imgStat(filepath.Join(internal.GLOBALAPP.DI.Vpk.WorkshopDir, mod.ID+".jpg"))
+
+// 	if imgPath == "" {
+// 		return gui.Image(gui.ImageCfg{
+// 			ID:    "img-" + mod.ID,
+// 			Src:   imgPath,
+// 			Width: cardWidth,
+// 			// MaxWidth:  cardWidth,
+// 			Height:    imgHeight,
+// 			MaxHeight: imgHeight,
+// 		})
+// 	}
+
+// 	return gui.Image(gui.ImageCfg{
+// 		ID:    "img-" + mod.ID,
+// 		Src:   imgPath,
+// 		Width: cardWidth,
+// 		// MaxWidth:  cardWidth,
+// 		Height:    imgHeight,
+// 		MaxHeight: imgHeight,
+// 	})
+// }
+
+// func imgStat(imgPath string) string {
+// 	_, err := os.Stat(imgPath)
+// 	if err != nil {
+// 		if os.IsNotExist(err) {
+// 			return ""
+// 		}
+// 	}
+// 	return imgPath
+// }

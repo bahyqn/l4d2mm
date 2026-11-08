@@ -64,8 +64,6 @@ func Select(selectConfig schema.TemplateSelect) gui.View {
 
 func SelectSourceMode() {
 	// src := internal.GLOBALAPP.DI.Vpk.Mods
-	internal.QueryVPKs()
-
 	pageMods := &internal.GLOBALAPP.ComponentStatus.PageMods
 	tmp := make([]*schema.Mod, len(pageMods.ModsBySelectIdx))
 	copy(tmp, pageMods.ModsBySelectIdx)

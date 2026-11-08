@@ -66,6 +66,7 @@ func ModsHeader() gui.View {
 				// 	return
 				// }
 				internal.QueryVPKs()
+				SelectSourceMode()
 			},
 		}),
 	}
@@ -90,7 +91,7 @@ func ModsHeader() gui.View {
 				// 	}
 				// }
 				internal.QueryVPKs()
-				internal.GLOBALAPP.DynamicPageSelect()
+				SelectSourceMode()
 			},
 		}))
 	}
@@ -116,6 +117,7 @@ func ModsHeader() gui.View {
 		Options:  internal.AllSourceModes,
 		OnSelectFunc: func(s []string, ec gui.EventCtx) {
 			pageMods.SourceMode = s[0]
+			internal.QueryVPKs()
 			SelectSourceMode()
 			// internal.GLOBALAPP.Refresh()
 			// fmt.Println(len(internal.GLOBALAPP.ComponentStatus.PageMods.ModsBySelectIdx))

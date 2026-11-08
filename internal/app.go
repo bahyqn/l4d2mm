@@ -90,6 +90,7 @@ func NewApp(as embed.FS) *App {
 	}
 
 	GLOBALAPP.setupSvg()
+	// GLOBALAPP.setDefaultVPKPng()
 	GetSubCategories(GLOBALAPP.ComponentStatus.PageMods.SelectedategoryLabel[0])
 	return GLOBALAPP
 }
@@ -114,6 +115,20 @@ func (app *App) Prepare() {
 func (app *App) SetTheme(theme gui.Theme) {
 	gui.SetTheme(theme)
 }
+
+// func (app *App) setupDefaultVPKPng() {
+// 	logoBytes, err := app.assetfile.ReadDir("assets/imgs/l4d2.png")
+// 	if err != nil {
+// 		log.Fatalf("failed to read embedded logo: %v", err)
+// 		return
+// 	}
+
+// 	logoSrc, err := gui.UseEncodedImage("myapp/logo", logoBytes)
+// 	if err != nil {
+// 		log.Fatalf("failed to encode logo: %v", err)
+// 	}
+// 	app.AppConfig.DefaultVPKPng = logoSrc
+// }
 
 func (app *App) setupSvg() {
 	entries, err := app.assetfile.ReadDir("assets/icons")

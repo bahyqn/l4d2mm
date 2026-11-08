@@ -101,8 +101,9 @@ type AppConfig struct {
 	Height     float32 `gorm:"-"`
 	AsideWidth float32 `gorm:"-"`
 
-	Svg   map[string]string `gorm:"-"`
-	Theme string            `gorm:"column:theme"`
+	Svg           map[string]string `gorm:"-"`
+	DefaultVPKPng string
+	Theme         string `gorm:"column:theme"`
 
 	// automatic get value by FetchTables(sqlite.go)
 	GamePath           string `gorm:"column:game_path"`
