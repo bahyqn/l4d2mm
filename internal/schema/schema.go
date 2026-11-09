@@ -192,7 +192,7 @@ type ToolCardInfo struct {
 	OnClick     func()
 }
 
-type SettingRowConfig struct {
+type PreferenceRowConfig struct {
 	ColumnID           string
 	PrimaryTextID      string
 	PrimaryTextLabel   string
@@ -211,4 +211,16 @@ type TableConfig struct {
 type TableField struct {
 	MinWidth float32
 	Text     string
+}
+
+// settings page
+type SettingsGroupConfig struct {
+	Title string
+	Rows  []SettingsRowConfig
+}
+
+type SettingsRowConfig struct {
+	LeftRowTitle    string
+	LeftRowSubTitle string
+	RightView       gui.View
 }

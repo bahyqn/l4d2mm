@@ -26,7 +26,7 @@ func TextModsAcount() gui.View {
 	})
 }
 
-func SettingRow(settingRow schema.SettingRowConfig) gui.View {
+func SettingRow(settingRow schema.PreferenceRowConfig) gui.View {
 	return gui.Column(gui.ContainerCfg{
 		ID:      settingRow.ColumnID,
 		Padding: gui.NoPadding,

@@ -83,7 +83,7 @@ func NewApp(as embed.FS) *App {
 
 			Theme:    "gnome",
 			GamePath: "",
-			GameName: []string{""},
+			GameName: []string{"l4d2"},
 		},
 		DI: DIContainer{
 			SQL:    nil,

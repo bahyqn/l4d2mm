@@ -603,3 +603,36 @@ func ButtonSyncAddonToAddonlist() gui.View {
 
 	return gui.Button(cfg)
 }
+
+func ButtonCheckForUpdates() gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
+	if !ok {
+		panic("[Button check for updates]Invalid select theme key")
+	}
+
+	ButtonWithText(&cfg, "bth-check-for-updates", "bth-text-check-fro-updates", "Check for Updates")
+	cfg.Width = 180
+	cfg.Colors.Base = theme.DefaultLightGNOME().ButtonActive
+	cfg.OnClick = func(ec gui.EventCtx) {
+	}
+
+	return gui.Button(cfg)
+}
+
+func ButtonLaunchGameFolder() gui.View {
+	cfg, ok := DefaultButtonConfig[internal.GLOBALAPP.AppConfig.Theme]
+	if !ok {
+		panic("[Button open game folder]Invalid select theme key")
+	}
+
+	ButtonWithIcon(&cfg, "bth-launch-game-folder", "bth-text-launch-game-folder", internal.GLOBALAPP.GetSvg("folder_open"), theme.DefaultTheme.HeaderIconSize)
+	// cfg.Width = 180
+	cfg.Colors.Base = theme.DefaultLightGNOME().ButtonActive
+	cfg.OnClick = func(ec gui.EventCtx) {
+		if err := internal.OpenFolder(internal.GLOBALAPP.AppConfig.GamePath); err != nil {
+			internal.ToastFailed("", "Path is invalid.")
+		}
+	}
+
+	return gui.Button(cfg)
+}

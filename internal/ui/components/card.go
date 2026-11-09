@@ -220,41 +220,80 @@ func imgStat(imgPath string) string {
 	return imgPath
 }
 
-// func img(mod *schema.Mod) gui.View {
-// 	// if mod.IsFromWorkshop {
-// 	// 	return imgStat(filepath.Join(internal.GLOBALAPP.DI.Vpk.WorkshopDir, mod.ID+".jpg"))
-// 	// }
-// 	// return imgStat(filepath.Join(internal.GLOBALAPP.DI.Vpk.AddonsDir, mod.ID+".jpg"))
+func SettingsGroup(data *schema.SettingsGroupConfig) gui.View {
+	groups := []gui.View{}
 
-// 	imgPath := imgStat(filepath.Join(internal.GLOBALAPP.DI.Vpk.WorkshopDir, mod.ID+".jpg"))
+	rowAmount := len(data.Rows) - 2
 
-// 	if imgPath == "" {
-// 		return gui.Image(gui.ImageCfg{
-// 			ID:    "img-" + mod.ID,
-// 			Src:   imgPath,
-// 			Width: cardWidth,
-// 			// MaxWidth:  cardWidth,
-// 			Height:    imgHeight,
-// 			MaxHeight: imgHeight,
-// 		})
-// 	}
+	for i, el := range data.Rows {
+		groups = append(groups, gui.Row(gui.ContainerCfg{
+			ID:      "card-container",
+			Sizing:  gui.FillFit,
+			Padding: gui.NoPadding,
+			VAlign:  gui.VAlignMiddle,
+			Content: []gui.View{
+				gui.Column(gui.ContainerCfg{
+					ID:      "left-row",
+					Sizing:  gui.FitFit,
+					Spacing: gui.SpacingPx(5),
+					Padding: gui.NewPadding(5, 15, 5, 15),
+					Content: []gui.View{
+						gui.Text(gui.TextCfg{
+							ID:   "left-row-title-",
+							Text: el.LeftRowTitle,
+							TextStyle: gui.TextStyle{
+								Color:  theme.DefaultTheme.TextPrimary,
+								Size:   16,
+								Family: "500",
+							},
+						}),
+						gui.Text(gui.TextCfg{
+							ID:   "left-row-sub-title",
+							Text: el.LeftRowSubTitle,
+							TextStyle: gui.TextStyle{
+								Color: theme.DefaultTheme.TextDim,
+								Size:  12,
+							},
+						}),
+					},
+				}),
+				HorizontalSpacer(),
+				el.RightView,
+				HorizontalGap(7, gui.FixedFit),
+			},
+		}))
 
-// 	return gui.Image(gui.ImageCfg{
-// 		ID:    "img-" + mod.ID,
-// 		Src:   imgPath,
-// 		Width: cardWidth,
-// 		// MaxWidth:  cardWidth,
-// 		Height:    imgHeight,
-// 		MaxHeight: imgHeight,
-// 	})
-// }
+		if i <= rowAmount {
+			groups = append(groups, HDivider(1))
+		}
+	}
 
-// func imgStat(imgPath string) string {
-// 	_, err := os.Stat(imgPath)
-// 	if err != nil {
-// 		if os.IsNotExist(err) {
-// 			return ""
-// 		}
-// 	}
-// 	return imgPath
-// }
+	return gui.Column(gui.ContainerCfg{
+		ID:       "settings-row-outter-container",
+		Width:    700,
+		MaxWidth: 700,
+		Padding:  gui.NoPadding,
+		Sizing:   gui.FixedFit,
+		Content: []gui.View{
+			gui.Text(gui.TextCfg{
+				ID:   "settings-row-outter-title",
+				Text: data.Title,
+				TextStyle: gui.TextStyle{
+					Color: theme.DefaultTheme.TextPrimary,
+					Size:  16,
+				}.Bold(),
+			}),
+
+			// innner card container
+			gui.Column(gui.ContainerCfg{
+				ID:          "inner-container-",
+				Sizing:      gui.FillFit,
+				Padding:     gui.NewPadding(10, 10, 10, 10),
+				SizeBorder:  gui.BorderPx(2),
+				ColorBorder: theme.DefaultTheme.BorderColor,
+				Radius:      gui.RadiusPx(10),
+				Content:     groups,
+			}),
+		},
+	})
+}

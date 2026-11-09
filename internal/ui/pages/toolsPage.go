@@ -220,7 +220,7 @@ func addCollection() gui.View {
 						},
 					}),
 					components.HorizontalGap(10, gui.FixedFill),
-					components.SettingRow(schema.SettingRowConfig{
+					components.SettingRow(schema.PreferenceRowConfig{
 						ColumnID:           "column-enable-collection",
 						PrimaryTextID:      "toggle-enable-collection-title",
 						PrimaryTextLabel:   "Apply collection",
