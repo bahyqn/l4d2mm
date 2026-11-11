@@ -1,0 +1,162 @@
+name: Build
+
+on:
+    push:
+        branches: [main, dev]
+        tags: ["v*"]
+    pull_request:
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+env:
+    # Pinned so the CI output stays reproducible. Go + cgo cross-compiles
+    # (including mattn/go-sqlite3) are verified against this version.
+    ZIG_VERSION: "0.14.1"
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+jobs:
+    # One job per target, each producing exactly one standalone application,
+    # named the same way the Makefile does (see Makefile `windows-amd64` etc.):
+    #   build/l4d2mm_windows_amd64.exe
+    #   build/l4d2mm_windows_arm64.exe
+    #   build/l4d2mm_linux_amd64
+    #   build/l4d2mm_linux_arm64
+    build:
+        name: ${{ matrix.goos }}-${{ matrix.goarch }}
+        runs-on: debian-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - goos: windows
+                      goarch: amd64
+                      ext: .exe
+                      zig_target: x86_64-windows-gnu
+                    - goos: windows
+                      goarch: arm64
+                      ext: .exe
+                      zig_target: aarch64-windows-gnu
+                    - goos: linux
+                      goarch: amd64
+                      ext: ""
+                      zig_target: "" # native gcc on the runner
+                    - goos: linux
+                      goarch: arm64
+                      ext: ""
+                      zig_target: aarch64-linux-gnu
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up Go
+              uses: actions/setup-go@v5
+              with:
+                  go-version-file: go.mod
+                  cache: true
+
+            - name: Set up Zig (cgo cross-compiler)
+              if: matrix.zig_target != ''
+              uses: mlugg/setup-zig@v2
+              with:
+                  version: ${{ env.ZIG_VERSION }}
+
+            - name: Download dependencies
+              run: go mod download
+
+            - name: Build ${{ matrix.goos }}-${{ matrix.goarch }}
+              shell: bash
+              run: |
+                  set -euo pipefail
+
+                  # Same artifact names as the Makefile (Makefile:33-47).
+                  output="build/l4d2mm_${{ matrix.goos }}_${{ matrix.goarch }}${{ matrix.ext }}"
+                  mkdir -p build
+
+                  # CGO is required because gorm.io/driver/sqlite pulls in
+                  # mattn/go-sqlite3. Use Zig as the cross C compiler when the
+                  # target is not the runner's native platform.
+                  build_env=(CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }})
+                  cc_display=gcc
+                  if [ -n "${{ matrix.zig_target }}" ]; then
+                    build_env+=(CC="zig cc -target ${{ matrix.zig_target }}")
+                    cc_display="zig cc -target ${{ matrix.zig_target }}"
+                  fi
+
+                  echo "Building ${output} (CC=${cc_display})..."
+                  env "${build_env[@]}" go build -trimpath -ldflags="-s -w" -o "$output" .
+
+                  file "$output"
+                  ls -lh "$output"
+
+            - name: Upload ${{ matrix.goos }}-${{ matrix.goarch }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: l4d2mm_${{ matrix.goos }}_${{ matrix.goarch }}
+                  path: build/l4d2mm_${{ matrix.goos }}_${{ matrix.goarch }}${{ matrix.ext }}
+                  if-no-files-found: error
+
+    # Releases are published only from `main`. A v* tag pushed on any other
+    # branch (e.g. `dev`) still runs the build, but this job fails fast instead
+    # of publishing.
+    release:
+        name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: build
+        runs-on: debian-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Verify the tag is on main
+              run: |
+                  set -euo pipefail
+                  git fetch --no-tags origin main
+                  if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+                    echo "::error::Tag $GITHUB_REF_NAME is not reachable from main; releases are only published from main."
+                    exit 1
+                  fi
+                  echo "Tag $GITHUB_REF_NAME is on main, publishing release."
+
+            - name: Download all build artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  path: build
+                  merge-multiple: true
+
+            - name: Publish release assets
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  GH_REPO: ${{ github.repository }}
+              run: |
+                  set -euo pipefail
+                  ls -lh build
+
+                  TAG_NAME="${GITHUB_REF_NAME}"
+                  CLEAN_TAG="${TAG_NAME#v}"
+
+                  echo "正在从 CHANGELOG.md 中提取 ${TAG_NAME} 的更新日志..."
+
+                  if [ -f CHANGELOG.md ]; then
+                    awk -v tag="$TAG_NAME" -v clean_tag="$CLEAN_TAG" '
+                      index($0, tag) > 0 { printing=1; next }
+                      printing && /^## / { exit }
+                      printing { print }
+                    ' CHANGELOG.md > release_body.md
+                  fi
+
+                  if [ ! -s release_body.md ]; then
+                    echo "::warning::未能在 CHANGELOG.md 中找到对应 ${TAG_NAME} 的条目，将使用默认说明。"
+                    echo "Release ${TAG_NAME}" > release_body.md
+                  fi
+
+                  gh release create "$TAG_NAME" build/* \
+                    --title "$TAG_NAME" \
+                    --notes-file release_body.md

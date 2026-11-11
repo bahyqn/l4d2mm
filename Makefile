@@ -32,19 +32,19 @@ arm64: windows-arm64 linux-arm64
 # ==========================================
 windows-amd64:
 	@echo "Building for Windows (amd64)..."
-	GOOS=windows GOARCH=amd64 go build -o $(BUILD_DIR)/$(APP_NAME)_windows_amd64/$(APP_NAME).exe $(SRC_ENTRY)
+	GOOS=windows GOARCH=amd64 go build -o $(BUILD_DIR)/$(APP_NAME)_windows_amd64.exe $(SRC_ENTRY)
 
 windows-arm64:
 	@echo "Building for Windows (arm64)..."
-	GOOS=windows GOARCH=arm64 go build -o $(BUILD_DIR)/$(APP_NAME)_windows_arm64/$(APP_NAME).exe $(SRC_ENTRY)
+	GOOS=windows GOARCH=arm64 go build -o $(BUILD_DIR)/$(APP_NAME)_windows_arm64.exe $(SRC_ENTRY)
 
 linux-amd64:
 	@echo "Building for Linux (amd64)..."
-	GOOS=linux GOARCH=amd64 go build -o $(BUILD_DIR)/$(APP_NAME)_linux_amd64/$(APP_NAME) $(SRC_ENTRY)
+	GOOS=linux GOARCH=amd64 go build -o $(BUILD_DIR)/$(APP_NAME)_linux_amd64 $(SRC_ENTRY)
 
 linux-arm64:
 	@echo "Building for Linux (arm64)..."
-	GOOS=linux GOARCH=arm64 go build -o $(BUILD_DIR)/$(APP_NAME)_linux_arm64/$(APP_NAME) $(SRC_ENTRY)
+	GOOS=linux GOARCH=arm64 go build -o $(BUILD_DIR)/$(APP_NAME)_linux_arm64 $(SRC_ENTRY)
 
 # ==========================================
 # Clean build artifacts
