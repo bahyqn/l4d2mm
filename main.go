@@ -1,8 +1,10 @@
 package main
 
 import (
+	"embed"
+
 	"l4d2mm/internal"
-	"l4d2mm/internal/theme"
+	theme "l4d2mm/internal/theme"
 	"l4d2mm/internal/ui/components"
 	"l4d2mm/internal/ui/pages"
 
@@ -10,21 +12,28 @@ import (
 	"github.com/go-gui-org/go-gui/gui/backend"
 )
 
+//go:embed assets/*
+var assetFiles embed.FS
+
 func main() {
-	gui.SetTheme(gui.ThemeLight.WithBorders(true))
+	internal.PrepareLabels()
+
+	app := internal.NewApp(assetFiles)
+	cfg := gui.ThemeLight.WithBorders(true).Cfg
+	cfg.ToastAnchor = gui.Some(gui.ToastTopRight)
+	gui.SetTheme(gui.ThemeMaker(cfg))
 
 	w := gui.NewWindow(gui.WindowCfg{
-		State:     internal.NewApp(),
+		State:     app,
 		Title:     "l4d2mm",
 		Width:     int(internal.GLOBALAPP.AppConfig.Width),
 		Height:    int(internal.GLOBALAPP.AppConfig.Height),
-		FixedSize: false,
+		FixedSize: true,
 		OnInit: func(w *gui.Window) {
-
-			// vpk := internal.Vpk{}
-			// vpk.ReadAllVpk()
 			internal.GLOBALAPP.RegisterAllDependencies(w)
-			w.UpdateView(mainView)
+			internal.GLOBALAPP.Prepare()
+
+			w.SetView(mainView)
 		},
 	})
 
@@ -32,7 +41,6 @@ func main() {
 }
 
 func mainView(w *gui.Window) gui.View {
-
 	return gui.Row(gui.ContainerCfg{
 		Sizing: gui.FillFill,
 		// HAlign: gui.HAlignCenter,

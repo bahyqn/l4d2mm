@@ -11,35 +11,39 @@ import (
 // func OnTextChanged needs to be parameter!!!
 var DefaultInputConfig = map[string]gui.InputCfg{
 	"gnome": {
-		ID:          "mods-searchinput",
-		Width:       120,
-		MaxWidth:    120,
-		Height:      26,
-		MaxHeight:   26,
+		ID:       "mods-searchinput",
+		Width:    180,
+		MaxWidth: 180,
+		// Height:      38,
+		Height:      theme.DefaultTheme.HeaderMaxHeight,
+		MaxHeight:   theme.DefaultTheme.HeaderMaxHeight,
 		Sizing:      gui.FillFill,
 		Placeholder: "Search mods...",
 		SpellCheck:  true,
 
-		Color:            theme.DefaultLightGNOME().ViewBackground,
-		ColorHover:       theme.DefaultLightGNOME().ViewBackground,
-		ColorBorder:      theme.DefaultLightGNOME().ButtonActive,
-		ColorBorderFocus: gui.RGBA(0, 0, 0, 90),
-		Radius:           gui.SomeF(6),
-		SizeBorder:       gui.SomeF(1),
-		Padding:          gui.NewPadding(6, 10, 6, 10),
+		Color: theme.DefaultLightGNOME().ViewBackground,
+		Colors: gui.ColorSet{
+			Base:        theme.DefaultLightGNOME().ViewBackground,
+			Hover:       theme.DefaultLightGNOME().ViewBackground,
+			Border:      theme.DefaultLightGNOME().ButtonActive,
+			BorderFocus: gui.RGBA(0, 0, 0, 90),
+		},
+		Radius:     gui.RadiusPx(6),
+		SizeBorder: gui.BorderPx(1),
+		Padding:    gui.NewPadding(6, 10, 6, 10),
 
 		TextStyle: gui.TextStyle{
-			Size:  10,
+			Size:  theme.DefaultTheme.HeaderFontSize,
 			Color: gui.RGBA(150, 150, 150, 255),
 		},
 		PlaceholderStyle: gui.TextStyle{
-			Size:  10,
+			Size:  theme.DefaultTheme.HeaderFontSize,
 			Color: gui.RGB(150, 150, 150),
 		},
-		OnTextChanged: func(s string, ec gui.EventCtx) {
-			internal.GLOBALAPP.ComponentStatus.ModsSearchValue = s
-			fmt.Println(s)
-		},
+		// OnTextChanged: func(s string, ec gui.EventCtx) {
+		// 	internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue = s
+		// 	fmt.Println(s)
+		// },
 	},
 }
 
@@ -47,11 +51,67 @@ func Input(text string) gui.View {
 	cfg, ok := DefaultInputConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("invalid input style key")
+		panic("invalid input theme key")
 	}
 
+	cfg.Placeholder = "UNAVAILABLE"
 	cfg.Text = text
-	// cfg.OnTextChanged = textChangeFunc
+	cfg.OnTextChanged = func(s string, ec gui.EventCtx) {
+		internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue = s
+		fmt.Println(s)
+	}
+	cfg.OnTextCommit = func(s string, icr gui.InputCommitReason, ec gui.EventCtx) {
+		// internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue = s
+		fmt.Println("commit: ", s)
+	}
+
+	return gui.Input(cfg)
+}
+
+// tidx: {title, author, url}
+func InputPageModDetails(text string, tidx int) gui.View {
+	cfg, ok := DefaultInputConfig[internal.GLOBALAPP.AppConfig.Theme]
+
+	if !ok {
+		panic("[Input pageModDetails]invalid input theme key")
+	}
+
+	cfg.Width = 510
+	cfg.MaxWidth = 510
+	cfg.Text = text
+
+	cfg.OnTextChanged = func(s string, ec gui.EventCtx) {
+		// internal.GLOBALAPP.ComponentStatus.PageMods.TempModDetailsFields[tidx] = s
+		// fmt.Println("changed", s)
+	}
+	cfg.OnTextCommit = func(s string, icr gui.InputCommitReason, ec gui.EventCtx) {
+		// internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue = s
+		// fmt.Println("commit: ", internal.GLOBALAPP.ComponentStatus.PageMods.TempModDetailsFields[tidx])
+	}
+
+	return gui.Input(cfg)
+}
+
+func InputCollectionName() gui.View {
+	cfg, ok := DefaultInputConfig[internal.GLOBALAPP.AppConfig.Theme]
+
+	if !ok {
+		panic("[Input pageModDetails]invalid input theme key")
+	}
+
+	cfg.Placeholder = "Collection name"
+	cfg.Width = 300
+	cfg.MaxWidth = 300
+	cfg.Text = internal.GLOBALAPP.ComponentStatus.PageTools.CollectionName
+
+	cfg.OnTextChanged = func(s string, ec gui.EventCtx) {
+		// internal.GLOBALAPP.ComponentStatus.PageMods.TempModDetailsFields[tidx] = s
+		internal.GLOBALAPP.ComponentStatus.PageTools.CollectionName = s
+	}
+	cfg.OnTextCommit = func(s string, icr gui.InputCommitReason, ec gui.EventCtx) {
+		// internal.GLOBALAPP.ComponentStatus.PageMods.ModsSearchValue = s
+		// fmt.Println("commit: ", internal.GLOBALAPP.ComponentStatus.PageMods.TempModDetailsFields[tidx])
+	}
 
 	return gui.Input(cfg)
 }

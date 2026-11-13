@@ -1,0 +1,333 @@
+package pages
+
+import (
+	"fmt"
+
+	"l4d2mm/internal"
+	"l4d2mm/internal/schema"
+	"l4d2mm/internal/theme"
+	"l4d2mm/internal/ui/components"
+
+	"github.com/go-gui-org/go-gui/gui"
+)
+
+var cardInfo = []schema.ToolCardInfo{
+	{
+		SvgFilename: "library_add",
+		Title:       "Add a Collection",
+		Describe:    "Create a brand new collection.",
+		OnClick: func() {
+			updateToolPage(1, "Add Collection")
+		},
+	},
+	{
+		SvgFilename: "delete_forever",
+		Title:       "Modify Collections",
+		Describe:    "Add mods in existing ones. Remove an existing collection.",
+		OnClick: func() {
+			updateToolPage(2, "Delete Collections")
+		},
+	},
+	// {
+	// 	SvgFilename: "edit_note",
+	// 	Title:       "Modify Collections",
+	// 	Describe:    "Add or remove mods in existing ones. (UNAVAILABLE)",
+	// 	OnClick: func() {
+	// 		updateToolPage(3, "Modify Collection")
+	// 	},
+	// },
+	{
+		SvgFilename: "category",
+		Title:       "Classify Mods",
+		Describe:    "Auto-categorize & adjust mod types.",
+		OnClick: func() {
+			updateToolPage(4, "Classify Mods")
+		},
+	},
+	{
+		SvgFilename: "warning",
+		Title:       "Conflict Detection",
+		Describe:    "Detect conflicts by category or collection. (UNAVAILABLE)",
+		OnClick: func() {
+			updateToolPage(5, "Conflict Detective")
+		},
+	},
+	{
+		SvgFilename: "edit_document",
+		Title:       "Edit GameInfo",
+		Describe:    "Configure game search paths & mod loading. (UNAVAILABLE)",
+		OnClick: func() {
+			updateToolPage(6, "Edit GameInfo")
+		},
+	},
+	{
+		// SvgFilename: "arrow_left_alt",
+		SvgFilename: "sync_alt",
+		Title:       "Addon Sync",
+		Describe:    "Bidirectional sync between addlist.txt and SQLite. Update either side using the other as the source of truth.",
+		OnClick: func() {
+			updateToolPage(7, "Addon Sync")
+		},
+	},
+	// {
+	// 	SvgFilename: "arrow_right_alt",
+	// 	Title:       "Sync Addonlist to DB",
+	// 	Describe:    "Update app database with in-game toggle states and scan for newly added VPKs.",
+	// 	OnClick: func() {
+	// 		// updateToolPage(8, "Sync Addonlist to DB")
+	// 		internal.GLOBALAPP.DI.Vpk.SyncAddonlistToDB()
+	// 	},
+	// },
+	{
+		SvgFilename: "drive_file_move",
+		Title:       "Move VPKs",
+		Describe:    "Batch move all VPKs from Steam Workshop folder to the app managed folder. (UNAVAILABLE)",
+		OnClick: func() {
+			updateToolPage(8, "Move VPKs")
+		},
+	},
+}
+
+func updateToolPage(idx int, s string) {
+	internal.GLOBALAPP.ComponentStatus.SubAsideIndices[internal.GLOBALAPP.ComponentStatus.AsideIdx] = idx
+	internal.AppendBreadCrumb(s)
+}
+
+var s string
+
+func ToolsPage() gui.View {
+	app := internal.GLOBALAPP.ComponentStatus
+
+	bread := []gui.BreadcrumbItemCfg{}
+	comps := []gui.View{}
+
+	for _, el := range app.PageTools.BreadCrumb {
+		bread = append(bread, gui.NewBreadcrumbItem(el, el, nil))
+	}
+
+	comps = append(comps, gui.Breadcrumb(gui.BreadcrumbCfg{
+		ID: "tools-nav",
+		TextStyle: gui.TextStyle{
+			Size:     14,
+			Color:    gui.RGBA(0, 0, 0, 255),
+			Typeface: gui.DefaultTextStyle.Italic().Typeface,
+		},
+		Items:    bread,
+		Selected: s,
+		OnSelect: func(s string, ec gui.EventCtx) {
+			if s == "Tools" {
+				internal.BackPageTools()
+			}
+		},
+	}))
+
+	comps = append(comps, components.VerticalGap(3, gui.FixedFixed))
+	comps = append(comps, components.HDivider(2))
+
+	// if app.SubAsideIndices.
+	switch app.SubAsideIndices[3] {
+	case 0:
+		comps = append(comps, sectionHeader("COLLECTION MANAGEMENT"))
+		comps = append(comps, rowCard(cardInfo[:2]))
+		comps = append(comps, sectionHeader("UTILITIES & DIAGNOSTICS"))
+		comps = append(comps, rowCard(cardInfo[2:5]))
+		comps = append(comps, sectionHeader("MOD & CONFIG SYNCHRONIZATION"))
+		comps = append(comps, rowCard(cardInfo[5:]))
+	case 1:
+		comps = append(comps, addCollection())
+	case 2:
+		comps = append(comps, modifyCollections())
+	case 4:
+		comps = append(comps, vpkClassify())
+	case 7:
+		comps = append(comps, addonSync())
+
+	}
+
+	return gui.Column(gui.ContainerCfg{
+		ID:      "page-tools",
+		Sizing:  gui.FillFill,
+		Spacing: gui.NoSpacing,
+		Content: comps,
+	})
+}
+
+func sectionHeader(text string) gui.View {
+	return gui.Column(gui.ContainerCfg{
+		ID:      "section-header-" + text,
+		Padding: gui.NewPadding(20, 14, 14, 14),
+		Content: []gui.View{
+			gui.Text(gui.TextCfg{
+				ID:   "text-" + text,
+				Text: text,
+				TextStyle: gui.TextStyle{
+					Size:  16,
+					Color: theme.DefaultTheme.SecondaryLabel,
+				},
+			}),
+		},
+	})
+}
+
+func rowCard(slice []schema.ToolCardInfo) gui.View {
+	comps := []gui.View{}
+
+	for _, el := range slice {
+		comps = append(comps, components.ToolCard(el))
+	}
+
+	return gui.Row(gui.ContainerCfg{
+		ID:      "tools-card-warp",
+		Sizing:  gui.FitFit,
+		Wrap:    true,
+		Spacing: gui.SpacingPx(20),
+		Padding: gui.NewPadding(0, 14, 0, 14),
+		Content: comps,
+		OnClick: func(ec gui.EventCtx) {},
+	})
+}
+
+// AsideIdx:        3,
+// SubAsideIndices: [6]int{0, 0, 0, 1, 0, 0},
+func addCollection() gui.View {
+	return gui.Column(gui.ContainerCfg{
+		ID:      "add-collection",
+		Sizing:  gui.FillFit,
+		Padding: gui.NewPadding(14, 200, 14, 200),
+		HAlign:  gui.HAlignCenter,
+		Content: []gui.View{
+			gui.Row(gui.ContainerCfg{
+				ID:     "",
+				Sizing: gui.FillFill,
+				Content: []gui.View{
+					components.InputCollectionName(),
+					components.TextModsAcount(),
+					components.VerticalSpacer(),
+					components.ButtonAddCollection(),
+				},
+			}),
+			gui.Row(gui.ContainerCfg{
+				ID:     "add-collection-describe-block",
+				Sizing: gui.FillFit,
+				Content: []gui.View{
+					gui.Toggle(gui.ToggleCfg{
+						ID:         "toggle-enable-collection",
+						TextSelect: "✔",
+						Selected:   internal.GLOBALAPP.ComponentStatus.PageTools.ApplyCollection,
+						Size:       gui.SomeF(30),
+						OnClick: func(ec gui.EventCtx) {
+							internal.GLOBALAPP.ComponentStatus.PageTools.ApplyCollection = !internal.GLOBALAPP.ComponentStatus.PageTools.ApplyCollection
+						},
+					}),
+					components.HorizontalGap(10, gui.FixedFill),
+					components.SettingRow(schema.PreferenceRowConfig{
+						ColumnID:           "column-enable-collection",
+						PrimaryTextID:      "toggle-enable-collection-title",
+						PrimaryTextLabel:   "Apply collection",
+						SecondaryTextID:    "toggle-enable-collection-description",
+						SecondaryTextLabel: "Check this collection first to apply it when added",
+					}),
+				},
+			}),
+		},
+	})
+}
+
+// AsideIdx:        3,
+// SubAsideIndices: [6]int{0, 0, 0, 2, 0, 0},
+func modifyCollections() gui.View {
+	return gui.Column(gui.ContainerCfg{
+		ID:      "delete-collections-column",
+		Sizing:  gui.FillFill,
+		Padding: gui.NewPadding(14, 100, 14, 100),
+		Content: []gui.View{
+			gui.Row(gui.ContainerCfg{
+				ID:     "delete-collection-header",
+				Sizing: gui.FillFit,
+				Content: []gui.View{
+					components.TextModsAcount(),
+					components.HorizontalSpacer(),
+					components.ButtonAppendToCollections(),
+					components.ButtonDeleteCollections(),
+				},
+			}),
+			components.HDivider(2),
+			components.Table(&internal.GLOBALAPP.ComponentStatus.PageTools.DeleteCollection),
+		},
+	})
+}
+
+// AsideIdx:        4,
+// SubAsideIndices: [6]int{0, 0, 0, 4, 0, 0},
+func vpkClassify() gui.View {
+	return gui.Column(gui.ContainerCfg{
+		ID:     "vpk-classify-container",
+		Sizing: gui.FillFill,
+		Content: []gui.View{
+			gui.Button(gui.ButtonCfg{
+				ID: "bth-classify",
+				Content: []gui.View{
+					gui.Text(gui.TextCfg{
+						ID:   "bth-name",
+						Text: "classify",
+					}),
+				},
+				OnClick: func(ec gui.EventCtx) {
+					internal.GLOBALAPP.DI.Vpk.Classify()
+					if err := internal.GLOBALAPP.DI.SQL.UpdateVPKsCategory(); err != nil {
+						internal.ToastFailed("Classification", fmt.Sprintf("Failed to sync category to sqlite: %v", err))
+						return
+					}
+
+					internal.GenerateDynamicCategorySelect()
+					internal.ToastSuccess("Classification", "VPK classification completed")
+				},
+			}),
+		},
+	})
+}
+
+func addonSync() gui.View {
+	addonlistEnabled := 0
+	addonlistDisabled := 0
+	dbEnabled := 0
+	dbDisabled := 0
+
+	for _, el := range internal.GLOBALAPP.DI.Vpk.AddonlistIdxMap {
+		if el.Value == "0" {
+			addonlistDisabled += 1
+			continue
+		}
+		if el.Value == "1" {
+			addonlistEnabled += 1
+			continue
+		}
+	}
+	for _, el := range internal.GLOBALAPP.DI.Vpk.Mods {
+		if el.IsEnable {
+			dbEnabled += 1
+			continue
+		}
+		dbDisabled += 1
+	}
+
+	return gui.Column(gui.ContainerCfg{
+		ID:     "addon-sync-container",
+		Sizing: gui.FillFill,
+		Content: []gui.View{
+			gui.Row(gui.ContainerCfg{
+				ID:     "addon-sync-header",
+				Sizing: gui.FillFit,
+				Content: []gui.View{
+					components.ButtonReloadAddonlist(),
+					components.HorizontalSpacer(),
+					components.ButtonSyncAddonToAddonlist(),
+					components.ButtonSyncAddonToDB(),
+				},
+			}),
+			components.HDivider(2),
+			components.TextVPKBoard("Addonlist", addonlistEnabled, addonlistDisabled),
+			components.TextVPKBoard("Sqlite", dbEnabled, dbDisabled),
+		},
+	})
+}

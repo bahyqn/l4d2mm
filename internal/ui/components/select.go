@@ -1,6 +1,8 @@
 package components
 
 import (
+	"sort"
+
 	"l4d2mm/internal"
 	"l4d2mm/internal/schema"
 	"l4d2mm/internal/theme"
@@ -10,32 +12,30 @@ import (
 
 var DefaultSelectConfig = map[string]gui.SelectCfg{
 	"gnome": {
-		MaxWidth:    100,
-		MinWidth:    100,
+		MaxWidth:    180,
+		MinWidth:    180,
 		Sizing:      gui.FillFit,
 		ID:          "",
 		Placeholder: "",
 		Selected:    []string{},
-		Options:     []string{},
+		Options:     []gui.SelectOption{},
 
-		Color:            theme.DefaultLightGNOME().ViewBackground,
-		ColorBorder:      theme.DefaultLightGNOME().ButtonActive,
-		ColorBorderFocus: gui.RGBA(0, 0, 0, 90),
-		Radius:           gui.SomeF(6),
-		SizeBorder:       gui.SomeF(1),
+		Invisible:  false,
+		Color:      theme.DefaultLightGNOME().ViewBackground,
+		Radius:     gui.RadiusPx(6),
+		SizeBorder: gui.BorderPx(1),
 		// v0.51.0
-		Padding: gui.NewPadding(6, 10, 6, 10),
+		Padding: gui.NewPadding(9, 8, 9, 8),
 		// v0.61.0
 		// Padding: gui.NewPadding(6, 10, 6, 10),
 		TextStyle: gui.TextStyle{
-			Size:  10,
+			Size:  theme.DefaultTheme.HeaderFontSize,
 			Color: gui.RGBA(150, 150, 150, 255),
 		},
 		PlaceholderStyle: gui.TextStyle{
-			Size:  10,
+			Size:  theme.DefaultTheme.HeaderFontSize,
 			Color: gui.RGB(150, 150, 150),
 		},
-		ColorFocus: theme.DefaultLightGNOME().WindowBackground,
 		// v0.51.0
 		SubheadingStyle: gui.TextStyle{
 			Color: gui.RGBA(150, 150, 150, 255),
@@ -44,19 +44,121 @@ var DefaultSelectConfig = map[string]gui.SelectCfg{
 	},
 }
 
-func Select(maxWidth float32, selectConfig schema.TemplateSelect) gui.View {
+func Select(selectConfig schema.TemplateSelect) gui.View {
 	cfg, ok := DefaultSelectConfig[internal.GLOBALAPP.AppConfig.Theme]
 
 	if !ok {
-		panic("[Select] Invalid select style key")
+		panic("[Select] Invalid select theme key")
 	}
 
-	cfg.MaxWidth = maxWidth
 	cfg.ID = selectConfig.ID
-	cfg.Placeholder = selectConfig.Options[0]
+	cfg.MaxWidth = selectConfig.MaxWidth
+	cfg.Placeholder = selectConfig.Options[0].Label
 	cfg.Selected = selectConfig.Selected
 	cfg.Options = selectConfig.Options
+	cfg.Invisible = selectConfig.Invisible
 	cfg.OnSelect = selectConfig.OnSelectFunc
 
 	return gui.Select(cfg)
+}
+
+func SelectSourceMode() {
+	// src := internal.GLOBALAPP.DI.Vpk.Mods
+	pageMods := &internal.GLOBALAPP.ComponentStatus.PageMods
+	tmp := make([]*schema.Mod, len(pageMods.ModsBySelectIdx))
+	copy(tmp, pageMods.ModsBySelectIdx)
+
+	switch pageMods.SourceMode {
+	case internal.AllSourceModes[0].Value:	// default
+		pageMods.ModsBySelectIdx = tmp
+
+	case internal.AllSourceModes[1].Value: // Workshop First
+		sort.SliceStable(tmp, func(i, j int) bool {
+			if tmp[i].IsFromWorkshop != tmp[j].IsFromWorkshop {
+				return tmp[i].IsFromWorkshop
+			}
+			return tmp[i].Idx < tmp[j].Idx
+		})
+
+		pageMods.ModsBySelectIdx = tmp
+
+	case internal.AllSourceModes[2].Value: // Local First
+		sort.SliceStable(tmp, func(i, j int) bool {
+			if tmp[i].IsFromWorkshop != tmp[j].IsFromWorkshop {
+				return !tmp[i].IsFromWorkshop //
+			}
+			return tmp[i].Idx < tmp[j].Idx
+		})
+
+		pageMods.ModsBySelectIdx = tmp
+
+	case internal.AllSourceModes[3].Value: // Enable First
+		sort.SliceStable(tmp, func(i, j int) bool {
+			if tmp[i].IsEnable != tmp[j].IsEnable {
+				return tmp[i].IsEnable
+			}
+			return tmp[i].Idx < tmp[j].Idx
+		})
+
+		pageMods.ModsBySelectIdx = tmp
+
+	case internal.AllSourceModes[4].Value: // Disaable First
+		sort.SliceStable(tmp, func(i, j int) bool {
+			if tmp[i].IsEnable != tmp[j].IsEnable {
+				return !tmp[i].IsEnable //
+			}
+			return tmp[i].Idx < tmp[j].Idx
+		})
+
+		pageMods.ModsBySelectIdx = tmp
+
+	case internal.AllSourceModes[5].Value: // Workshop only
+		ttmap := []*schema.Mod{}
+
+		for _, el := range pageMods.ModsBySelectIdx {
+			if el.IsFromWorkshop {
+				ttmap = append(ttmap, el)
+			}
+		}
+
+		pageMods.ModsBySelectIdx = ttmap
+
+	case internal.AllSourceModes[6].Value: // Local only
+		ttmap := []*schema.Mod{}
+
+		for _, el := range pageMods.ModsBySelectIdx {
+			if !el.IsFromWorkshop {
+				ttmap = append(ttmap, el)
+			}
+		}
+
+		pageMods.ModsBySelectIdx = ttmap
+
+	case internal.AllSourceModes[7].Value: // Enable only
+		ttmap := []*schema.Mod{}
+
+		// fmt.Printf("%+v\n", pageMods.ModsBySelectIdx)
+
+		for _, el := range pageMods.ModsBySelectIdx {
+			if el.IsEnable {
+				ttmap = append(ttmap, el)
+			}
+		}
+
+		// fmt.Printf("category: %s, sublabel: %s, mode: %s\n", pageMods.SelectedategoryLabel[0], pageMods.SelectedategoryLabel[0], pageMods.SourceMode)
+		// fmt.Printf("%+v\n", pageMods.ModsBySelectIdx)
+		pageMods.ModsBySelectIdx = ttmap
+
+	case internal.AllSourceModes[8].Value: // Disable only
+		ttmap := []*schema.Mod{}
+
+		for _, el := range pageMods.ModsBySelectIdx {
+			if !el.IsEnable {
+				ttmap = append(ttmap, el)
+			}
+		}
+
+		pageMods.ModsBySelectIdx = ttmap
+	}
+	internal.GLOBALAPP.DynamicPageSelect()
 }

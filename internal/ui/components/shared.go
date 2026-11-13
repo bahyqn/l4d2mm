@@ -14,7 +14,7 @@ func VDividerBywidth(w, h int) gui.View {
 		Width:       float32(w),
 		Height:      float32(h),
 		Color:       theme.DefaultLightGNOME().ViewBackground,
-		SizeBorder:  gui.SomeF(1),
+		SizeBorder:  gui.BorderPx(1),
 		ColorBorder: theme.DefaultLightGNOME().BorderColor,
 		Padding:     gui.NoPadding,
 		Radius:      gui.NoRadius,
@@ -29,7 +29,7 @@ func HDividerByWidth(w, h int) gui.View {
 		Width:       float32(w),
 		Height:      float32(h),
 		Color:       theme.DefaultLightGNOME().ViewBackground,
-		SizeBorder:  gui.SomeF(1),
+		SizeBorder:  gui.BorderPx(1),
 		ColorBorder: theme.DefaultLightGNOME().BorderColor,
 		Padding:     gui.NoPadding,
 		Radius:      gui.NoRadius,
@@ -44,7 +44,7 @@ func VDivider(w int) gui.View {
 		Width:       float32(w),
 		Sizing:      gui.FixedFill,
 		Color:       theme.DefaultLightGNOME().ViewBackground,
-		SizeBorder:  gui.SomeF(1),
+		SizeBorder:  gui.BorderPx(1),
 		ColorBorder: theme.DefaultLightGNOME().BorderColor,
 		Padding:     gui.NoPadding,
 		Radius:      gui.NoRadius,
@@ -58,7 +58,7 @@ func HDivider(h int) gui.View {
 		Height:      float32(h),
 		Sizing:      gui.FillFixed,
 		Color:       theme.DefaultLightGNOME().ViewBackground,
-		SizeBorder:  gui.SomeF(1),
+		SizeBorder:  gui.BorderPx(1),
 		ColorBorder: theme.DefaultLightGNOME().BorderColor,
 		Padding:     gui.NoPadding,
 		Radius:      gui.NoRadius,
@@ -77,18 +77,18 @@ func HorizontalSpacer() gui.View {
 	})
 }
 
-func VerticalGap(w int, size gui.Sizing) gui.View {
+func VerticalGap(h int, size gui.Sizing) gui.View {
 	return gui.Row(gui.ContainerCfg{
-		Width:  float32(w),
-		Height: 1,
+		Width:  1,
+		Height: float32(h),
 		Sizing: size,
 	})
 }
 
-func HorizontalGap(h int, size gui.Sizing) gui.View {
+func HorizontalGap(w int, size gui.Sizing) gui.View {
 	return gui.Column(gui.ContainerCfg{
-		Width:  1,
-		Height: float32(h),
+		Width:  float32(w),
+		Height: 1,
 		Sizing: size,
 	})
 }
